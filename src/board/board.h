@@ -64,12 +64,12 @@ namespace elixir {
         void remove_piece(Square sq, PieceType piece, Color color);
         Piece piece_on(Square sq);
 
-        void set_en_passant_square(Square sq) { en_passant_square = sq; }
-        void set_side_to_move(Color color) { side = color; }
-        void set_castling_rights(Castling rights) { castling_rights = rights; }
-        void set_halfmove_clock(I8 clock) { halfmove_clock = clock; }
-        void set_fullmove_number(I16 number) { fullmove_number = number; }
-        void set_search_ply(I8 ply) { search_ply = ply; }
+        void set_en_passant_square(Square sq) noexcept { en_passant_square = sq; }
+        void set_side_to_move(Color color) noexcept { side = color; }
+        void set_castling_rights(Castling rights) noexcept { castling_rights = rights; }
+        void set_halfmove_clock(I8 clock) noexcept { halfmove_clock = clock; }
+        void set_fullmove_number(I16 number) noexcept { fullmove_number = number; }
+        void set_search_ply(I8 ply) noexcept { search_ply = ply; }
 
         [[nodiscard]] inline Square get_en_passant_square() const noexcept { return en_passant_square; }
         [[nodiscard]] inline Color get_side_to_move() const noexcept { return side; }
@@ -78,11 +78,11 @@ namespace elixir {
         [[nodiscard]] inline I16 get_fullmove_number() const noexcept { return fullmove_number; }
         [[nodiscard]] inline I8 get_search_ply() const noexcept { return search_ply; }
 
-        void clear_board();
+        void clear_board() noexcept;
         void from_fen(std::string fen);
         void to_startpos();
 
-        void print_castling_rights();
+        void print_castling_rights() const noexcept;
         void print_board();
     private:
         std::array<Bitboard, 2> b_occupancies{};

@@ -55,7 +55,7 @@ namespace elixir {
         return Piece::NO_PIECE;
     }
 
-    void Board::print_castling_rights() {
+    void Board::print_castling_rights() const noexcept {
         if (castling_rights == 0) {
             std::cout << "-";
         } else {
@@ -116,7 +116,7 @@ namespace elixir {
 
     }
 
-    void Board::clear_board() {
+    void Board::clear_board() noexcept {
         b_occupancies.fill(0ULL);
         b_pieces.fill(0ULL);
         kings.fill(Square::NO_SQ);
@@ -184,7 +184,6 @@ namespace elixir {
         kings[static_cast<I8>(Color::WHITE)] = static_cast<Square>(bits::lsb_index(white_king()));
         kings[static_cast<I8>(Color::BLACK)] = static_cast<Square>(bits::lsb_index(black_king()));
     }
-
 
     void Board::to_startpos() {
         from_fen(start_position);
