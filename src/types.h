@@ -12,4 +12,8 @@ namespace elixir {
     using U64 = std::uint64_t; 
 
     using I8 = std::int8_t;   
+    using I16 = std::int16_t;   
+
+    using Castling = std::uint8_t;
+    
 }

@@ -9,50 +9,50 @@
 namespace elixir {
     namespace bits {
         inline U64 bit(Square sq) { 
-            assert(sq != Square::no_sq);
+            assert(sq != Square::NO_SQ);
             return 1ULL << static_cast<int>(sq); 
         }
 
-        inline int get_bit(U64 bb, Square sq) { 
-            assert(sq != Square::no_sq && bb);
+        [[nodiscard]] inline int get_bit(Bitboard bb, Square sq) { 
+            assert(sq != Square::NO_SQ && bb);
             return bb & bit(sq); 
         }
 
-        inline void set_bit(U64 &bb, Square sq) { 
-            assert(sq != Square::no_sq && bb);
+        inline void set_bit(Bitboard &bb, Square sq) { 
+            assert(sq != Square::NO_SQ);
             bb |= bit(sq); 
         }
 
-        inline void clear_bit(U64 &bb, Square sq) { 
-            assert(sq != Square::no_sq && bb);
+        inline void clear_bit(Bitboard &bb, Square sq) { 
+            assert(sq != Square::NO_SQ && bb && get_bit(bb, sq));
             bb &= ~bit(sq); 
         }
 
-        inline void flip_bit(U64 &bb, Square sq) { 
-            assert(sq != Square::no_sq && bb);
+        inline void flip_bit(Bitboard &bb, Square sq) { 
+            assert(sq != Square::NO_SQ);
             bb ^= bit(sq); 
         }
 
-        inline int count_bits(U64 bb) { 
+        [[nodiscard]] inline int count_bits(Bitboard bb) { 
             return std::popcount(bb); 
         }
 
-        inline int lsb_index(U64 bb) { 
+        [[nodiscard]] inline int lsb_index(Bitboard bb) { 
             assert(bb);
             return std::countr_zero(bb); 
         }
 
-        inline int msb_index(U64 bb) { 
+        [[nodiscard]] inline int msb_index(Bitboard bb) { 
             assert(bb);
             return 63 - std::countl_zero(bb); 
         }
 
-        inline int pop_bit(U64 &bb) {
+        inline int pop_bit(Bitboard &bb) {
             assert(bb);
             int index = lsb_index(bb);
             clear_bit(bb, static_cast<Square>(index));
             return index;
         }
     }
-    extern void print_bitboard(U64 bitboard);
+    extern void print_bitboard(Bitboard bitboard);
 }
