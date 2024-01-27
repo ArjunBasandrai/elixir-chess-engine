@@ -1,4 +1,4 @@
-SRC = src/bits.cpp src/board.cpp
+SRC = src/utils/bits.cpp src/board/board.cpp
 
 all: __compile
 

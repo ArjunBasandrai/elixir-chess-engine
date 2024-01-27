@@ -3,8 +3,8 @@
 #include <array>
 #include <string>
 
-#include "types.h"
-#include "defs.h"
+#include "../types.h"
+#include "../defs.h"
 
 namespace elixir {
     extern const std::string square_str[64];
@@ -12,18 +12,7 @@ namespace elixir {
     class Board {
     public:
         Board() {
-            for (int i=0; i<2; i++) {
-                b_occupancies[i] = 0ULL;
-            }
-            for (int i=0; i<6; i++) {
-                b_pieces[i] = 0ULL;
-            }
-            en_passant_square = Square::NO_SQ;
-            side = Color::WHITE;
-            castling_rights = 0;
-            halfmove_clock = 0;
-            fullmove_number = 0;
-            search_ply = 0;
+            clear_board();
         }
         ~Board() = default;
         
@@ -89,11 +78,16 @@ namespace elixir {
         [[nodiscard]] inline I16 get_fullmove_number() const noexcept { return fullmove_number; }
         [[nodiscard]] inline I8 get_search_ply() const noexcept { return search_ply; }
 
+        void clear_board();
+        void from_fen(std::string fen);
+        void to_startpos();
+
         void print_castling_rights();
         void print_board();
     private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
+        std::array<Square, 2> kings{};
         Square en_passant_square;
         Color side;
         Castling castling_rights;
