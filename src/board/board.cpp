@@ -107,6 +107,8 @@ namespace elixir {
         std::cout << "  Fifty Move counter: " << static_cast<int>(halfmove_clock) << std::endl;
         std::cout << "  Fullmove number: " << static_cast<int>(fullmove_number) << std::endl;
 
+        std::cout << "  Hash Key: " << hash_key << "ULL" << std::endl;
+
         std::cout << "  White King Square: ";
         print_square(static_cast<Square>(bits::lsb_index(white_king())));
         std::cout << std::endl;
@@ -126,6 +128,7 @@ namespace elixir {
         halfmove_clock = 0;
         fullmove_number = 0;
         search_ply = 0;
+        hash_key = 0ULL;
     }
 
     void Board::from_fen(std::string fen) {
@@ -183,6 +186,8 @@ namespace elixir {
 
         kings[static_cast<I8>(Color::WHITE)] = static_cast<Square>(bits::lsb_index(white_king()));
         kings[static_cast<I8>(Color::BLACK)] = static_cast<Square>(bits::lsb_index(black_king()));
+
+        set_hash_key();
     }
 
     void Board::to_startpos() {

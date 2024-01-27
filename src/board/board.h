@@ -9,6 +9,7 @@
 namespace elixir {
     extern const std::string square_str[64];
     void print_square(Square sq);
+    
     class Board {
     public:
         Board() {
@@ -60,9 +61,11 @@ namespace elixir {
 
         [[nodiscard]] inline bool has_castling_rights(Color color) { return castling_rights & (3 << 2*(static_cast<int>(color))); }
 
+        [[nodiscard]] U64 get_board_hash();
+
         void set_piece(Square sq, PieceType piece, Color color);
         void remove_piece(Square sq, PieceType piece, Color color);
-        Piece piece_on(Square sq);
+        [[nodiscard]] Piece piece_on(Square sq);
 
         void set_en_passant_square(Square sq) noexcept { en_passant_square = sq; }
         void set_side_to_move(Color color) noexcept { side = color; }
@@ -71,12 +74,16 @@ namespace elixir {
         void set_fullmove_number(I16 number) noexcept { fullmove_number = number; }
         void set_search_ply(I8 ply) noexcept { search_ply = ply; }
 
+        void set_hash_key(U64 key) noexcept { hash_key = key; }
+        inline void set_hash_key() noexcept { hash_key = get_board_hash(); }
+
         [[nodiscard]] inline Square get_en_passant_square() const noexcept { return en_passant_square; }
         [[nodiscard]] inline Color get_side_to_move() const noexcept { return side; }
         [[nodiscard]] inline Castling get_castling_rights() const noexcept { return castling_rights; }
         [[nodiscard]] inline I8 get_halfmove_clock() const noexcept { return halfmove_clock; }
         [[nodiscard]] inline I16 get_fullmove_number() const noexcept { return fullmove_number; }
         [[nodiscard]] inline I8 get_search_ply() const noexcept { return search_ply; }
+        [[nodiscard]] inline U64 get_hash_key() const noexcept { return hash_key; }
 
         void clear_board() noexcept;
         void from_fen(std::string fen);
@@ -94,5 +101,6 @@ namespace elixir {
         I8 halfmove_clock;
         I16 fullmove_number;
         I8 search_ply;
+        U64 hash_key;
     };
 }
