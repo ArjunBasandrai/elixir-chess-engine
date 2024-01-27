@@ -3,32 +3,53 @@
 #include <bit>
 #include <cassert>
 
+#include "types.h"
 #include "defs.h"
 
-#define bit(sq) (1ULL << (sq))
-#define get_bit(bb, sq) (bb & bit(sq))
-#define set_bit(bb, sq) (bb |= bit(sq))
-#define clear_bit(bb, sq) (bb &= ~bit(sq))
-#define flip_bit(bb, sq) (bb ^= bit(sq))
+namespace elixir::bits {
 
-inline int count_bits(U64 bb) { 
-    return std::popcount(bb); 
+    inline U64 bit(Square sq) { 
+        return 1ULL << static_cast<int>(sq); 
+    }
+
+    inline int get_bit(U64 bb, Square sq) { 
+        return bb & bit(sq); 
+    }
+
+    inline void set_bit(U64 &bb, Square sq) { 
+        bb |= bit(sq); 
+    }
+
+    inline void clear_bit(U64 &bb, Square sq) { 
+        bb &= ~bit(sq); 
+    }
+
+    inline void flip_bit(U64 &bb, Square sq) { 
+        bb ^= bit(sq); 
+    }
+
+    inline int count_bits(U64 bb) { 
+        return std::popcount(bb); 
+    }
+
+    inline int lsb_index(U64 bb) { 
+        assert(bb);
+        return std::countr_zero(bb); 
+    }
+
+    inline int msb_index(U64 bb) { 
+        assert(bb);
+        return 63 - std::countl_zero(bb); 
+    }
+
+    inline int pop_bit(U64 &bb) {
+        assert(bb);
+        int index = lsb_index(bb);
+        clear_bit(bb, static_cast<Square>(index));
+        return index;
+    }
 }
 
-inline int lsb_index(U64 bb) { 
-    assert(bb);
-    return std::countr_zero(bb); 
+namespace elixir {
+    extern void print_bitboard(U64 bitboard);
 }
-
-inline int msb_index(U64 bb) { 
-    assert(bb);
-    return 63 - std::countl_zero(bb); 
-}
-
-inline int pop_bit(U64 &bb) {
-    int index = lsb_index(bb);
-    clear_bit(bb, index);
-    return index;
-}
-
-void print_bitboard(U64 bitboard);
