@@ -5,7 +5,7 @@
 namespace elixir {
     enum class Color : I8 { WHITE, BLACK, BOTH };
 
-    enum class Piece : I8 { wP, bP, wN, bN, wB, bB, wR, bR, wQ, bQ, wK, bK, NO_PIECE };
+    enum class Piece { wP, bP, wN, bN, wB, bB, wR, bR, wQ, bQ, wK, bK, NO_PIECE };
 
     enum class PieceType : I8 { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PIECE_TYPE };
 
@@ -25,11 +25,13 @@ namespace elixir {
         NO_SQ
     };
 
-    enum class CastlingRights : U8 {
-        WHITE_KING_SIDE = 1,
-        WHITE_QUEEN_SIDE = 2,
-        BLACK_KING_SIDE = 4,
-        BLACK_QUEEN_SIDE = 8,
+    enum CastlingRights : U8 {
+        CASTLE_WHITE_KINGSIDE = 1,
+        CASTLE_WHITE_QUEENSIDE = 2,
+        CASTLE_BLACK_KINGSIDE = 4,
+        CASTLE_BLACK_QUEENSIDE = 8,
         ALL = 15
     };
+
+    const std::string piece_str = "PpNnBbRrQqKk";
 }

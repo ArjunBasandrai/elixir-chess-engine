@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <bit>
 #include <cassert>
 
@@ -8,41 +9,41 @@
 
 namespace elixir {
     namespace bits {
-        inline U64 bit(Square sq) { 
+        inline Bitboard bit(const Square sq) { 
             assert(sq != Square::NO_SQ);
             return 1ULL << static_cast<int>(sq); 
         }
 
-        [[nodiscard]] inline int get_bit(Bitboard bb, Square sq) { 
-            assert(sq != Square::NO_SQ && bb);
+        [[nodiscard]] inline Bitboard get_bit(Bitboard bb, const Square sq) { 
+            assert(sq != Square::NO_SQ);
             return bb & bit(sq); 
         }
 
-        inline void set_bit(Bitboard &bb, Square sq) { 
+        inline void set_bit(Bitboard &bb, const Square sq) { 
             assert(sq != Square::NO_SQ);
             bb |= bit(sq); 
         }
 
-        inline void clear_bit(Bitboard &bb, Square sq) { 
+        inline void clear_bit(Bitboard &bb, const Square sq) { 
             assert(sq != Square::NO_SQ && bb && get_bit(bb, sq));
             bb &= ~bit(sq); 
         }
 
-        inline void flip_bit(Bitboard &bb, Square sq) { 
+        inline void flip_bit(Bitboard &bb, const Square sq) { 
             assert(sq != Square::NO_SQ);
             bb ^= bit(sq); 
         }
 
-        [[nodiscard]] inline int count_bits(Bitboard bb) { 
+        [[nodiscard]] inline int count_bits(const Bitboard bb) { 
             return std::popcount(bb); 
         }
 
-        [[nodiscard]] inline int lsb_index(Bitboard bb) { 
+        [[nodiscard]] inline int lsb_index(const Bitboard bb) { 
             assert(bb);
             return std::countr_zero(bb); 
         }
 
-        [[nodiscard]] inline int msb_index(Bitboard bb) { 
+        [[nodiscard]] inline int msb_index(const Bitboard bb) { 
             assert(bb);
             return 63 - std::countl_zero(bb); 
         }
@@ -54,5 +55,5 @@ namespace elixir {
             return index;
         }
     }
-    extern void print_bitboard(Bitboard bitboard);
+    extern void print_bitboard(const Bitboard bitboard);
 }

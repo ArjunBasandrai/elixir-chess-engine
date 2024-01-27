@@ -1,11 +1,14 @@
 #pragma once
 
 #include <array>
+#include <string>
 
 #include "types.h"
 #include "defs.h"
 
 namespace elixir {
+    extern const std::string square_str[64];
+    void print_square(Square sq);
     class Board {
     public:
         Board() {
@@ -16,8 +19,11 @@ namespace elixir {
                 b_pieces[i] = 0ULL;
             }
             en_passant_square = Square::NO_SQ;
-            side_to_move = Color::WHITE;
+            side = Color::WHITE;
             castling_rights = 0;
+            halfmove_clock = 0;
+            fullmove_number = 0;
+            search_ply = 0;
         }
         ~Board() = default;
         
@@ -66,11 +72,30 @@ namespace elixir {
         [[nodiscard]] inline bool has_castling_rights(Color color) { return castling_rights & (3 << 2*(static_cast<int>(color))); }
 
         void set_piece(Square sq, PieceType piece, Color color);
+        void remove_piece(Square sq, PieceType piece, Color color);
+        Piece piece_on(Square sq);
+
+        void set_en_passant_square(Square sq) { en_passant_square = sq; }
+        void set_side_to_move(Color color) { side = color; }
+        void set_castling_rights(Castling rights) { castling_rights = rights; }
+        void set_halfmove_clock(I8 clock) { halfmove_clock = clock; }
+        void set_fullmove_number(I16 number) { fullmove_number = number; }
+        void set_search_ply(I8 ply) { search_ply = ply; }
+
+        [[nodiscard]] inline Square get_en_passant_square() const noexcept { return en_passant_square; }
+        [[nodiscard]] inline Color get_side_to_move() const noexcept { return side; }
+        [[nodiscard]] inline Castling get_castling_rights() const noexcept { return castling_rights; }
+        [[nodiscard]] inline I8 get_halfmove_clock() const noexcept { return halfmove_clock; }
+        [[nodiscard]] inline I16 get_fullmove_number() const noexcept { return fullmove_number; }
+        [[nodiscard]] inline I8 get_search_ply() const noexcept { return search_ply; }
+
+        void print_castling_rights();
+        void print_board();
     private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
         Square en_passant_square;
-        Color side_to_move;
+        Color side;
         Castling castling_rights;
         I8 halfmove_clock;
         I16 fullmove_number;
