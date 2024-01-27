@@ -9,22 +9,27 @@
 namespace elixir::bits {
 
     inline U64 bit(Square sq) { 
+        assert(sq != Square::no_sq);
         return 1ULL << static_cast<int>(sq); 
     }
 
     inline int get_bit(U64 bb, Square sq) { 
+        assert(sq != Square::no_sq && bb);
         return bb & bit(sq); 
     }
 
     inline void set_bit(U64 &bb, Square sq) { 
+        assert(sq != Square::no_sq && bb);
         bb |= bit(sq); 
     }
 
     inline void clear_bit(U64 &bb, Square sq) { 
+        assert(sq != Square::no_sq && bb);
         bb &= ~bit(sq); 
     }
 
     inline void flip_bit(U64 &bb, Square sq) { 
+        assert(sq != Square::no_sq && bb);
         bb ^= bit(sq); 
     }
 
