@@ -19,12 +19,12 @@ int main() {
     init();
     
     move::Move m;
-    m.set_move(Square::A7, Square::A8, Piece::wP, move::Flag::PROMOTION, move::Promotion::QUEEN);
-    std::cout << static_cast<int>(m.get_from()) << std::endl;
-    std::cout << static_cast<int>(m.get_to()) << std::endl;
+    m.set_move(Square::A7, Square::A8, Piece::wB, move::Flag::NORMAL, move::Promotion::BISHOP);
+    std::cout << square_str[static_cast<int>(m.get_from())] << std::endl;
+    std::cout << square_str[static_cast<int>(m.get_to())] << std::endl;
     std::cout << static_cast<int>(m.get_piece()) << std::endl;
     std::cout << static_cast<int>(m.get_flag()) << std::endl;
     std::cout << static_cast<int>(m.get_promotion()) << std::endl;
-    std::cout << m.get_move() << std::endl;
+    m.print_uci();
     return 0;
 }

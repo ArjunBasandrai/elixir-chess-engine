@@ -20,10 +20,10 @@ namespace elixir::move {
     };
     class Move {
     public:
-        [[nodiscard]] constexpr Move_T encode_move(Square from, Square to, Piece piece, Flag flag, Promotion promotion);
-        [[nodiscard]] constexpr Move_T encode_move(Square from, Square to, int piece, Flag flag, Promotion promotion);
-        [[nodiscard]] constexpr Move_T encode_move(int from, int to, Piece piece, Flag flag, Promotion promotion);
-        [[nodiscard]] constexpr Move_T encode_move(int from, int to, int piece, Flag flag, Promotion promotion);
+        [[nodiscard]] Move_T encode_move(Square from, Square to, Piece piece, Flag flag, Promotion promotion);
+        [[nodiscard]] Move_T encode_move(Square from, Square to, int piece, Flag flag, Promotion promotion);
+        [[nodiscard]] Move_T encode_move(int from, int to, Piece piece, Flag flag, Promotion promotion);
+        [[nodiscard]] Move_T encode_move(int from, int to, int piece, Flag flag, Promotion promotion);
 
         [[nodiscard]] constexpr Square get_from() const { return static_cast<Square>(m_move & 0x3f); }
         [[nodiscard]] constexpr Square get_to() const { return static_cast<Square>((m_move >> 6) & 0x3f); }
@@ -45,6 +45,8 @@ namespace elixir::move {
         [[nodiscard]] constexpr bool is_promotion() const { return get_flag() == Flag::PROMOTION; }
         [[nodiscard]] constexpr bool is_normal() const { return get_flag() == Flag::NORMAL; }
         [[nodiscard]] constexpr bool is_quiet() const { return !(is_capture() || is_en_passant()); }
+
+        void print_uci();
     private:
         Move_T m_move;
     };
