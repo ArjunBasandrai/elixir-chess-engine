@@ -3,7 +3,6 @@
 #include <cstdint>
 
 namespace elixir {
-
     using Bitboard = std::uint64_t;
 
     using U8 = std::uint8_t;
@@ -15,5 +14,5 @@ namespace elixir {
     using I16 = std::int16_t;   
 
     using Castling = std::uint8_t;
-    
+    using Move_T = std::uint32_t;
 }
