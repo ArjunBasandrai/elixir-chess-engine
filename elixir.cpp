@@ -8,40 +8,21 @@
 #include "src/utils/test_fens.h"
 #include "src/board/board.h"
 #include "src/hashing/hash.h"
+#include "src/attacks/lookup.h"
 
 using namespace elixir;
 
 void init() {
     zobrist::init_hash_keys();
+    attacks::init_pawn_attacks();
 }
 
 int main() {
     init();
     
-    Board board;
-    board.from_fen(start_position);
-
-    board.print_board();
-
-    std::string inp;
-    while (true) {
-        std::cin >> inp;
-
-        if (inp == "print") {
-            board.print_board();
-            continue;
-        }
-
-        if (inp == "quit") {
-            break;
-        }
-        
-        if (!board.parse_uci_move(inp)) {
-            std::cout << "Invalid move" << std::endl;
-            continue;
-        }
-
-    }
-
+    print_bitboard(attacks::pawn_attacks[static_cast<int>(Color::BLACK)][static_cast<int>(Square::A4)]);
+    print_bitboard(attacks::pawn_attacks[static_cast<int>(Color::BLACK)][static_cast<int>(Square::H4)]);
+    print_bitboard(attacks::pawn_attacks[static_cast<int>(Color::BLACK)][static_cast<int>(Square::E4)]);
+    
     return 0;
 }
