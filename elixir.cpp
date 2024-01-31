@@ -16,14 +16,16 @@ void init() {
     zobrist::init_hash_keys();
     attacks::init_pawn_attacks();
     attacks::init_knight_attacks();
+    attacks::init_king_attacks();
 }
 
 int main() {
     init();
     
-    print_bitboard(attacks::knight_attacks[static_cast<int>(Square::G4)]);
-    print_bitboard(attacks::knight_attacks[static_cast<int>(Square::H4)]);
-    print_bitboard(attacks::knight_attacks[static_cast<int>(Square::E4)]);
+    print_bitboard(attacks::king_attacks[static_cast<int>(Square::C1)]);
+    print_bitboard(attacks::king_attacks[static_cast<int>(Square::G8)]);
+    print_bitboard(attacks::king_attacks[static_cast<int>(Square::H4)]);
+    print_bitboard(attacks::king_attacks[static_cast<int>(Square::E4)]);
     
     return 0;
 }

@@ -11,7 +11,9 @@ namespace elixir::attacks {
 
     extern Bitboard pawn_attacks[2][64];
     extern Bitboard knight_attacks[64];
+    extern Bitboard king_attacks[64];
 
     void init_pawn_attacks();
     void init_knight_attacks();
+    void init_king_attacks();
 }

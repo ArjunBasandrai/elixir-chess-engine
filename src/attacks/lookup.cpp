@@ -6,6 +6,7 @@
 namespace elixir::attacks {
     Bitboard pawn_attacks[2][64];
     Bitboard knight_attacks[64];
+    Bitboard king_attacks[64];
 
     Bitboard mask_pawn_attacks(Square sq, Color side) {
         Bitboard bb = 0ULL;
@@ -45,6 +46,25 @@ namespace elixir::attacks {
         return mask;
     }
 
+    Bitboard mask_king_attacks(Square sq) {
+        Bitboard bb = 0ULL;
+        Bitboard mask = 0ULL;
+        bits::set_bit(bb, sq);
+        int rank = (static_cast<int>(sq) >> 3) & 7;
+        int file = static_cast<int>(sq) & 7;
+        mask |= (bb << 8);
+        mask |= (bb << 9) & not_a_file;
+        mask |= (bb << 7) & not_h_file;
+        mask |= (bb << 1) & not_a_file;
+
+        mask |= (bb >> 8);
+        mask |= (bb >> 9) & not_h_file;
+        mask |= (bb >> 7) & not_a_file;
+        mask |= (bb >> 1) & not_h_file;
+
+        return mask;
+    }
+
     void init_pawn_attacks() {
         for (int i = 0; i < 64; i++) {
             pawn_attacks[static_cast<int>(Color::WHITE)][i] = mask_pawn_attacks(static_cast<Square>(i), Color::WHITE);
@@ -55,6 +75,12 @@ namespace elixir::attacks {
     void init_knight_attacks() {
         for (int i = 0; i < 64; i++) {
             knight_attacks[i] = mask_knight_attacks(static_cast<Square>(i));
+        }
+    }
+
+    void init_king_attacks() {
+        for (int i = 0; i < 64; i++) {
+            king_attacks[i] = mask_king_attacks(static_cast<Square>(i));
         }
     }
 }
