@@ -13,6 +13,17 @@
 #include "../hashing/hash.h"
 
 namespace elixir {
+    const int castling_update[64] = {
+        7, 15, 15, 15,  3, 15, 15, 11,
+        15, 15, 15, 15, 15, 15, 15, 15,
+        15, 15, 15, 15, 15, 15, 15, 15,
+        15, 15, 15, 15, 15, 15, 15, 15,
+        15, 15, 15, 15, 15, 15, 15, 15,
+        15, 15, 15, 15, 15, 15, 15, 15,
+        15, 15, 15, 15, 15, 15, 15, 15,
+        13, 15, 15, 15, 12, 15, 15, 14
+    };
+
     const std::string square_str[64] = {
         "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
         "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
@@ -291,31 +302,26 @@ namespace elixir {
         // Handling Castling
         if (flag == move::Flag::CASTLING) {
             int rook = static_cast<int>(PieceType::ROOK) + stm * 6;
-            hash_key ^= zobrist::castle_keys[castling_rights];
             switch (to) {
                 case Square::C1:
-                    castling_rights &= ~CASTLE_WHITE_QUEENSIDE;
                     remove_piece(Square::A1, PieceType::ROOK, Color::WHITE);
                     set_piece(Square::D1, PieceType::ROOK, Color::WHITE);
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::A1)];
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::D1)];
                     break;
                 case Square::G1:
-                    castling_rights &= ~CASTLE_WHITE_KINGSIDE;
                     remove_piece(Square::H1, PieceType::ROOK, Color::WHITE);
                     set_piece(Square::F1, PieceType::ROOK, Color::WHITE);
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::H1)];
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::F1)];
                     break;
                 case Square::C8:
-                    castling_rights &= ~CASTLE_BLACK_QUEENSIDE;
                     remove_piece(Square::A8, PieceType::ROOK, Color::BLACK);
                     set_piece(Square::D8, PieceType::ROOK, Color::BLACK);
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::A8)];
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::D8)];
                     break;
                 case Square::G8:
-                    castling_rights &= ~CASTLE_BLACK_KINGSIDE;
                     remove_piece(Square::H1, PieceType::ROOK, Color::BLACK);
                     set_piece(Square::F1, PieceType::ROOK, Color::BLACK);
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::H1)];
@@ -324,12 +330,17 @@ namespace elixir {
                 default:
                     break;
             }
-            hash_key ^= zobrist::castle_keys[castling_rights];
-        }   
+
+        }
+        
+        hash_key ^= zobrist::castle_keys[castling_rights];
+        castling_rights &= castling_update[int_from];
+        castling_rights &= castling_update[int_to];
+        hash_key ^= zobrist::castle_keys[castling_rights];
 
         side = enemy_side;
         hash_key ^= zobrist::side_key;
         return true;     
     }
-    
+
 }
