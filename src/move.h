@@ -16,7 +16,7 @@ namespace elixir::move {
         QUEEN,
         ROOK,
         BISHOP,
-        KNIGHT
+        KNIGHT,
     };
     class Move {
     public:

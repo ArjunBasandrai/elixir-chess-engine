@@ -5,6 +5,7 @@
 
 #include "../types.h"
 #include "../defs.h"
+#include "../move.h"
 
 namespace elixir {
     extern const std::string square_str[64];
@@ -16,7 +17,9 @@ namespace elixir {
             clear_board();
         }
         ~Board() = default;
-        
+
+        [[nodiscard]] inline PieceType piece_to_piecetype(Piece piece) { return static_cast<PieceType>(static_cast<int>(piece) / 2); }
+
         [[nodiscard]] inline Bitboard color_occupancy(Color color) const noexcept { return b_occupancies[static_cast<I8>(color)]; }
 
         [[nodiscard]] inline Bitboard piece_bitboard(PieceType piece) const noexcept { return b_pieces[static_cast<I8>(piece)]; }
@@ -66,11 +69,12 @@ namespace elixir {
         void set_piece(Square sq, PieceType piece, Color color);
         void remove_piece(Square sq, PieceType piece, Color color);
         [[nodiscard]] Piece piece_on(Square sq);
+        [[nodiscard]] inline Color piece_color(Piece piece) { return (static_cast<int>(piece) % 2 == 0) ? Color::WHITE : Color::BLACK; }
 
         void set_en_passant_square(Square sq) noexcept { en_passant_square = sq; }
         void set_side_to_move(Color color) noexcept { side = color; }
         void set_castling_rights(Castling rights) noexcept { castling_rights = rights; }
-        void set_halfmove_clock(I8 clock) noexcept { halfmove_clock = clock; }
+        void set_fifty_move_counter(I8 counter) noexcept { fifty_move_counter = counter; }
         void set_fullmove_number(I16 number) noexcept { fullmove_number = number; }
         void set_search_ply(I8 ply) noexcept { search_ply = ply; }
 
@@ -80,7 +84,7 @@ namespace elixir {
         [[nodiscard]] inline Square get_en_passant_square() const noexcept { return en_passant_square; }
         [[nodiscard]] inline Color get_side_to_move() const noexcept { return side; }
         [[nodiscard]] inline Castling get_castling_rights() const noexcept { return castling_rights; }
-        [[nodiscard]] inline I8 get_halfmove_clock() const noexcept { return halfmove_clock; }
+        [[nodiscard]] inline I8 get_fifty_move_counter() const noexcept { return fifty_move_counter; }
         [[nodiscard]] inline I16 get_fullmove_number() const noexcept { return fullmove_number; }
         [[nodiscard]] inline I8 get_search_ply() const noexcept { return search_ply; }
         [[nodiscard]] inline U64 get_hash_key() const noexcept { return hash_key; }
@@ -91,6 +95,8 @@ namespace elixir {
 
         void print_castling_rights() const noexcept;
         void print_board();
+
+        bool make_move(move::Move move);
     private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
@@ -98,7 +104,7 @@ namespace elixir {
         Square en_passant_square;
         Color side;
         Castling castling_rights;
-        I8 halfmove_clock;
+        I8 fifty_move_counter;
         I16 fullmove_number;
         I8 search_ply;
         U64 hash_key;

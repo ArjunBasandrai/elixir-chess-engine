@@ -18,13 +18,24 @@ void init() {
 int main() {
     init();
     
+    Board board;
+    board.from_fen(start_position);
+
     move::Move m;
-    m.set_move(Square::A7, Square::A8, Piece::wB, move::Flag::NORMAL, move::Promotion::BISHOP);
-    std::cout << square_str[static_cast<int>(m.get_from())] << std::endl;
-    std::cout << square_str[static_cast<int>(m.get_to())] << std::endl;
-    std::cout << static_cast<int>(m.get_piece()) << std::endl;
-    std::cout << static_cast<int>(m.get_flag()) << std::endl;
-    std::cout << static_cast<int>(m.get_promotion()) << std::endl;
+    m.set_move(Square::E2, Square::E4, Piece::wP, move::Flag::DOUBLE_PAWN_PUSH, move::Promotion::QUEEN);
     m.print_uci();
+    std::cout << std::endl;
+
+    move::Move b;
+    b.set_move(Square::E7, Square::E5, Piece::bP, move::Flag::DOUBLE_PAWN_PUSH, move::Promotion::QUEEN);
+    b.print_uci();
+    std::cout << std::endl;
+
+    board.print_board();
+    board.make_move(m);
+    board.print_board();
+    board.make_move(b);
+    board.print_board();
+
     return 0;
 }
