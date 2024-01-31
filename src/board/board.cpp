@@ -233,6 +233,10 @@ namespace elixir {
         remove_piece(from, piecetype, side);
         set_piece(to, piecetype, side);
 
+        if (piece_ == Piece::wK || piece_ == Piece::bK) {
+            kings[static_cast<I8>(side)] = to;
+        }
+
         hash_key ^= zobrist::piece_keys[int_piece][int_from];
         hash_key ^= zobrist::piece_keys[int_piece][int_to];
 
@@ -343,4 +347,34 @@ namespace elixir {
         return true;     
     }
 
+    bool Board::parse_uci_move(std::string move) {
+        assert(move.length() == 4 || move.length() == 5);
+        Square from = static_cast<Square>((move[0] - 'a') + 8 * (move[1] - '1'));
+        Square to = static_cast<Square>((move[2] - 'a') + 8 * (move[3] - '1'));
+        Piece piece = piece_on(from);
+        move::Flag flag = move::Flag::NORMAL;
+        move::Promotion promotion = move::Promotion::QUEEN;
+        if (move.length() == 5) {
+            switch (move[4]) {
+                case 'q':
+                    promotion = move::Promotion::QUEEN;
+                    break;
+                case 'r':
+                    promotion = move::Promotion::ROOK;
+                    break;
+                case 'n':
+                    promotion = move::Promotion::KNIGHT;
+                    break;
+                case 'b':
+                    promotion = move::Promotion::BISHOP;
+                    break;
+                default:
+                    break;
+            }
+            flag = move::Flag::PROMOTION;
+        }
+        move::Move m;
+        m.set_move(from, to, piece, flag, promotion);
+        return make_move(m);
+    }
 }

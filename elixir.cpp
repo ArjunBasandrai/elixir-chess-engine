@@ -21,21 +21,27 @@ int main() {
     Board board;
     board.from_fen(start_position);
 
-    move::Move m;
-    m.set_move(Square::E2, Square::E4, Piece::wP, move::Flag::DOUBLE_PAWN_PUSH, move::Promotion::QUEEN);
-    m.print_uci();
-    std::cout << std::endl;
+    board.print_board();
 
-    move::Move b;
-    b.set_move(Square::E7, Square::E5, Piece::bP, move::Flag::DOUBLE_PAWN_PUSH, move::Promotion::QUEEN);
-    b.print_uci();
-    std::cout << std::endl;
+    std::string inp;
+    while (true) {
+        std::cin >> inp;
 
-    board.print_board();
-    board.make_move(m);
-    board.print_board();
-    board.make_move(b);
-    board.print_board();
+        if (inp == "print") {
+            board.print_board();
+            continue;
+        }
+
+        if (inp == "quit") {
+            break;
+        }
+        
+        if (!board.parse_uci_move(inp)) {
+            std::cout << "Invalid move" << std::endl;
+            continue;
+        }
+
+    }
 
     return 0;
 }

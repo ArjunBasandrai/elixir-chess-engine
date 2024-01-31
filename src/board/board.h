@@ -97,6 +97,7 @@ namespace elixir {
         void print_board();
 
         bool make_move(move::Move move);
+        bool parse_uci_move(std::string move);
     private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
