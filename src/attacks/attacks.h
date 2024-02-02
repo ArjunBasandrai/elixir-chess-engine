@@ -15,4 +15,5 @@ namespace elixir::attacks {
     constexpr Bitboard get_king_attacks(Square sq) { return king_attacks[static_cast<int>(sq)]; }
     extern Bitboard get_rook_attacks(Square sq, U64 occupancy);
     extern Bitboard get_bishop_attacks(Square sq, U64 occupancy);
+    extern Bitboard get_queen_attacks(Square sq, U64 occupancy);
 }

@@ -105,6 +105,10 @@ namespace elixir::attacks {
         occupancy >>= 64 - magic::rook_relevant_bits[square];
         return magic::rook_attacks[square][occupancy];
     }
+
+    Bitboard get_queen_attacks(Square sq, U64 occupancy) {
+        return get_bishop_attacks(sq, occupancy) | get_rook_attacks(sq, occupancy);
+    }
 }
 
 namespace elixir::magic {
