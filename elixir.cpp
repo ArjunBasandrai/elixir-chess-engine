@@ -9,23 +9,34 @@
 #include "src/board/board.h"
 #include "src/hashing/hash.h"
 #include "src/attacks/lookup.h"
+#include "src/attacks/magics.h"
+#include "src/attacks/attacks.h"
 
 using namespace elixir;
 
 void init() {
     zobrist::init_hash_keys();
-    attacks::init_pawn_attacks();
-    attacks::init_knight_attacks();
-    attacks::init_king_attacks();
+    attacks::init_attacks();
+    // magic::init_magic_numbers();
 }
 
 int main() {
     init();
-    
-    print_bitboard(attacks::king_attacks[static_cast<int>(Square::C1)]);
-    print_bitboard(attacks::king_attacks[static_cast<int>(Square::G8)]);
-    print_bitboard(attacks::king_attacks[static_cast<int>(Square::H4)]);
-    print_bitboard(attacks::king_attacks[static_cast<int>(Square::E4)]);
-    
+
+    Bitboard occ = 0ULL;
+    bits::set_bit(occ, Square::C5);
+    bits::set_bit(occ, Square::F2);
+    bits::set_bit(occ, Square::G7);
+    bits::set_bit(occ, Square::B2);
+    bits::set_bit(occ, Square::G5);
+    bits::set_bit(occ, Square::E2);
+    bits::set_bit(occ, Square::E7);
+    print_bitboard(occ);
+    print_bitboard(attacks::get_bishop_attacks(Square::D4, occ));
+    print_bitboard(attacks::get_rook_attacks(Square::E5, occ));
+    print_bitboard(attacks::get_pawn_attacks(Color::WHITE, Square::B7));
+    print_bitboard(attacks::get_knight_attacks(Square::D7));
+    print_bitboard(attacks::get_king_attacks(Square::H4));
+
     return 0;
 }
