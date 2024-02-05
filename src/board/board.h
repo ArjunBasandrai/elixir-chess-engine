@@ -6,6 +6,7 @@
 #include "../types.h"
 #include "../defs.h"
 #include "../move.h"
+#include "../attacks/attacks.h"
 
 namespace elixir {
     extern const std::string square_str[64];
@@ -88,6 +89,32 @@ namespace elixir {
         [[nodiscard]] inline I16 get_fullmove_number() const noexcept { return fullmove_number; }
         [[nodiscard]] inline I8 get_search_ply() const noexcept { return search_ply; }
         [[nodiscard]] inline U64 get_hash_key() const noexcept { return hash_key; }
+
+        [[nodiscard]] inline Bitboard get_attackers(Square sq) {
+            Bitboard attackers = 0ULL;
+            attackers |= (attacks::get_pawn_attacks(Color::WHITE, sq) & black_pawns());
+            attackers |= (attacks::get_pawn_attacks(Color::BLACK, sq) & white_pawns());
+            attackers |= (attacks::get_knight_attacks(sq) & knights());
+            attackers |= (attacks::get_bishop_attacks(sq, occupancy()) & (bishops() | queens()));
+            attackers |= (attacks::get_rook_attacks(sq, occupancy()) & (rooks() | queens()));
+            attackers |= (attacks::get_king_attacks(sq) & king());
+            return attackers;
+        }
+
+        [[nodiscard]] inline Bitboard get_attackers(Square sq, Color c) {
+            Bitboard attackers = 0ULL;
+            attackers |= (attacks::get_pawn_attacks(Color::WHITE, sq) & black_pawns());
+            attackers |= (attacks::get_pawn_attacks(Color::BLACK, sq) & white_pawns());
+            attackers |= (attacks::get_knight_attacks(sq) & knights());
+            attackers |= (attacks::get_bishop_attacks(sq, occupancy()) & (bishops() | queens()));
+            attackers |= (attacks::get_rook_attacks(sq, occupancy()) & (rooks() | queens()));
+            attackers |= (attacks::get_king_attacks(sq) & king());
+            return attackers & color_occupancy(c);
+        }
+
+        [[nodiscard]] inline bool is_square_attacked(Square sq, Color c) {
+            return (get_attackers(sq, c) != 0ULL) ? true : false;
+        }
 
         void clear_board() noexcept;
         void from_fen(std::string fen);
