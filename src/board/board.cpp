@@ -2,6 +2,7 @@
 #include <cassert>
 #include <string>
 #include <vector>
+#include <utility>
 
 #include "board.h"
 
@@ -10,6 +11,7 @@
 #include "../utils/bits.h"
 #include "../utils/str_utils.h"
 #include "../utils/test_fens.h"
+#include "../utils/state.h"
 #include "../hashing/hash.h"
 
 namespace elixir {
@@ -133,6 +135,7 @@ namespace elixir {
         b_occupancies.fill(0ULL);
         b_pieces.fill(0ULL);
         kings.fill(Square::NO_SQ);
+        undo_stack.clear();
         en_passant_square = Square::NO_SQ;
         side = Color::WHITE;
         castling_rights = 0;
@@ -205,6 +208,102 @@ namespace elixir {
         from_fen(start_position);
     }
 
+    void Board::unmake_move(const move::Move move, bool switch_side) {
+        const Square from = move.get_from();
+        const Square to = move.get_to();
+        const Piece piece = move.get_piece();
+        const move::Flag flag = move.get_flag();
+        
+        const PieceType piecetype = piece_to_piecetype(piece);
+        int stm = static_cast<int>(side);
+        Color enemy_side = static_cast<Color>(stm^1);
+        int xstm = static_cast<int>(enemy_side);
+
+        if (switch_side) {
+            std::swap(side, enemy_side);
+            std::swap(stm, xstm);
+        }
+
+        // Handling Pawn Promotion
+        if (flag == move::Flag::PROMOTION) {
+            switch (move.get_promotion()) {
+                case move::Promotion::QUEEN:
+                    remove_piece(to, PieceType::QUEEN, side);
+                    break;
+                case move::Promotion::ROOK:
+                    remove_piece(to, PieceType::ROOK, side);
+                    break;
+                case move::Promotion::KNIGHT:
+                    remove_piece(to, PieceType::KNIGHT, side);
+                    break;
+                case move::Promotion::BISHOP:
+                    remove_piece(to, PieceType::BISHOP, side);
+                    break;            
+                default:
+                    break;
+            }
+        } else {
+            remove_piece(to, piecetype, side);
+        }
+
+        set_piece(from, piecetype, side);
+
+        if (piece == Piece::wK || piece == Piece::bK) {
+            kings[static_cast<I8>(side)] = from;
+        }
+
+        State s = undo_stack.back();
+        hash_key = s.hash_key;
+        castling_rights = s.castling_rights;
+        en_passant_square = s.enpass;
+        fifty_move_counter = s.fifty_move_counter;
+        Piece captured_piece = s.captured_piece;
+
+        if (side == Color::BLACK) {
+            fullmove_number--;
+        }
+
+        // Handling Captures
+        if (flag == move::Flag::CAPTURE && captured_piece != Piece::NO_PIECE) {
+            set_piece(to, piece_to_piecetype(captured_piece), enemy_side);
+        }
+
+        // Handling En Passant
+        if (flag == move::Flag::EN_PASSANT) {
+            const int int_to = static_cast<int>(to);
+            Square captured_square = static_cast<Square>(int_to + (side == Color::WHITE ? -8 : 8));
+            set_piece(captured_square, PieceType::PAWN, enemy_side);
+        }
+
+        // Handling Castling
+        if (flag == move::Flag::CASTLING) {
+            switch (to) {
+                case Square::C1:
+                    remove_piece(Square::D1, PieceType::ROOK, Color::WHITE);
+                    set_piece(Square::A1, PieceType::ROOK, Color::WHITE);
+                    break;
+                case Square::G1:
+                    remove_piece(Square::F1, PieceType::ROOK, Color::WHITE);
+                    set_piece(Square::H1, PieceType::ROOK, Color::WHITE);
+                    break;
+                case Square::C8:
+                    remove_piece(Square::D8, PieceType::ROOK, Color::BLACK);
+                    set_piece(Square::A8, PieceType::ROOK, Color::BLACK);
+                    break;
+                case Square::G8:
+                    remove_piece(Square::F8, PieceType::ROOK, Color::BLACK);
+                    set_piece(Square::H8, PieceType::ROOK, Color::BLACK);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        undo_stack.pop_back();
+
+        return;
+    }
+
     bool Board::make_move(move::Move move) {
         const Square from = move.get_from();
         const Square to = move.get_to();
@@ -230,6 +329,10 @@ namespace elixir {
         assert(piece_ == piece);
         assert(piece_color(piece_) == side);
 
+        Piece captured_piece = piece_on(to);
+
+        undo_stack.emplace_back(hash_key, castling_rights, en_passant_square, fifty_move_counter, captured_piece);
+
         remove_piece(from, piecetype, side);
         set_piece(to, piecetype, side);
 
@@ -251,7 +354,6 @@ namespace elixir {
 
         // Handling Captures
         if (flag == move::Flag::CAPTURE) {
-            Piece captured_piece = piece_on(to);
             if (captured_piece != Piece::NO_PIECE) {
                 fifty_move_counter = 0;
                 remove_piece(to, piece_to_piecetype(captured_piece), enemy_side);
@@ -287,7 +389,7 @@ namespace elixir {
         }
 
         // Handling En Passant
-        if (flag == move::Flag::EN_PASSANT) {
+        if (flag == move::Flag::EN_PASSANT && en_passant_square != Square::NO_SQ) {
             Square captured_square = static_cast<Square>(int_to + (side == Color::WHITE ? -8 : 8));
             remove_piece(captured_square, PieceType::PAWN, enemy_side);
             hash_key ^= zobrist::piece_keys[static_cast<int>(PieceType::PAWN)+xstm*6][static_cast<int>(captured_square)];
@@ -334,15 +436,19 @@ namespace elixir {
                 default:
                     break;
             }
-
         }
+
+        if (is_square_attacked(kings[static_cast<I8>(side)], enemy_side)) {
+            unmake_move(move, false);
+            return false;
+        } 
         
+        side = enemy_side;
         hash_key ^= zobrist::castle_keys[castling_rights];
         castling_rights &= castling_update[int_from];
         castling_rights &= castling_update[int_to];
         hash_key ^= zobrist::castle_keys[castling_rights];
 
-        side = enemy_side;
         hash_key ^= zobrist::side_key;
         return true;     
     }

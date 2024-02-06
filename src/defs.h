@@ -36,4 +36,6 @@ namespace elixir {
     };
 
     const std::string piece_str = "PpNnBbRrQqKk";
+
+    const I16 MAX_PLY = 128;
 }

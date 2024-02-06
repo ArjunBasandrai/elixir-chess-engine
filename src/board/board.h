@@ -1,12 +1,14 @@
 #pragma once
 
 #include <array>
+#include <vector>
 #include <string>
 
 #include "../types.h"
 #include "../defs.h"
 #include "../move.h"
 #include "../attacks/attacks.h"
+#include "../utils/state.h"
 
 namespace elixir {
     extern const std::string square_str[64];
@@ -15,6 +17,7 @@ namespace elixir {
     class Board {
     public:
         Board() {
+            undo_stack.reserve(MAX_PLY);
             clear_board();
         }
         ~Board() = default;
@@ -124,11 +127,13 @@ namespace elixir {
         void print_board();
 
         bool make_move(move::Move move);
+        void unmake_move(move::Move move, bool switch_side);
         bool parse_uci_move(std::string move);
     private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
         std::array<Square, 2> kings{};
+        std::vector<State> undo_stack;
         Square en_passant_square;
         Color side;
         Castling castling_rights;
