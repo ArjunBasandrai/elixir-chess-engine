@@ -225,7 +225,7 @@ namespace elixir {
         }
 
         // Handling Pawn Promotion
-        if (flag == move::Flag::PROMOTION) {
+        if (move.is_promotion()) {
             switch (move.get_promotion()) {
                 case move::Promotion::QUEEN:
                     remove_piece(to, PieceType::QUEEN, side);
@@ -264,7 +264,7 @@ namespace elixir {
         }
 
         // Handling Captures
-        if (flag == move::Flag::CAPTURE && captured_piece != Piece::NO_PIECE) {
+        if (move.is_capture() && captured_piece != Piece::NO_PIECE) {
             set_piece(to, piece_to_piecetype(captured_piece), enemy_side);
         }
 
@@ -368,7 +368,7 @@ namespace elixir {
         }
 
         // Handling Pawn Promotions
-        if (flag == move::Flag::PROMOTION) {
+        if (move.is_promotion()) {
             remove_piece(to, PieceType::PAWN, side);
             PieceType promotion_piece;
             switch (promotion) {
@@ -434,10 +434,10 @@ namespace elixir {
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::D8)];
                     break;
                 case Square::G8:
-                    remove_piece(Square::H1, PieceType::ROOK, Color::BLACK);
-                    set_piece(Square::F1, PieceType::ROOK, Color::BLACK);
-                    hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::H1)];
-                    hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::F1)];
+                    remove_piece(Square::H8, PieceType::ROOK, Color::BLACK);
+                    set_piece(Square::F8, PieceType::ROOK, Color::BLACK);
+                    hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::H8)];
+                    hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::F8)];
                     break;
                 default:
                     break;

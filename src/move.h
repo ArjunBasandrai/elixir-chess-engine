@@ -39,7 +39,7 @@ namespace elixir::move {
         void constexpr set_move(int from, int to, Piece piece, Flag flag, Promotion promotion) { m_move = encode_move(from, to, piece, flag, promotion); }
         void constexpr set_move(int from, int to, int piece, Flag flag, Promotion promotion) { m_move = encode_move(from, to, piece, flag, promotion); }
         
-        [[nodiscard]] constexpr bool is_capture() const { Flag f = get_flag(); return f == Flag::CAPTURE; }
+        [[nodiscard]] constexpr bool is_capture() const { Flag f = get_flag(); return f == Flag::CAPTURE || f == Flag::CAPTURE_PROMOTION; }
         [[nodiscard]] constexpr bool is_double_pawn_push() const { return get_flag() == Flag::DOUBLE_PAWN_PUSH; }
         [[nodiscard]] constexpr bool is_en_passant() const { return get_flag() == Flag::EN_PASSANT; }
         [[nodiscard]] constexpr bool is_castling() const { return get_flag() == Flag::CASTLING; }

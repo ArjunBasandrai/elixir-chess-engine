@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <vector>
+#include <chrono>
 
 #include "src/types.h"
 #include "src/defs.h"
@@ -13,6 +14,7 @@
 #include "src/attacks/magics.h"
 #include "src/attacks/attacks.h"
 #include "src/movegen.h"
+#include "src/utils/perft.h"
 
 using namespace elixir;
 
@@ -24,27 +26,17 @@ void init() {
 
 int main() {
     init();
-
     Board board;
-    board.from_fen("rnbqkbnr/8/8/8/PPPPPPPP/8/8/RNBQKBNR w KQkq - 0 1 ");
-    board.print_board();
-
-    std::vector<move::Move> move_list = movegen::generate_moves(board);
-    std::cout << "Move list size: " << move_list.size() << std::endl;
-    getchar();
-    for (auto m : move_list) {
-        if (board.make_move(m)) {
-            board.print_board();
-            board.unmake_move(m, true);
-        } else {
-            std::cout << "Invalid move :";
-            m.print_uci();
-            std::cout << "On :" << std::endl;
-            board.print_board();
-        }
-        getchar();
+    for (int depth = 1; depth <= 6; depth++) {
+        board.from_fen(start_position);
+        long nodes = 0;
+        auto start = std::chrono::high_resolution_clock::now();
+        perft_driver(board, depth, nodes);    
+        auto stop = std::chrono::high_resolution_clock::now();
+        U64 duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+        std::cout << "Depth: " << depth << " nps: " << static_cast<int>((double)nodes * 1000 / (duration)) << std::endl;
     }
-    board.print_board();
+
 
     return 0;
 }

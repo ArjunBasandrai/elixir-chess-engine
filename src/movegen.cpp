@@ -165,7 +165,8 @@ namespace elixir::movegen {
                             moves.push_back(m);
                         }
                     }
-                } else if (caslting_rights & CASTLE_WHITE_QUEENSIDE) {
+                }
+                if (caslting_rights & CASTLE_WHITE_QUEENSIDE) {
                     if (!bits::get_bit(occupancy, Square::D1) && !bits::get_bit(occupancy, Square::C1) && !bits::get_bit(occupancy, Square::B1)) {
                         if (!board.is_square_attacked(Square::E1, enemy_side) && !board.is_square_attacked(Square::D1, enemy_side)) {
                             move::Move m;
@@ -186,7 +187,8 @@ namespace elixir::movegen {
                             moves.push_back(m);
                         }
                     }
-                } else if (caslting_rights & CASTLE_BLACK_QUEENSIDE) {
+                } 
+                if (caslting_rights & CASTLE_BLACK_QUEENSIDE) {
                     if (!bits::get_bit(occupancy, Square::D8) && !bits::get_bit(occupancy, Square::C8) && !bits::get_bit(occupancy, Square::B8)) {
                         if (!board.is_square_attacked(Square::E8, enemy_side) && !board.is_square_attacked(Square::D8, enemy_side)) {
                             move::Move m;
@@ -377,7 +379,6 @@ namespace elixir::movegen {
         }
     }
     
-
     std::vector<move::Move> generate_moves(Board board) {
         std::vector<move::Move> moves;
         moves.reserve(MAX_MOVES);
