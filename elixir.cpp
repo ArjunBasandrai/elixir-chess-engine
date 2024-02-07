@@ -26,7 +26,7 @@ int main() {
     init();
 
     Board board;
-    board.from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ");
+    board.from_fen("rnbqkbnr/p1p2ppp/4p3/4PP2/1pPp4/N7/PP1P2PP/R1BQKBNR b KQkq c3 0 6 ");
     board.print_board();
 
     std::vector<move::Move> move_list = movegen::generate_moves(board);
@@ -37,6 +37,7 @@ int main() {
         board.print_board();
         board.unmake_move(m, true);
     }
+
 
     return 0;
 }
