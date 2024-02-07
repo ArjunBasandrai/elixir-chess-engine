@@ -307,6 +307,42 @@ namespace elixir::movegen {
         }
     }
     
+    void generate_queen_moves(Board board, std::vector<move::Move>& moves, Color side) {
+        Bitboard queens;
+        Piece piece;
+        Color enemy_side;
+        switch (side) {
+            case Color::WHITE:
+                queens = board.queens<Color::WHITE>();
+                piece = Piece::wQ;
+                enemy_side = Color::BLACK;
+                break;
+            case Color::BLACK:
+                queens = board.queens<Color::BLACK>();
+                piece = Piece::bQ;
+                enemy_side = Color::WHITE;
+                break;
+            default:
+                assert(false);
+                break;
+        }
+        while (queens) {
+            move::Move m;
+            Square source = static_cast<Square>(bits::pop_bit(queens));
+            Bitboard attacks = attacks::get_queen_attacks(source, board.occupancy()) & ~board.color_occupancy(side);
+            while (attacks) {
+                Square target = static_cast<Square>(bits::pop_bit(attacks));
+                if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
+                    m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
+                } else {
+                    m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
+                }
+                moves.push_back(m);
+            }
+        }
+    }
+    
+
     std::vector<move::Move> generate_moves(Board board) {
         std::vector<move::Move> moves;
         moves.reserve(MAX_MOVES);
@@ -328,6 +364,9 @@ namespace elixir::movegen {
 
         // Generate Rook Moves
         generate_rook_moves(board, moves, side);
+
+        // Generate Queen Moves
+        generate_queen_moves(board, moves, side);
         return moves;
     }
 }
