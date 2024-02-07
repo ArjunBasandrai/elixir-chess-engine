@@ -265,7 +265,41 @@ namespace elixir::movegen {
                 if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
                     m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
                 } else {
-                    std::cout << "Capture move" << std::endl;
+                    m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
+                }
+                moves.push_back(m);
+            }
+        }
+    }
+    
+    void generate_rook_moves(Board board, std::vector<move::Move>& moves, Color side) {
+        Bitboard rooks;
+        Piece piece;
+        Color enemy_side;
+        switch (side) {
+            case Color::WHITE:
+                rooks = board.rooks<Color::WHITE>();
+                piece = Piece::wR;
+                enemy_side = Color::BLACK;
+                break;
+            case Color::BLACK:
+                rooks = board.rooks<Color::BLACK>();
+                piece = Piece::bR;
+                enemy_side = Color::WHITE;
+                break;
+            default:
+                assert(false);
+                break;
+        }
+        while (rooks) {
+            move::Move m;
+            Square source = static_cast<Square>(bits::pop_bit(rooks));
+            Bitboard attacks = attacks::get_rook_attacks(source, board.occupancy()) & ~board.color_occupancy(side);
+            while (attacks) {
+                Square target = static_cast<Square>(bits::pop_bit(attacks));
+                if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
+                    m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
+                } else {
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
                 }
                 moves.push_back(m);
@@ -291,6 +325,9 @@ namespace elixir::movegen {
 
         // Generate Bishop Moves
         generate_bishop_moves(board, moves, side);
+
+        // Generate Rook Moves
+        generate_rook_moves(board, moves, side);
         return moves;
     }
 }
