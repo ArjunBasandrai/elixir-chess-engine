@@ -205,14 +205,17 @@ namespace elixir::movegen {
     void generate_knight_moves(Board board, std::vector<move::Move>& moves, Color side) {
         Bitboard knights;
         Piece piece;
+        Color enemy_side;
         switch (side) {
             case Color::WHITE:
                 knights = board.knights<Color::WHITE>();
                 piece = Piece::wN;
+                enemy_side = Color::BLACK;
                 break;
             case Color::BLACK:
                 knights = board.knights<Color::BLACK>();
                 piece = Piece::bN;
+                enemy_side = Color::WHITE;
                 break;
             default:
                 assert(false);
@@ -224,12 +227,52 @@ namespace elixir::movegen {
             Bitboard attacks = attacks::get_knight_attacks(source) & ~board.color_occupancy(side);
             while (attacks) {
                 Square target = static_cast<Square>(bits::pop_bit(attacks));
-                m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
+                if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
+                    m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
+                } else {
+                    m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
+                }
                 moves.push_back(m);
             }
         }
     }
 
+    void generate_bishop_moves(Board board, std::vector<move::Move>& moves, Color side) {
+        Bitboard bishops;
+        Piece piece;
+        Color enemy_side;
+        switch (side) {
+            case Color::WHITE:
+                bishops = board.bishops<Color::WHITE>();
+                piece = Piece::wB;
+                enemy_side = Color::BLACK;
+                break;
+            case Color::BLACK:
+                bishops = board.bishops<Color::BLACK>();
+                piece = Piece::bB;
+                enemy_side = Color::WHITE;
+                break;
+            default:
+                assert(false);
+                break;
+        }
+        while (bishops) {
+            move::Move m;
+            Square source = static_cast<Square>(bits::pop_bit(bishops));
+            Bitboard attacks = attacks::get_bishop_attacks(source, board.occupancy()) & ~board.color_occupancy(side);
+            while (attacks) {
+                Square target = static_cast<Square>(bits::pop_bit(attacks));
+                if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
+                    m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
+                } else {
+                    std::cout << "Capture move" << std::endl;
+                    m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
+                }
+                moves.push_back(m);
+            }
+        }
+    }
+    
     std::vector<move::Move> generate_moves(Board board) {
         std::vector<move::Move> moves;
         moves.reserve(MAX_MOVES);
@@ -245,6 +288,9 @@ namespace elixir::movegen {
 
         // Generate Knight Moves
         generate_knight_moves(board, moves, side);
+
+        // Generate Bishop Moves
+        generate_bishop_moves(board, moves, side);
         return moves;
     }
 }

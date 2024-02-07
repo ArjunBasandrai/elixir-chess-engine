@@ -26,13 +26,13 @@ int main() {
     init();
 
     Board board;
-    board.from_fen("rnbqkbnr/pppppppp/8/8/5r2/8/PPPPP1PP/RNBQK2R b KQkq - 0 1 ");
+    board.from_fen("rnbqkbnr/8/8/8/8/p3p3/8/RNBQKBNR w KQkq - 0 1 ");
     board.print_board();
 
     std::vector<move::Move> move_list = movegen::generate_moves(board);
     std::cout << "Move list size: " << move_list.size() << std::endl;
+    getchar();
     for (auto m : move_list) {
-        getchar();
         if (board.make_move(m)) {
             board.print_board();
             board.unmake_move(m, true);
@@ -42,6 +42,7 @@ int main() {
             std::cout << "On :" << std::endl;
             board.print_board();
         }
+        getchar();
     }
     board.print_board();
 
