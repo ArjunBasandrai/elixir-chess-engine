@@ -39,6 +39,19 @@ namespace elixir {
         [[nodiscard]] inline Bitboard queens() const noexcept { return b_pieces[static_cast<I8>(PieceType::QUEEN)]; }
         [[nodiscard]] inline Bitboard king() const noexcept { return b_pieces[static_cast<I8>(PieceType::KING)]; }
 
+        template <Color C>
+        [[nodiscard]] inline Bitboard pawns() const noexcept { return pawns() & color_occupancy(C); }
+        template <Color C>
+        [[nodiscard]] inline Bitboard knights() const noexcept { return knights() & color_occupancy(C); }
+        template <Color C>
+        [[nodiscard]] inline Bitboard bishops() const noexcept { return bishops() & color_occupancy(C); }
+        template <Color C>
+        [[nodiscard]] inline Bitboard rooks() const noexcept { return rooks() & color_occupancy(C); }
+        template <Color C>
+        [[nodiscard]] inline Bitboard queens() const noexcept { return queens() & color_occupancy(C); }
+        template <Color C>
+        [[nodiscard]] inline Bitboard king() const noexcept { return king() & color_occupancy(C); }
+
         [[nodiscard]] inline Bitboard black_pawns() const noexcept { return pawns() & black_occupancy(); }
         [[nodiscard]] inline Bitboard black_knights() const noexcept { return knights() & black_occupancy(); }
         [[nodiscard]] inline Bitboard black_bishops() const noexcept { return bishops() & black_occupancy(); }
@@ -127,7 +140,7 @@ namespace elixir {
         void print_board();
 
         bool make_move(move::Move move);
-        void unmake_move(move::Move move, bool switch_side);
+        void unmake_move(move::Move move, bool from_make_move);
         bool parse_uci_move(std::string move);
     private:
         std::array<Bitboard, 2> b_occupancies{};

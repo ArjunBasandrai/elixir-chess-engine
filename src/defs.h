@@ -37,5 +37,17 @@ namespace elixir {
 
     const std::string piece_str = "PpNnBbRrQqKk";
 
+    const I8 color_offset[2] = { 1, -1 };
+    const int PromotionRank[2] = { RANK_8, RANK_1 };
+    const int DoublePawnRank[2] = { RANK_2, RANK_7 };
+
     const I16 MAX_PLY = 128;
+
+    static inline int get_rank(Square sq) {
+        return (static_cast<int>(sq) >> 3) & 7;
+    }
+
+    static inline int get_file(Square sq) {
+        return static_cast<int>(sq) & 7;
+    }
 }

@@ -208,7 +208,7 @@ namespace elixir {
         from_fen(start_position);
     }
 
-    void Board::unmake_move(const move::Move move, bool switch_side) {
+    void Board::unmake_move(const move::Move move, bool from_make_move) {
         const Square from = move.get_from();
         const Square to = move.get_to();
         const Piece piece = move.get_piece();
@@ -219,7 +219,7 @@ namespace elixir {
         Color enemy_side = static_cast<Color>(stm^1);
         int xstm = static_cast<int>(enemy_side);
 
-        if (switch_side) {
+        if (from_make_move) {
             std::swap(side, enemy_side);
             std::swap(stm, xstm);
         }

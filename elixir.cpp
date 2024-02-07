@@ -12,6 +12,7 @@
 #include "src/attacks/lookup.h"
 #include "src/attacks/magics.h"
 #include "src/attacks/attacks.h"
+#include "src/movegen.h"
 
 using namespace elixir;
 
@@ -25,10 +26,17 @@ int main() {
     init();
 
     Board board;
-    board.from_fen("rnbqkbnr/pppppppp/8/K3P2r/8/8/PPPPPPPP/RNBQ1BNR w KQkq - 0 1 ");
+    board.from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ");
     board.print_board();
-    board.parse_uci_move("a5a6");
-    board.print_board();
+
+    std::vector<move::Move> move_list = movegen::generate_moves(board);
+    std::cout << "Move list size: " << move_list.size() << std::endl;
+    for (auto m : move_list) {
+        getchar();
+        board.make_move(m);
+        board.print_board();
+        board.unmake_move(m, true);
+    }
 
     return 0;
 }

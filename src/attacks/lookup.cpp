@@ -18,8 +18,8 @@ namespace elixir::attacks {
         Bitboard bb = 0ULL;
         Bitboard mask = 0ULL;
         bits::set_bit(bb, sq);
-        int rank = (static_cast<int>(sq) >> 3) & 7;
-        int file = static_cast<int>(sq) & 7;
+        int rank = get_rank(sq);
+        int file = get_file(sq);
         switch (side) {
             case Color::WHITE:
                 mask |= (bb << 7) & not_h_file;
@@ -39,8 +39,8 @@ namespace elixir::attacks {
         Bitboard bb = 0ULL;
         Bitboard mask = 0ULL;
         bits::set_bit(bb, sq);
-        int rank = (static_cast<int>(sq) >> 3) & 7;
-        int file = static_cast<int>(sq) & 7;
+        int rank = get_rank(sq);
+        int file = get_file(sq);
         mask |= (bb << 17) & not_a_file;
         mask |= (bb << 15) & not_h_file;
         mask |= (bb << 10) & (not_ab_file);
@@ -56,8 +56,8 @@ namespace elixir::attacks {
         Bitboard bb = 0ULL;
         Bitboard mask = 0ULL;
         bits::set_bit(bb, sq);
-        int rank = (static_cast<int>(sq) >> 3) & 7;
-        int file = static_cast<int>(sq) & 7;
+        int rank = get_rank(sq);
+        int file = get_file(sq);
         mask |= (bb << 8);
         mask |= (bb << 9) & not_a_file;
         mask |= (bb << 7) & not_h_file;
@@ -125,8 +125,8 @@ namespace elixir::magic {
 
     Bitboard mask_bishop_attacks(Square sq) {
         Bitboard mask = 0ULL;
-        int rank = (static_cast<int>(sq) >> 3) & 7;
-        int file = static_cast<int>(sq) & 7;
+        int rank = get_rank(sq);
+        int file = get_file(sq);
         int r, f;
         for (r = rank + 1, f = file + 1; r <= 6 && f <= 6; r++, f++) { bits::set_bit(mask, static_cast<Square>(r * 8 + f)); }
         for (r = rank - 1, f = file + 1; r >= 1 && f <= 6; r--, f++ ) { bits::set_bit(mask, static_cast<Square>(r * 8 + f)); }
@@ -137,8 +137,8 @@ namespace elixir::magic {
 
     Bitboard mask_rook_attacks(Square sq) {
         Bitboard mask = 0ULL;
-        int rank = (static_cast<int>(sq) >> 3) & 7;
-        int file = static_cast<int>(sq) & 7;
+        int rank = get_rank(sq);
+        int file = get_file(sq);
         int r, f;
         for (r = rank + 1; r <= 6; r++) { bits::set_bit(mask, static_cast<Square>(r * 8 + file)); }
         for (r = rank - 1; r >= 1; r--) { bits::set_bit(mask, static_cast<Square>(r * 8 + file)); }
@@ -149,8 +149,8 @@ namespace elixir::magic {
 
     Bitboard bishop_attacks_on_the_fly(Square sq, Bitboard block) {
         Bitboard mask = 0ULL;
-        int rank = (static_cast<int>(sq) >> 3) & 7;
-        int file = static_cast<int>(sq) & 7;
+        int rank = get_rank(sq);
+        int file = get_file(sq);
         int r, f;
         for (r = rank + 1, f = file + 1; r <= 7 && f <= 7; r++, f++) { 
             bits::set_bit(mask, static_cast<Square>(r * 8 + f)); 
@@ -173,8 +173,8 @@ namespace elixir::magic {
 
     Bitboard rook_attacks_on_the_fly(Square sq, Bitboard block) {
         Bitboard mask = 0ULL;
-        int rank = (static_cast<int>(sq) >> 3) & 7;
-        int file = static_cast<int>(sq) & 7;
+        int rank = get_rank(sq);
+        int file = get_file(sq);
         int r, f;
         for (r = rank + 1; r <= 7; r++) { 
             bits::set_bit(mask, static_cast<Square>(r * 8 + file)); 
