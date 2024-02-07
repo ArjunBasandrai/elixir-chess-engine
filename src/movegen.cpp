@@ -342,6 +342,41 @@ namespace elixir::movegen {
         }
     }
     
+    void generate_king_moves(Board board, std::vector<move::Move>& moves, Color side) {
+        Bitboard kings;
+        Piece piece;
+        Color enemy_side;
+        switch (side) {
+            case Color::WHITE:
+                kings = board.king<Color::WHITE>();
+                piece = Piece::wK;
+                enemy_side = Color::BLACK;
+                break;
+            case Color::BLACK:
+                kings = board.king<Color::BLACK>();
+                piece = Piece::bK;
+                enemy_side = Color::WHITE;
+                break;
+            default:
+                assert(false);
+                break;
+        }
+        while (kings) {
+            move::Move m;
+            Square source = static_cast<Square>(bits::pop_bit(kings));
+            Bitboard attacks = attacks::get_king_attacks(source) & ~board.color_occupancy(side);
+            while (attacks) {
+                Square target = static_cast<Square>(bits::pop_bit(attacks));
+                if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
+                    m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
+                } else {
+                    m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
+                }
+                moves.push_back(m);
+            }
+        }
+    }
+    
 
     std::vector<move::Move> generate_moves(Board board) {
         std::vector<move::Move> moves;
@@ -353,7 +388,7 @@ namespace elixir::movegen {
         generate_capture_pawn_moves(board, moves, side);
         generate_enpassant_pawn_moves(board, moves, side);
 
-        // Generate King Moves
+        // Generate Castling Moves
         generate_castling_moves(board, moves, side);
 
         // Generate Knight Moves
@@ -367,6 +402,9 @@ namespace elixir::movegen {
 
         // Generate Queen Moves
         generate_queen_moves(board, moves, side);
+
+        // Generate King Moves
+        generate_king_moves(board, moves, side);
         return moves;
     }
 }
