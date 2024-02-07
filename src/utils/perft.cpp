@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "../board/board.h"
+#include "../utils/static_vector.h"
 #include "../move.h"
 #include "../movegen.h"
 
@@ -13,7 +14,7 @@ namespace elixir {
             nodes++;
             return;
         }
-        std::vector<move::Move> moves = movegen::generate_moves(board);
+        StaticVector<move::Move, 256> moves = movegen::generate_moves(board);
         for (auto m: moves) {
             if (!board.make_move(m)) {
                 continue;

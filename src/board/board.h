@@ -96,7 +96,6 @@ namespace elixir {
         void set_fullmove_number(I16 number) noexcept { fullmove_number = number; }
         void set_search_ply(I8 ply) noexcept { search_ply = ply; }
 
-        void set_hash_key(U64 key) noexcept { hash_key = key; }
         inline void set_hash_key() noexcept { hash_key = get_board_hash(); }
 
         [[nodiscard]] inline Square get_en_passant_square() const noexcept { return en_passant_square; }
@@ -106,17 +105,6 @@ namespace elixir {
         [[nodiscard]] inline I16 get_fullmove_number() const noexcept { return fullmove_number; }
         [[nodiscard]] inline I8 get_search_ply() const noexcept { return search_ply; }
         [[nodiscard]] inline U64 get_hash_key() const noexcept { return hash_key; }
-
-        [[nodiscard]] inline Bitboard get_attackers(Square sq) {
-            Bitboard attackers = 0ULL;
-            attackers |= (attacks::get_pawn_attacks(Color::WHITE, sq) & black_pawns());
-            attackers |= (attacks::get_pawn_attacks(Color::BLACK, sq) & white_pawns());
-            attackers |= (attacks::get_knight_attacks(sq) & knights());
-            attackers |= (attacks::get_bishop_attacks(sq, occupancy()) & (bishops() | queens()));
-            attackers |= (attacks::get_rook_attacks(sq, occupancy()) & (rooks() | queens()));
-            attackers |= (attacks::get_king_attacks(sq) & king());
-            return attackers;
-        }
 
         [[nodiscard]] inline Bitboard get_attackers(Square sq, Color c) {
             Bitboard attackers = 0ULL;

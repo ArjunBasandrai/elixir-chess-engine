@@ -7,9 +7,10 @@
 #include "types.h"
 #include "defs.h"
 #include "utils/bits.h"
+#include "utils/static_vector.h"
 
 namespace elixir::movegen {
-    void generate_quiet_pawn_moves(Board board, std::vector<move::Move>& moves) {
+    void generate_quiet_pawn_moves(Board board, StaticVector<move::Move, 256>& moves) {
         Bitboard pawns;
         Color side = board.get_side_to_move();
         I8 stm = static_cast<int>(side);
@@ -34,7 +35,6 @@ namespace elixir::movegen {
             Square source = static_cast<Square>(bits::pop_bit(pawns));
             Square target = static_cast<Square>(static_cast<int>(source) + 8 * color_offset[stm]);
             int target_rank = get_rank(target);
-            int source_rank = get_rank(source);
             
             // Quiet move check
             if (board.piece_on(target) != Piece::NO_PIECE) {
@@ -43,26 +43,26 @@ namespace elixir::movegen {
             
             if (target_rank == PromotionRank[stm]) { 
                 m.set_move(source, target, piece, move::Flag::PROMOTION, move::Promotion::QUEEN);
-                moves.push_back(m);
+                moves.push(m);
                 m.set_move(source, target, piece, move::Flag::PROMOTION, move::Promotion::ROOK);
-                moves.push_back(m);
+                moves.push(m);
                 m.set_move(source, target, piece, move::Flag::PROMOTION, move::Promotion::BISHOP);
-                moves.push_back(m);
+                moves.push(m);
                 m.set_move(source, target, piece, move::Flag::PROMOTION, move::Promotion::KNIGHT);
-                moves.push_back(m);
+                moves.push(m);
             } else {
                 m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
-                moves.push_back(m);
+                moves.push(m);
                 target = static_cast<Square>(static_cast<int>(source) + 2 * 8 * color_offset[stm]);
-                if (source_rank == DoublePawnRank[stm] && board.piece_on(target) == Piece::NO_PIECE){
+                if (get_rank(source) == DoublePawnRank[stm] && board.piece_on(target) == Piece::NO_PIECE){
                     m.set_move(source, target, piece, move::Flag::DOUBLE_PAWN_PUSH, move::Promotion::QUEEN);
-                    moves.push_back(m);
+                    moves.push(m);
                 }
             }
         }
     }
 
-    void generate_capture_pawn_moves(Board board, std::vector<move::Move>& moves) {
+    void generate_capture_pawn_moves(Board board, StaticVector<move::Move, 256>& moves) {
         Bitboard pawns;
         Color side = board.get_side_to_move();
         I8 stm = static_cast<int>(side);
@@ -90,29 +90,26 @@ namespace elixir::movegen {
 
             while (attacks) {
                 Square target = static_cast<Square>(bits::pop_bit(attacks));
-                
                 assert(board.piece_on(target) != Piece::NO_PIECE);
                 
-                int target_rank = get_rank(target);
-                int source_rank = get_rank(source);
-                if (target_rank == PromotionRank[stm]) { 
+                if (get_rank(target) == PromotionRank[stm]) { 
                     m.set_move(source, target, piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::QUEEN);
-                    moves.push_back(m);
+                    moves.push(m);
                     m.set_move(source, target, piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::ROOK);
-                    moves.push_back(m);
+                    moves.push(m);
                     m.set_move(source, target, piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::BISHOP);
-                    moves.push_back(m);
+                    moves.push(m);
                     m.set_move(source, target, piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::KNIGHT);
-                    moves.push_back(m);
+                    moves.push(m);
                 } else {
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
-                    moves.push_back(m);
+                    moves.push(m);
                 }
             }
         }
     }
 
-    void generate_enpassant_pawn_moves(Board board, std::vector<move::Move>& moves) {
+    void generate_enpassant_pawn_moves(Board board, StaticVector<move::Move, 256>& moves) {
         Bitboard pawns;
         Bitboard enemy_pawns;
         Color side = board.get_side_to_move();
@@ -143,13 +140,13 @@ namespace elixir::movegen {
                 move::Move m;
                 Square source = static_cast<Square>(bits::pop_bit(ep_attacks));
                 m.set_move(source, ep_sq, piece, move::Flag::EN_PASSANT, move::Promotion::QUEEN);
-                moves.push_back(m);
+                moves.push(m);
                 
             }
         }
     }
 
-    void generate_castling_moves(Board board, std::vector<move::Move>& moves) {
+    void generate_castling_moves(Board board, StaticVector<move::Move, 256>& moves) {
         Bitboard king;
         Bitboard occupancy = board.occupancy();
         Color side = board.get_side_to_move();
@@ -168,7 +165,7 @@ namespace elixir::movegen {
                         if (!board.is_square_attacked(Square::E1, enemy_side) && !board.is_square_attacked(Square::F1, enemy_side)) {
                             move::Move m;
                             m.set_move(Square::E1, Square::G1, piece, move::Flag::CASTLING, move::Promotion::QUEEN);
-                            moves.push_back(m);
+                            moves.push(m);
                         }
                     }
                 }
@@ -177,7 +174,7 @@ namespace elixir::movegen {
                         if (!board.is_square_attacked(Square::E1, enemy_side) && !board.is_square_attacked(Square::D1, enemy_side)) {
                             move::Move m;
                             m.set_move(Square::E1, Square::C1, piece, move::Flag::CASTLING, move::Promotion::QUEEN);
-                            moves.push_back(m);
+                            moves.push(m);
                         }
                     }
                 }
@@ -190,7 +187,7 @@ namespace elixir::movegen {
                         if (!board.is_square_attacked(Square::E8, enemy_side) && !board.is_square_attacked(Square::F8, enemy_side)) {
                             move::Move m;
                             m.set_move(Square::E8, Square::G8, piece, move::Flag::CASTLING, move::Promotion::QUEEN);
-                            moves.push_back(m);
+                            moves.push(m);
                         }
                     }
                 } 
@@ -199,7 +196,7 @@ namespace elixir::movegen {
                         if (!board.is_square_attacked(Square::E8, enemy_side) && !board.is_square_attacked(Square::D8, enemy_side)) {
                             move::Move m;
                             m.set_move(Square::E8, Square::C8, piece, move::Flag::CASTLING, move::Promotion::QUEEN);
-                            moves.push_back(m);
+                            moves.push(m);
                         }
                     }
                 }
@@ -210,7 +207,7 @@ namespace elixir::movegen {
         }
     }
 
-    void generate_knight_moves(Board board, std::vector<move::Move>& moves) {
+    void generate_knight_moves(Board board, StaticVector<move::Move, 256>& moves) {
         Bitboard knights;
         Color enemy_side;
         Piece piece;
@@ -241,12 +238,12 @@ namespace elixir::movegen {
                 } else {
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
                 }
-                moves.push_back(m);
+                moves.push(m);
             }
         }
     }
 
-    void generate_bishop_moves(Board board, std::vector<move::Move>& moves) {
+    void generate_bishop_moves(Board board, StaticVector<move::Move, 256>& moves) {
         Bitboard bishops;
         Piece piece;
         Color enemy_side;
@@ -277,12 +274,12 @@ namespace elixir::movegen {
                 } else {
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
                 }
-                moves.push_back(m);
+                moves.push(m);
             }
         }
     }
     
-    void generate_rook_moves(Board board, std::vector<move::Move>& moves) {
+    void generate_rook_moves(Board board, StaticVector<move::Move, 256>& moves) {
         Bitboard rooks;
         Piece piece;
         Color enemy_side;
@@ -313,12 +310,12 @@ namespace elixir::movegen {
                 } else {
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
                 }
-                moves.push_back(m);
+                moves.push(m);
             }
         }
     }
     
-    void generate_queen_moves(Board board, std::vector<move::Move>& moves) {
+    void generate_queen_moves(Board board, StaticVector<move::Move, 256>& moves) {
         Bitboard queens;
         Piece piece;
         Color enemy_side;
@@ -349,12 +346,12 @@ namespace elixir::movegen {
                 } else {
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
                 }
-                moves.push_back(m);
+                moves.push(m);
             }
         }
     }
     
-    void generate_king_moves(Board board, std::vector<move::Move>& moves) {
+    void generate_king_moves(Board board, StaticVector<move::Move, 256>& moves) {
         Bitboard kings;
         Piece piece;
         Color enemy_side;
@@ -385,14 +382,13 @@ namespace elixir::movegen {
                 } else {
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
                 }
-                moves.push_back(m);
+                moves.push(m);
             }
         }
     }
     
-    std::vector<move::Move> generate_moves(Board board) {
-        std::vector<move::Move> moves;
-        moves.reserve(MAX_MOVES);
+    StaticVector<move::Move, 256> generate_moves(Board board) {
+        StaticVector<move::Move, 256> moves;
 
         // Generate Pawn Moves
         generate_quiet_pawn_moves(board, moves);
