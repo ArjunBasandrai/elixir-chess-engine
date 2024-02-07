@@ -202,6 +202,34 @@ namespace elixir::movegen {
         }
     }
 
+    void generate_knight_moves(Board board, std::vector<move::Move>& moves, Color side) {
+        Bitboard knights;
+        Piece piece;
+        switch (side) {
+            case Color::WHITE:
+                knights = board.knights<Color::WHITE>();
+                piece = Piece::wN;
+                break;
+            case Color::BLACK:
+                knights = board.knights<Color::BLACK>();
+                piece = Piece::bN;
+                break;
+            default:
+                assert(false);
+                break;
+        }
+        while (knights) {
+            move::Move m;
+            Square source = static_cast<Square>(bits::pop_bit(knights));
+            Bitboard attacks = attacks::get_knight_attacks(source) & ~board.color_occupancy(side);
+            while (attacks) {
+                Square target = static_cast<Square>(bits::pop_bit(attacks));
+                m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
+                moves.push_back(m);
+            }
+        }
+    }
+
     std::vector<move::Move> generate_moves(Board board) {
         std::vector<move::Move> moves;
         moves.reserve(MAX_MOVES);
@@ -214,6 +242,9 @@ namespace elixir::movegen {
 
         // Generate King Moves
         generate_castling_moves(board, moves, side);
+
+        // Generate Knight Moves
+        generate_knight_moves(board, moves, side);
         return moves;
     }
 }
