@@ -27,7 +27,7 @@ namespace elixir::move {
 
         [[nodiscard]] constexpr Square get_from() const { return static_cast<Square>(m_move & 0x3f); }
         [[nodiscard]] constexpr Square get_to() const { return static_cast<Square>((m_move >> 6) & 0x3f); }
-        [[nodiscard]] constexpr Piece get_piece() const { return static_cast<Piece>((m_move >> 12) & 0x7); }
+        [[nodiscard]] constexpr Piece get_piece() const { return static_cast<Piece>((m_move >> 12) & 0xf); }
         [[nodiscard]] constexpr Flag get_flag() const { return static_cast<Flag>((m_move >> 16) & 0x7); }
         [[nodiscard]] constexpr Promotion get_promotion() const { return static_cast<Promotion>((m_move >> 19) & 0x3); }
         [[nodiscard]] constexpr Move_T get_move() const { return m_move; }
