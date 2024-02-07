@@ -10,27 +10,37 @@
 namespace elixir {
     namespace bits {
         inline Bitboard bit(const Square sq) { 
+            
             assert(sq != Square::NO_SQ);
+            
             return 1ULL << static_cast<int>(sq); 
         }
 
         [[nodiscard]] inline Bitboard get_bit(Bitboard bb, const Square sq) { 
+            
             assert(sq != Square::NO_SQ);
+            
             return bb & bit(sq); 
         }
 
         inline void set_bit(Bitboard &bb, const Square sq) { 
+            
             assert(sq != Square::NO_SQ);
+            
             bb |= bit(sq); 
         }
 
         inline void clear_bit(Bitboard &bb, const Square sq) { 
+            
             assert(sq != Square::NO_SQ && bb && get_bit(bb, sq));
+            
             bb &= ~bit(sq); 
         }
 
         inline void flip_bit(Bitboard &bb, const Square sq) { 
+            
             assert(sq != Square::NO_SQ);
+            
             bb ^= bit(sq); 
         }
 
@@ -39,17 +49,23 @@ namespace elixir {
         }
 
         [[nodiscard]] inline int lsb_index(const Bitboard bb) { 
+            
             assert(bb);
+            
             return std::countr_zero(bb); 
         }
 
         [[nodiscard]] inline int msb_index(const Bitboard bb) { 
+            
             assert(bb);
+            
             return 63 - std::countl_zero(bb); 
         }
 
         inline int pop_bit(Bitboard &bb) {
+            
             assert(bb);
+            
             int index = lsb_index(bb);
             clear_bit(bb, static_cast<Square>(index));
             return index;

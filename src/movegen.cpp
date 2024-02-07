@@ -9,8 +9,9 @@
 #include "utils/bits.h"
 
 namespace elixir::movegen {
-    void generate_quiet_pawn_moves(Board board, std::vector<move::Move>& moves, Color side) {
+    void generate_quiet_pawn_moves(Board board, std::vector<move::Move>& moves) {
         Bitboard pawns;
+        Color side = board.get_side_to_move();
         I8 stm = static_cast<int>(side);
         Piece piece;
         
@@ -61,8 +62,9 @@ namespace elixir::movegen {
         }
     }
 
-    void generate_capture_pawn_moves(Board board, std::vector<move::Move>& moves, Color side) {
+    void generate_capture_pawn_moves(Board board, std::vector<move::Move>& moves) {
         Bitboard pawns;
+        Color side = board.get_side_to_move();
         I8 stm = static_cast<int>(side);
         I8 xstm = stm^1;
         Piece piece;
@@ -88,7 +90,9 @@ namespace elixir::movegen {
 
             while (attacks) {
                 Square target = static_cast<Square>(bits::pop_bit(attacks));
+                
                 assert(board.piece_on(target) != Piece::NO_PIECE);
+                
                 int target_rank = get_rank(target);
                 int source_rank = get_rank(source);
                 if (target_rank == PromotionRank[stm]) { 
@@ -108,9 +112,10 @@ namespace elixir::movegen {
         }
     }
 
-    void generate_enpassant_pawn_moves(Board board, std::vector<move::Move>& moves, Color side) {
+    void generate_enpassant_pawn_moves(Board board, std::vector<move::Move>& moves) {
         Bitboard pawns;
         Bitboard enemy_pawns;
+        Color side = board.get_side_to_move();
         I8 stm = static_cast<int>(side);
         I8 xstm = stm^1;
         Color enemy_side = static_cast<Color>(xstm);
@@ -144,9 +149,10 @@ namespace elixir::movegen {
         }
     }
 
-    void generate_castling_moves(Board board, std::vector<move::Move>& moves, Color side) {
+    void generate_castling_moves(Board board, std::vector<move::Move>& moves) {
         Bitboard king;
         Bitboard occupancy = board.occupancy();
+        Color side = board.get_side_to_move();
         I8 stm = static_cast<int>(side);
         I8 xstm = stm^1;
         Color enemy_side = static_cast<Color>(xstm);
@@ -204,10 +210,11 @@ namespace elixir::movegen {
         }
     }
 
-    void generate_knight_moves(Board board, std::vector<move::Move>& moves, Color side) {
+    void generate_knight_moves(Board board, std::vector<move::Move>& moves) {
         Bitboard knights;
-        Piece piece;
         Color enemy_side;
+        Piece piece;
+        Color side = board.get_side_to_move();
         switch (side) {
             case Color::WHITE:
                 knights = board.knights<Color::WHITE>();
@@ -239,10 +246,11 @@ namespace elixir::movegen {
         }
     }
 
-    void generate_bishop_moves(Board board, std::vector<move::Move>& moves, Color side) {
+    void generate_bishop_moves(Board board, std::vector<move::Move>& moves) {
         Bitboard bishops;
         Piece piece;
         Color enemy_side;
+        Color side = board.get_side_to_move();
         switch (side) {
             case Color::WHITE:
                 bishops = board.bishops<Color::WHITE>();
@@ -274,10 +282,11 @@ namespace elixir::movegen {
         }
     }
     
-    void generate_rook_moves(Board board, std::vector<move::Move>& moves, Color side) {
+    void generate_rook_moves(Board board, std::vector<move::Move>& moves) {
         Bitboard rooks;
         Piece piece;
         Color enemy_side;
+        Color side = board.get_side_to_move();
         switch (side) {
             case Color::WHITE:
                 rooks = board.rooks<Color::WHITE>();
@@ -309,10 +318,11 @@ namespace elixir::movegen {
         }
     }
     
-    void generate_queen_moves(Board board, std::vector<move::Move>& moves, Color side) {
+    void generate_queen_moves(Board board, std::vector<move::Move>& moves) {
         Bitboard queens;
         Piece piece;
         Color enemy_side;
+        Color side = board.get_side_to_move();
         switch (side) {
             case Color::WHITE:
                 queens = board.queens<Color::WHITE>();
@@ -344,10 +354,11 @@ namespace elixir::movegen {
         }
     }
     
-    void generate_king_moves(Board board, std::vector<move::Move>& moves, Color side) {
+    void generate_king_moves(Board board, std::vector<move::Move>& moves) {
         Bitboard kings;
         Piece piece;
         Color enemy_side;
+        Color side = board.get_side_to_move();
         switch (side) {
             case Color::WHITE:
                 kings = board.king<Color::WHITE>();
@@ -382,30 +393,29 @@ namespace elixir::movegen {
     std::vector<move::Move> generate_moves(Board board) {
         std::vector<move::Move> moves;
         moves.reserve(MAX_MOVES);
-        Color side = board.get_side_to_move();
 
         // Generate Pawn Moves
-        generate_quiet_pawn_moves(board, moves, side);
-        generate_capture_pawn_moves(board, moves, side);
-        generate_enpassant_pawn_moves(board, moves, side);
+        generate_quiet_pawn_moves(board, moves);
+        generate_capture_pawn_moves(board, moves);
+        generate_enpassant_pawn_moves(board, moves);
 
         // Generate Castling Moves
-        generate_castling_moves(board, moves, side);
+        generate_castling_moves(board, moves);
 
         // Generate Knight Moves
-        generate_knight_moves(board, moves, side);
+        generate_knight_moves(board, moves);
 
         // Generate Bishop Moves
-        generate_bishop_moves(board, moves, side);
+        generate_bishop_moves(board, moves);
 
         // Generate Rook Moves
-        generate_rook_moves(board, moves, side);
+        generate_rook_moves(board, moves);
 
         // Generate Queen Moves
-        generate_queen_moves(board, moves, side);
+        generate_queen_moves(board, moves);
 
         // Generate King Moves
-        generate_king_moves(board, moves, side);
+        generate_king_moves(board, moves);
         return moves;
     }
 }

@@ -46,19 +46,25 @@ namespace elixir {
     }
 
     void Board::set_piece(Square sq, PieceType piece, Color color) {
+        
         assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
+        
         bits::set_bit(b_occupancies[static_cast<I8>(color)], sq);
         bits::set_bit(b_pieces[static_cast<I8>(piece)], sq);
     }
 
     void Board::remove_piece(Square sq, PieceType piece, Color color) {
+        
         assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
+        
         bits::clear_bit(b_occupancies[static_cast<I8>(color)], sq);
         bits::clear_bit(b_pieces[static_cast<I8>(piece)], sq);
     }
 
     [[nodiscard]] Piece Board::piece_on(Square sq) {
+        
         assert(sq != Square::NO_SQ);
+        
         for (int piece = 0; piece < 12; piece++) {
             for (int color = 0; color < 2; color++) {
                 if (bits::get_bit(b_pieces[piece/2] & b_occupancies[color], sq)) {
@@ -158,7 +164,9 @@ namespace elixir {
         fullmove_number = std::stoi(params.size() > 5 ? params[5] : "1");
 
         std::vector<std::string> ranks = str_utils::split(position, '/');
+        
         assert(ranks.size() == 8);
+        
         for (int rank = 7; rank >= 0; rank--) {
             int file = 0;
             for (char c : ranks[7 - rank]) {
@@ -166,7 +174,9 @@ namespace elixir {
                     file += c - '0';
                 } else {
                     PieceType piece = static_cast<PieceType>(piece_str.find(c)/2);
+                    
                     assert(piece != PieceType::NO_PIECE_TYPE);
+                    
                     set_piece(static_cast<Square>(8 * rank + file), piece, isupper(c) ? Color::WHITE : Color::BLACK);
                     file++;
                 }
@@ -323,11 +333,13 @@ namespace elixir {
 
         const Piece piece_ = piece_on(from);
 
+        
         assert(from != Square::NO_SQ && to != Square::NO_SQ);
         assert(from != to);
         assert(piece != Piece::NO_PIECE);
         assert(piece_ == piece);
         assert(piece_color(piece_) == side);
+        
 
         Piece captured_piece = piece_on(to);
 
@@ -337,7 +349,9 @@ namespace elixir {
         // Move source piece to target only if not a capturing move
         // In case of a capture, moving of piece is handled in the "Handling Captures" section
         if (!move.is_capture()) {
+            
             assert(captured_piece == Piece::NO_PIECE);
+            
             set_piece(to, piecetype, side);
         }
         
@@ -388,7 +402,9 @@ namespace elixir {
                     promotion_piece = PieceType::NO_PIECE_TYPE;
                     break;
             }
+            
             assert(promotion_piece != PieceType::NO_PIECE_TYPE);
+            
             set_piece(to, promotion_piece, side);
             hash_key ^= zobrist::piece_keys[int_piece][int_to];
             hash_key ^= zobrist::piece_keys[static_cast<int>(promotion_piece)+stm*6][int_to];
@@ -460,7 +476,9 @@ namespace elixir {
     }
 
     bool Board::parse_uci_move(std::string move) {
+        
         assert(move.length() == 4 || move.length() == 5);
+        
         Square from = static_cast<Square>((move[0] - 'a') + 8 * (move[1] - '1'));
         Square to = static_cast<Square>((move[2] - 'a') + 8 * (move[3] - '1'));
         Piece piece = piece_on(from);
