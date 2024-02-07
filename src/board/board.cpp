@@ -332,10 +332,15 @@ namespace elixir {
         Piece captured_piece = piece_on(to);
 
         undo_stack.emplace_back(hash_key, castling_rights, en_passant_square, fifty_move_counter, captured_piece);
-
+        
         remove_piece(from, piecetype, side);
-        set_piece(to, piecetype, side);
-
+        // Move source piece to target only if not a capturing move
+        // In case of a capture, moving of piece is handled in the "Handling Captures" section
+        if (!move.is_capture()) {
+            assert(captured_piece == Piece::NO_PIECE);
+            set_piece(to, piecetype, side);
+        }
+        
         if (piece_ == Piece::wK || piece_ == Piece::bK) {
             kings[static_cast<I8>(side)] = to;
         }
@@ -353,10 +358,11 @@ namespace elixir {
         }
 
         // Handling Captures
-        if (flag == move::Flag::CAPTURE) {
+        if (move.is_capture()) {
             if (captured_piece != Piece::NO_PIECE) {
                 fifty_move_counter = 0;
                 remove_piece(to, piece_to_piecetype(captured_piece), enemy_side);
+                set_piece(to, piecetype, side);
                 hash_key ^= zobrist::piece_keys[static_cast<int>(captured_piece)][static_cast<int>(to)];
             }
         }
@@ -478,6 +484,14 @@ namespace elixir {
                     break;
             }
             flag = move::Flag::PROMOTION;
+        }
+
+        if (piece_on(to) != Piece::NO_PIECE) {
+            if (get_rank(to) == PromotionRank[static_cast<I8>(side)]) {
+                flag = move::Flag::CAPTURE_PROMOTION;
+            } else {
+                flag = move::Flag::CAPTURE;
+            }
         }
         move::Move m;
         m.set_move(from, to, piece, flag, promotion);

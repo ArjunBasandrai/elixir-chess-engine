@@ -65,5 +65,6 @@ namespace elixir::move {
                     break;
             }
         }
+        std::cout << std::endl;
     }
 }

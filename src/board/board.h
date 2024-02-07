@@ -25,6 +25,7 @@ namespace elixir {
         [[nodiscard]] inline PieceType piece_to_piecetype(Piece piece) { return static_cast<PieceType>(static_cast<int>(piece) / 2); }
 
         [[nodiscard]] inline Bitboard color_occupancy(Color color) const noexcept { return b_occupancies[static_cast<I8>(color)]; }
+        [[nodiscard]] inline Bitboard color_occupancy(int color) const noexcept { return b_occupancies[color]; }
 
         [[nodiscard]] inline Bitboard piece_bitboard(PieceType piece) const noexcept { return b_pieces[static_cast<I8>(piece)]; }
 

@@ -10,7 +10,8 @@ namespace elixir::move {
         DOUBLE_PAWN_PUSH,
         EN_PASSANT,
         CASTLING,
-        PROMOTION
+        PROMOTION,
+        CAPTURE_PROMOTION
     };
     enum class Promotion {
         QUEEN,
@@ -38,11 +39,11 @@ namespace elixir::move {
         void constexpr set_move(int from, int to, Piece piece, Flag flag, Promotion promotion) { m_move = encode_move(from, to, piece, flag, promotion); }
         void constexpr set_move(int from, int to, int piece, Flag flag, Promotion promotion) { m_move = encode_move(from, to, piece, flag, promotion); }
         
-        [[nodiscard]] constexpr bool is_capture() const { return get_flag() == Flag::CAPTURE; }
+        [[nodiscard]] constexpr bool is_capture() const { return get_flag() == Flag::CAPTURE || get_flag() == Flag::CAPTURE_PROMOTION; }
         [[nodiscard]] constexpr bool is_double_pawn_push() const { return get_flag() == Flag::DOUBLE_PAWN_PUSH; }
         [[nodiscard]] constexpr bool is_en_passant() const { return get_flag() == Flag::EN_PASSANT; }
         [[nodiscard]] constexpr bool is_castling() const { return get_flag() == Flag::CASTLING; }
-        [[nodiscard]] constexpr bool is_promotion() const { return get_flag() == Flag::PROMOTION; }
+        [[nodiscard]] constexpr bool is_promotion() const { return get_flag() == Flag::PROMOTION || get_flag() == Flag::CAPTURE_PROMOTION; }
         [[nodiscard]] constexpr bool is_normal() const { return get_flag() == Flag::NORMAL; }
         [[nodiscard]] constexpr bool is_quiet() const { return !(is_capture() || is_en_passant()); }
 
