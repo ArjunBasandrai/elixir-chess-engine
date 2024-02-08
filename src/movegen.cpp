@@ -10,7 +10,7 @@
 #include "utils/static_vector.h"
 
 namespace elixir::movegen {
-    void generate_quiet_pawn_moves(Board board, StaticVector<move::Move, 256>& moves) {
+    void generate_quiet_pawn_moves(Board& board, StaticVector<move::Move, 256>& moves) {
         Bitboard pawns;
         Color side = board.get_side_to_move();
         I8 stm = static_cast<int>(side);
@@ -62,7 +62,7 @@ namespace elixir::movegen {
         }
     }
 
-    void generate_capture_pawn_moves(Board board, StaticVector<move::Move, 256>& moves) {
+    void generate_capture_pawn_moves(Board& board, StaticVector<move::Move, 256>& moves) {
         Bitboard pawns;
         Color side = board.get_side_to_move();
         I8 stm = static_cast<int>(side);
@@ -109,7 +109,7 @@ namespace elixir::movegen {
         }
     }
 
-    void generate_enpassant_pawn_moves(Board board, StaticVector<move::Move, 256>& moves) {
+    void generate_enpassant_pawn_moves(Board& board, StaticVector<move::Move, 256>& moves) {
         Square ep_sq = board.get_en_passant_square();
         if (ep_sq != Square::NO_SQ) {
             Bitboard pawns;
@@ -146,7 +146,7 @@ namespace elixir::movegen {
         }
     }
 
-    void generate_castling_moves(Board board, StaticVector<move::Move, 256>& moves) {
+    void generate_castling_moves(Board& board, StaticVector<move::Move, 256>& moves) {
         Bitboard king;
         Bitboard occupancy = board.occupancy();
         Color side = board.get_side_to_move();
@@ -207,7 +207,7 @@ namespace elixir::movegen {
         }
     }
 
-    void generate_knight_moves(Board board, StaticVector<move::Move, 256>& moves) {
+    void generate_knight_moves(Board& board, StaticVector<move::Move, 256>& moves) {
         Bitboard knights;
         Color enemy_side;
         Piece piece;
@@ -243,7 +243,7 @@ namespace elixir::movegen {
         }
     }
 
-    void generate_bishop_moves(Board board, StaticVector<move::Move, 256>& moves) {
+    void generate_bishop_moves(Board& board, StaticVector<move::Move, 256>& moves) {
         Bitboard bishops;
         Piece piece;
         Color enemy_side;
@@ -279,7 +279,7 @@ namespace elixir::movegen {
         }
     }
     
-    void generate_rook_moves(Board board, StaticVector<move::Move, 256>& moves) {
+    void generate_rook_moves(Board& board, StaticVector<move::Move, 256>& moves) {
         Bitboard rooks;
         Piece piece;
         Color enemy_side;
@@ -315,7 +315,7 @@ namespace elixir::movegen {
         }
     }
     
-    void generate_queen_moves(Board board, StaticVector<move::Move, 256>& moves) {
+    void generate_queen_moves(Board& board, StaticVector<move::Move, 256>& moves) {
         Bitboard queens;
         Piece piece;
         Color enemy_side;
@@ -351,7 +351,7 @@ namespace elixir::movegen {
         }
     }
     
-    void generate_king_moves(Board board, StaticVector<move::Move, 256>& moves) {
+    void generate_king_moves(Board& board, StaticVector<move::Move, 256>& moves) {
         Bitboard kings;
         Piece piece;
         Color enemy_side;
@@ -387,7 +387,7 @@ namespace elixir::movegen {
         }
     }
     
-    StaticVector<move::Move, 256> generate_moves(Board board) {
+    StaticVector<move::Move, 256> generate_moves(Board& board) {
         StaticVector<move::Move, 256> moves;
 
         // Generate Pawn Moves

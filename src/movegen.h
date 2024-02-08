@@ -10,5 +10,5 @@
 
 namespace elixir::movegen {
     constexpr int MAX_MOVES = 256;
-    StaticVector<move::Move, 256> generate_moves(Board board);
+    StaticVector<move::Move, 256> generate_moves(Board& board);
 }

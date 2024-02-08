@@ -9,7 +9,7 @@
 #include "../movegen.h"
 
 namespace elixir {
-    void perft_driver(Board board, int depth, long& nodes) {
+    void perft_driver(Board& board, int depth, long& nodes) {
         if (!depth) {
             nodes++;
             return;
