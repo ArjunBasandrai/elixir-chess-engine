@@ -31,4 +31,8 @@
 *.out
 *.app
 
+# Debug files
+*.pdb
+*.ilk
+
 .vscode
