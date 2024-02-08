@@ -5,7 +5,7 @@
 #include <vector>
 
 namespace elixir::str_utils {
-    std::vector<std::string> split(const std::string& str, char delim) {
+    inline std::vector<std::string> split(const std::string& str, char delim) {
         std::vector<std::string> tokens;
         std::string token;
         std::istringstream token_stream(str);

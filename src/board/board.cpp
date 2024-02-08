@@ -479,6 +479,26 @@ namespace elixir {
                 flag = move::Flag::CAPTURE;
             }
         }
+
+        if (piece == Piece::wK && from == Square::E1 && to == Square::G1) {
+            flag = move::Flag::CASTLING;
+        } else if (piece == Piece::wK && from == Square::E1 && to == Square::C1) {
+            flag = move::Flag::CASTLING;
+        } else if (piece == Piece::bK && from == Square::E8 && to == Square::G8) {
+            flag = move::Flag::CASTLING;
+        } else if (piece == Piece::bK && from == Square::E8 && to == Square::C8) {
+            flag = move::Flag::CASTLING;
+        }
+
+        int to_rank = get_rank(to);
+        int from_rank = get_rank(from);
+
+        if (piece == Piece::wP && from_rank == RANK_2 && to_rank == RANK_4) {
+            flag = move::Flag::DOUBLE_PAWN_PUSH;
+        } else if (piece == Piece::bP && from_rank == RANK_7 && to_rank == RANK_5) {
+            flag = move::Flag::DOUBLE_PAWN_PUSH;
+        }
+
         move::Move m;
         m.set_move(from, to, piece, flag, promotion);
         return make_move(m);
