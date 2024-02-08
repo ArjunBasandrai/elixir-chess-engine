@@ -1,4 +1,4 @@
-SRC = src/utils/bits.cpp src/board/board.cpp src/hashing/hash.cpp src/move.cpp src/attacks/lookup.cpp src/movegen.cpp src/utils/perft.cpp src/uci.cpp
+SRC = src/utils/bits.cpp src/board/board.cpp src/hashing/hash.cpp src/move.cpp src/attacks/lookup.cpp src/movegen.cpp src/utils/perft.cpp src/uci.cpp src/evaluate.cpp
 
 all: __compile __run
 

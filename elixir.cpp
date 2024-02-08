@@ -10,6 +10,7 @@
 #include "src/hashing/hash.h"
 #include "src/attacks/attacks.h"
 #include "src/uci.h"
+#include "src/evaluate.h"
 
 using namespace elixir;
 
@@ -24,6 +25,7 @@ int main() {
 
     Board board;
     board.from_fen(start_position);
-    uci::uci_loop(board);
+    std::cout << eval::evaluate(board) << std::endl;
+    // uci::uci_loop(board);
     return 0;
 }
