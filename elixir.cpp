@@ -28,17 +28,8 @@ int main() {
     init();
 
     Board board;
-    long nodes_master = 0;
-    auto start = std::chrono::high_resolution_clock::now();
-    for (int depth = 1; depth <= 5; depth++) {
-        board.from_fen(start_position);
-        long nodes = 0;
-        perft_driver(board, depth, nodes);    
-        nodes_master += nodes;
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    U64 duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
-    std::cout << "ms: " << duration << " nps: " << static_cast<int>((double)nodes_master * 1000 / (duration)) << std::endl;
-
+    board.from_fen(start_position);
+    long long nodes = 0;
+    perft_test(board, 7, nodes);
     return 0;
 }
