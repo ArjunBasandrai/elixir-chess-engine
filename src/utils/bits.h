@@ -71,5 +71,5 @@ namespace elixir {
             return index;
         }
     }
-    extern void print_bitboard(const Bitboard bitboard);
+    extern void print_bitboard(const Bitboard bitboard) noexcept;
 }

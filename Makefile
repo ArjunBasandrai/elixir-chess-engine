@@ -5,10 +5,10 @@ all: __compile __run
 debug: __debug_compile __run
 
 __compile:
-	clang++ -Ofast -DNDEBUG -std=c++20 -o elixir.exe elixir.cpp $(SRC)
+	clang++ -Ofast -march=native -DNDEBUG -std=c++20 -o elixir.exe elixir.cpp $(SRC)
 
 __debug_compile:
-	clang++ -Ofast -std=c++20 -o elixir.exe elixir.cpp $(SRC)
+	clang++ -Og -g -std=c++20 -o elixir.exe elixir.cpp $(SRC)
 
 __run:
 	./elixir.exe

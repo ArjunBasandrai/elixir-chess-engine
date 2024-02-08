@@ -26,10 +26,11 @@ void init() {
 
 int main() {
     init();
+
     Board board;
     long nodes_master = 0;
     auto start = std::chrono::high_resolution_clock::now();
-    for (int depth = 1; depth <= 6; depth++) {
+    for (int depth = 1; depth <= 5; depth++) {
         board.from_fen(start_position);
         long nodes = 0;
         perft_driver(board, depth, nodes);    
@@ -37,8 +38,7 @@ int main() {
     }
     auto stop = std::chrono::high_resolution_clock::now();
     U64 duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
-    std::cout << "nps: " << static_cast<int>((double)nodes_master * 1000 / (duration)) << std::endl;
-
+    std::cout << "ms: " << duration << " nps: " << static_cast<int>((double)nodes_master * 1000 / (duration)) << std::endl;
 
     return 0;
 }

@@ -6,34 +6,7 @@
 #include "board/board.h"
 
 namespace elixir::move {
-    [[nodiscard]] Move_T Move::encode_move(Square from, Square to, Piece piece, Flag flag, Promotion promotion) {
-        Move_T move = 0;
-        move |= static_cast<Move_T>(from);
-        move |= static_cast<Move_T>(to) << 6;
-        move |= static_cast<Move_T>(piece) << 12;
-        move |= static_cast<Move_T>(flag) << 16;
-        move |= static_cast<Move_T>(promotion) << 19;
-        return move;        
-    }
-    [[nodiscard]] Move_T Move::encode_move(Square from, Square to, int piece, Flag flag, Promotion promotion) {
-        Move_T move = 0;
-        move |= static_cast<Move_T>(from);
-        move |= static_cast<Move_T>(to) << 6;
-        move |= static_cast<Move_T>(piece) << 12;
-        move |= static_cast<Move_T>(flag) << 16;
-        move |= static_cast<Move_T>(promotion) << 19;
-        return move;        
-    }
-    [[nodiscard]] Move_T Move::encode_move(int from, int to, Piece piece, Flag flag, Promotion promotion) {
-        Move_T move = 0;
-        move |= static_cast<Move_T>(from);
-        move |= static_cast<Move_T>(to) << 6;
-        move |= static_cast<Move_T>(piece) << 12;
-        move |= static_cast<Move_T>(flag) << 16;
-        move |= static_cast<Move_T>(promotion) << 19;
-        return move;        
-    }
-    [[nodiscard]] Move_T Move::encode_move(int from, int to, int piece, Flag flag, Promotion promotion) {
+    [[nodiscard]] Move_T Move::encode_move(Square from, Square to, Piece piece, Flag flag, Promotion promotion) const noexcept {
         Move_T move = 0;
         move |= static_cast<Move_T>(from);
         move |= static_cast<Move_T>(to) << 6;
@@ -43,7 +16,7 @@ namespace elixir::move {
         return move;        
     }
 
-    void Move::print_uci() {
+    void Move::print_uci() const {
         std::cout << square_str[static_cast<int>(get_from())];
         std::cout << square_str[static_cast<int>(get_to())];
         if (is_promotion()) {

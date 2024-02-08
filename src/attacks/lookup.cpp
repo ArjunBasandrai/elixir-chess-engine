@@ -90,25 +90,6 @@ namespace elixir::attacks {
         }
     }
 
-    Bitboard get_bishop_attacks(Square sq, U64 occupancy) {
-        int square = static_cast<int>(sq);
-        occupancy &= magic::bishop_masks[square];
-        occupancy *= magic::bishop_magic_numbers[square];
-        occupancy >>= 64 - magic::bishop_relevant_bits[square];
-        return magic::bishop_attacks[square][occupancy];
-    }
-
-    Bitboard get_rook_attacks(Square sq, U64 occupancy) {
-        int square = static_cast<int>(sq);
-        occupancy &= magic::rook_masks[square];
-        occupancy *= magic::rook_magic_numbers[square];
-        occupancy >>= 64 - magic::rook_relevant_bits[square];
-        return magic::rook_attacks[square][occupancy];
-    }
-
-    Bitboard get_queen_attacks(Square sq, U64 occupancy) {
-        return get_bishop_attacks(sq, occupancy) | get_rook_attacks(sq, occupancy);
-    }
 }
 
 namespace elixir::magic {

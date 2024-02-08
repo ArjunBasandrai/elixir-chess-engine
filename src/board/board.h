@@ -9,6 +9,7 @@
 #include "../move.h"
 #include "../attacks/attacks.h"
 #include "../utils/state.h"
+#include "../utils/bits.h"
 
 namespace elixir {
     extern const std::string square_str[64];
@@ -67,34 +68,44 @@ namespace elixir {
         [[nodiscard]] inline Bitboard white_queens() const noexcept { return queens() & white_occupancy(); }
         [[nodiscard]] inline Bitboard white_king() const noexcept { return king() & white_occupancy(); }
 
-        [[nodiscard]] inline Bitboard minors() { return knights() | bishops(); }
+        [[nodiscard]] inline Bitboard minors() const noexcept { return knights() | bishops(); }
 
-        [[nodiscard]] inline Bitboard black_minors() { return minors() & black_occupancy(); }
-        [[nodiscard]] inline Bitboard white_minors() { return minors() & white_occupancy(); }
+        [[nodiscard]] inline Bitboard black_minors() const noexcept { return minors() & black_occupancy(); }
+        [[nodiscard]] inline Bitboard white_minors() const noexcept { return minors() & white_occupancy(); }
 
-        [[nodiscard]] inline Bitboard majors() { return rooks() | queens(); }
+        [[nodiscard]] inline Bitboard majors() const noexcept { return rooks() | queens(); }
 
-        [[nodiscard]] inline Bitboard black_majors() { return majors() & black_occupancy(); }
-        [[nodiscard]] inline Bitboard white_majors() { return majors() & white_occupancy(); }
+        [[nodiscard]] inline Bitboard black_majors() const noexcept { return majors() & black_occupancy(); }
+        [[nodiscard]] inline Bitboard white_majors() const noexcept { return majors() & white_occupancy(); }
 
         [[nodiscard]] inline Bitboard all_pieces() const noexcept { return pawns() | knights() | bishops() | rooks() | queens() | king(); }
         [[nodiscard]] inline Bitboard all_pieces(Color color) const noexcept { return all_pieces() & color_occupancy(color); }
 
-        [[nodiscard]] inline bool has_castling_rights(Color color) { return castling_rights & (3 << 2*(static_cast<int>(color))); }
+        [[nodiscard]] inline bool has_castling_rights(Color color) const noexcept { return castling_rights & (3 << 2*(static_cast<int>(color))); }
 
         [[nodiscard]] U64 get_board_hash();
 
-        void set_piece(Square sq, PieceType piece, Color color);
-        void remove_piece(Square sq, PieceType piece, Color color);
-        [[nodiscard]] Piece piece_on(Square sq);
-        [[nodiscard]] inline Color piece_color(Piece piece) { return (static_cast<int>(piece) % 2 == 0) ? Color::WHITE : Color::BLACK; }
+        constexpr inline void set_piece(const Square sq, const PieceType piece, const Color color) {
+            assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
+            bits::set_bit(b_occupancies[static_cast<I8>(color)], sq);
+            bits::set_bit(b_pieces[static_cast<I8>(piece)], sq);
+        }
 
-        void set_en_passant_square(Square sq) noexcept { en_passant_square = sq; }
-        void set_side_to_move(Color color) noexcept { side = color; }
-        void set_castling_rights(Castling rights) noexcept { castling_rights = rights; }
-        void set_fifty_move_counter(I8 counter) noexcept { fifty_move_counter = counter; }
-        void set_fullmove_number(I16 number) noexcept { fullmove_number = number; }
-        void set_search_ply(I8 ply) noexcept { search_ply = ply; }
+        constexpr inline void remove_piece(const Square sq, const PieceType piece, const Color color) {
+            assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
+            bits::clear_bit(b_occupancies[static_cast<I8>(color)], sq);
+            bits::clear_bit(b_pieces[static_cast<I8>(piece)], sq);
+        }
+
+        [[nodiscard]] Piece piece_on(Square sq) const;
+        [[nodiscard]] inline Color piece_color(Piece piece) const noexcept { return (static_cast<int>(piece) % 2 == 0) ? Color::WHITE : Color::BLACK; }
+
+        constexpr void set_en_passant_square(Square sq) noexcept { en_passant_square = sq; }
+        constexpr void set_side_to_move(Color color) noexcept { side = color; }
+        constexpr void set_castling_rights(Castling rights) noexcept { castling_rights = rights; }
+        constexpr void set_fifty_move_counter(I8 counter) noexcept { fifty_move_counter = counter; }
+        constexpr void set_fullmove_number(I16 number) noexcept { fullmove_number = number; }
+        constexpr void set_search_ply(I8 ply) noexcept { search_ply = ply; }
 
         inline void set_hash_key() noexcept { hash_key = get_board_hash(); }
 
@@ -106,7 +117,7 @@ namespace elixir {
         [[nodiscard]] inline I8 get_search_ply() const noexcept { return search_ply; }
         [[nodiscard]] inline U64 get_hash_key() const noexcept { return hash_key; }
 
-        [[nodiscard]] inline Bitboard get_attackers(Square sq, Color c) {
+        [[nodiscard]] inline Bitboard get_attackers(Square sq, Color c) const {
             Bitboard attackers = 0ULL;
             attackers |= (attacks::get_pawn_attacks(Color::WHITE, sq) & black_pawns());
             attackers |= (attacks::get_pawn_attacks(Color::BLACK, sq) & white_pawns());
@@ -117,7 +128,7 @@ namespace elixir {
             return attackers & color_occupancy(c);
         }
 
-        [[nodiscard]] inline bool is_square_attacked(Square sq, Color c) {
+        [[nodiscard]] inline bool is_square_attacked(Square sq, Color c) const {
             return (get_attackers(sq, c) != 0ULL) ? true : false;
         }
 
@@ -126,7 +137,7 @@ namespace elixir {
         void to_startpos();
 
         void print_castling_rights() const noexcept;
-        void print_board();
+        void print_board() const;
 
         bool make_move(move::Move move);
         void unmake_move(move::Move move, bool from_make_move);

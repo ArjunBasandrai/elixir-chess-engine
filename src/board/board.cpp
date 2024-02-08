@@ -45,23 +45,7 @@ namespace elixir {
         std::cout << square_str[static_cast<I8>(sq)];
     }
 
-    void Board::set_piece(Square sq, PieceType piece, Color color) {
-        
-        assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
-        
-        bits::set_bit(b_occupancies[static_cast<I8>(color)], sq);
-        bits::set_bit(b_pieces[static_cast<I8>(piece)], sq);
-    }
-
-    void Board::remove_piece(Square sq, PieceType piece, Color color) {
-        
-        assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
-        
-        bits::clear_bit(b_occupancies[static_cast<I8>(color)], sq);
-        bits::clear_bit(b_pieces[static_cast<I8>(piece)], sq);
-    }
-
-    [[nodiscard]] Piece Board::piece_on(Square sq) {
+    [[nodiscard]] Piece Board::piece_on(Square sq) const {
         
         assert(sq != Square::NO_SQ);
         
@@ -94,7 +78,7 @@ namespace elixir {
         }
     }
     
-    void Board::print_board() {
+    void Board::print_board() const {
         std::cout << "  +---+----+----+---+" << std::endl;
         for (int rank = RANK_8; rank >= RANK_1; rank--) {
             std::cout << rank + 1 << " | ";

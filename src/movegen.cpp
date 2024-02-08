@@ -110,31 +110,31 @@ namespace elixir::movegen {
     }
 
     void generate_enpassant_pawn_moves(Board board, StaticVector<move::Move, 256>& moves) {
-        Bitboard pawns;
-        Bitboard enemy_pawns;
-        Color side = board.get_side_to_move();
-        I8 stm = static_cast<int>(side);
-        I8 xstm = stm^1;
-        Color enemy_side = static_cast<Color>(xstm);
-        Piece piece;
-
-        switch (side) {
-            case Color::WHITE:
-                pawns = board.pawns<Color::WHITE>();
-                enemy_pawns = board.pawns<Color::BLACK>();
-                piece = Piece::wP;
-                break;
-            case Color::BLACK:
-                pawns = board.pawns<Color::BLACK>();
-                enemy_pawns = board.pawns<Color::WHITE>();
-                piece = Piece::bP;
-                break;
-            default:
-                assert(false);
-                break;
-        }
         Square ep_sq = board.get_en_passant_square();
         if (ep_sq != Square::NO_SQ) {
+            Bitboard pawns;
+            Bitboard enemy_pawns;
+            Color side = board.get_side_to_move();
+            I8 stm = static_cast<int>(side);
+            I8 xstm = stm^1;
+            Color enemy_side = static_cast<Color>(xstm);
+            Piece piece;
+
+            switch (side) {
+                case Color::WHITE:
+                    pawns = board.pawns<Color::WHITE>();
+                    enemy_pawns = board.pawns<Color::BLACK>();
+                    piece = Piece::wP;
+                    break;
+                case Color::BLACK:
+                    pawns = board.pawns<Color::BLACK>();
+                    enemy_pawns = board.pawns<Color::WHITE>();
+                    piece = Piece::bP;
+                    break;
+                default:
+                    assert(false);
+                    break;
+            }
             Bitboard ep_attacks = attacks::get_pawn_attacks(enemy_side, ep_sq) & pawns;
             while (ep_attacks) {
                 move::Move m;
