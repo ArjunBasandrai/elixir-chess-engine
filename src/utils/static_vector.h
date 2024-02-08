@@ -17,23 +17,20 @@ public:
         *this = other;
     }
 
-    inline auto push(const T &elem)
+    inline auto push(const T& elem)
     {
         assert(m_size < Capacity);
         m_data[m_size++] = elem;
     }
 
-    inline auto push(T &&elem)
-    {
-        assert(m_size < Capacity);
-        m_data[m_size++] = std::move(elem);
+    inline auto pop_back() {
+        assert(m_size > 0);
+        --m_size;
     }
 
-    inline auto clear() { m_size = 0; }
+    inline void clear() { m_size = 0; }
 
-    inline auto fill(const T &v) { m_data.fill(v); }
-
-    [[nodiscard]] inline auto size() const { return m_size; }
+    [[nodiscard]] inline auto size() const noexcept { return m_size; }
 
     [[nodiscard]] inline auto empty() const { return m_size == 0; }
 

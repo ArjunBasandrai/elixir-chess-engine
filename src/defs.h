@@ -41,7 +41,7 @@ namespace elixir {
     constexpr int PromotionRank[2] = { RANK_8, RANK_1 };
     constexpr int DoublePawnRank[2] = { RANK_2, RANK_7 };
 
-    constexpr I16 MAX_PLY = 128;
+    constexpr I16 MAX_PLY = 512;
 
     static inline int get_rank(Square sq) {
         return (static_cast<int>(sq) >> 3) & 7;

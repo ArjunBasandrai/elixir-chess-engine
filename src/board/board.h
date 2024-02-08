@@ -10,6 +10,7 @@
 #include "../attacks/attacks.h"
 #include "../utils/state.h"
 #include "../utils/bits.h"
+#include "../utils/static_vector.h"
 
 namespace elixir {
     extern const std::string square_str[64];
@@ -18,7 +19,6 @@ namespace elixir {
     class Board {
     public:
         Board() {
-            undo_stack.reserve(MAX_PLY);
             clear_board();
         }
         ~Board() = default;
@@ -97,7 +97,23 @@ namespace elixir {
             bits::clear_bit(b_pieces[static_cast<I8>(piece)], sq);
         }
 
-        [[nodiscard]] Piece piece_on(Square sq) const;
+        [[nodiscard]] inline Piece piece_on(Square sq) const {
+            
+            assert(sq != Square::NO_SQ);
+            
+            for (int piece = 0; piece < 12; piece+=2) {
+                U64 pieceMask = b_pieces[piece / 2];
+                for (int color = 0; color < 2; color++) {
+                    U64 occupancyMask = b_occupancies[color];
+                    U64 combinedMask = pieceMask & occupancyMask;
+                    if (bits::get_bit(combinedMask, sq)) {
+                        return static_cast<Piece>(piece + color);
+                    }
+                }
+            }
+            return Piece::NO_PIECE;
+        }
+
         [[nodiscard]] inline Color piece_color(Piece piece) const noexcept { return (static_cast<int>(piece) % 2 == 0) ? Color::WHITE : Color::BLACK; }
 
         constexpr void set_en_passant_square(Square sq) noexcept { en_passant_square = sq; }
@@ -146,7 +162,7 @@ namespace elixir {
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
         std::array<Square, 2> kings{};
-        std::vector<State> undo_stack;
+        StaticVector<State, MAX_PLY> undo_stack;
         Square en_passant_square;
         Color side;
         Castling castling_rights;

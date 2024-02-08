@@ -45,20 +45,6 @@ namespace elixir {
         std::cout << square_str[static_cast<I8>(sq)];
     }
 
-    [[nodiscard]] Piece Board::piece_on(Square sq) const {
-        
-        assert(sq != Square::NO_SQ);
-        
-        for (int piece = 0; piece < 12; piece++) {
-            for (int color = 0; color < 2; color++) {
-                if (bits::get_bit(b_pieces[piece/2] & b_occupancies[color], sq)) {
-                    return static_cast<Piece>(piece+color);
-                }
-            }
-        }
-        return Piece::NO_PIECE;
-    }
-
     void Board::print_castling_rights() const noexcept {
         if (castling_rights == 0) {
             std::cout << "-";
@@ -246,7 +232,7 @@ namespace elixir {
             kings[static_cast<I8>(side)] = from;
         }
 
-        State s = undo_stack.back();
+        State s = undo_stack[undo_stack.size()-1];
         hash_key = s.hash_key;
         castling_rights = s.castling_rights;
         en_passant_square = s.enpass;
@@ -317,17 +303,15 @@ namespace elixir {
 
         const Piece piece_ = piece_on(from);
 
-        
         assert(from != Square::NO_SQ && to != Square::NO_SQ);
         assert(from != to);
         assert(piece != Piece::NO_PIECE);
         assert(piece_ == piece);
         assert(piece_color(piece_) == side);
         
-
         Piece captured_piece = piece_on(to);
-
-        undo_stack.emplace_back(hash_key, castling_rights, en_passant_square, fifty_move_counter, captured_piece);
+        State s = State(hash_key, castling_rights, en_passant_square, fifty_move_counter, captured_piece);
+        undo_stack.push(s);
         
         remove_piece(from, piecetype, side);
         // Move source piece to target only if not a capturing move
