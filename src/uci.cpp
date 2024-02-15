@@ -21,12 +21,14 @@ namespace elixir::uci {
                     std::string moves = input.substr(24);
                     std::vector<std::string> move_list = str_utils::split(moves, ' ');
                     for (auto move: move_list) {
+                        std::cout << move << std::endl;
                         board.parse_uci_move(move);
                     }
                 }
             }
         } else if (input.substr(9, 3) == "fen") {
-            std::string fen = input.substr(18);
+            std::string fen = input.substr(13);
+            std::cout << fen << std::endl;
             board.from_fen(fen);
         }
     }
@@ -88,6 +90,14 @@ namespace elixir::uci {
                 board.from_fen(start_position);
             } else if (input == "print") {
                 board.print_board();
+                print_bitboard(board.pawns());
+                print_bitboard(board.knights());
+                print_bitboard(board.bishops());
+                print_bitboard(board.rooks());
+                print_bitboard(board.queens());
+                print_bitboard(board.king());
+                print_bitboard(board.white_occupancy());
+                print_bitboard(board.black_occupancy());
             } else if (input.substr(0, 9) == "position ") {
                 parse_position(input, board);
             } else if (input.substr(0, 2) == "go") {

@@ -12,6 +12,7 @@
 #include "src/uci.h"
 #include "src/evaluate.h"
 #include "src/search.h"
+#include "src/utils/perft.h"
 
 using namespace elixir;
 
@@ -23,11 +24,8 @@ void init() {
 
 int main() {
     init();
-
     Board board;
     board.to_startpos();
-    // search::search(board, 5);
-    // std::cout << eval::evaluate(board) << std::endl;
     uci::uci_loop(board);
     return 0;
 }
