@@ -21,14 +21,12 @@ namespace elixir::uci {
                     std::string moves = input.substr(24);
                     std::vector<std::string> move_list = str_utils::split(moves, ' ');
                     for (auto move: move_list) {
-                        std::cout << move << std::endl;
                         board.parse_uci_move(move);
                     }
                 }
             }
         } else if (input.substr(9, 3) == "fen") {
             std::string fen = input.substr(13);
-            std::cout << fen << std::endl;
             board.from_fen(fen);
         }
     }

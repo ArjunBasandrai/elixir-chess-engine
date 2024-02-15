@@ -500,10 +500,6 @@ namespace elixir {
         }
 
         move::Move m;
-        std::cout << "From: " << square_str[static_cast<I8>(from)] << " To: " << square_str[static_cast<I8>(to)] << std::endl;
-        std::cout << "Piece: " << piece_str[static_cast<I8>(piece)] << std::endl;
-        std::cout << "Flag: " << static_cast<int>(flag) << std::endl;
-        std::cout << "Promotion: " << static_cast<int>(promotion) << std::endl;
         m.set_move(from, to, piece, flag, promotion);
         return make_move(m);
     }
