@@ -11,6 +11,7 @@
 #include "src/attacks/attacks.h"
 #include "src/uci.h"
 #include "src/evaluate.h"
+#include "src/search.h"
 
 using namespace elixir;
 
@@ -24,8 +25,9 @@ int main() {
     init();
 
     Board board;
-    board.from_fen(start_position);
-    std::cout << eval::evaluate(board) << std::endl;
-    // uci::uci_loop(board);
+    board.to_startpos();
+    // search::search(board, 5);
+    // std::cout << eval::evaluate(board) << std::endl;
+    uci::uci_loop(board);
     return 0;
 }

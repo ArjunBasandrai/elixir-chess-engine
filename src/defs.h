@@ -42,6 +42,7 @@ namespace elixir {
     constexpr int DoublePawnRank[2] = { RANK_2, RANK_7 };
 
     constexpr I16 MAX_PLY = 512;
+    constexpr I8 MAX_DEPTH = 64;
 
     static inline int get_rank(Square sq) {
         return (static_cast<int>(sq) >> 3) & 7;
@@ -50,4 +51,8 @@ namespace elixir {
     static inline int get_file(Square sq) {
         return static_cast<int>(sq) & 7;
     }
+
+    // Search Terms
+    constexpr I8 MoveOverhead = 50;
+    constexpr I8 IncrementScale = 2;
 }
