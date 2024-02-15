@@ -16,11 +16,13 @@ namespace elixir::uci {
     void parse_position(std::string input, Board &board) {
         if (input.substr(9, 8) == "startpos") {
             board.from_fen(start_position);
-            if (input.substr(18, 5) == "moves" && input.length() > 23) {
-                std::string moves = input.substr(24);
-                std::vector<std::string> move_list = str_utils::split(moves, ' ');
-                for (auto move: move_list) {
-                    board.parse_uci_move(move);
+            if (input.length() > 23) {
+                if (input.substr(18, 5) == "moves") {
+                    std::string moves = input.substr(24);
+                    std::vector<std::string> move_list = str_utils::split(moves, ' ');
+                    for (auto move: move_list) {
+                        board.parse_uci_move(move);
+                    }
                 }
             }
         } else if (input.substr(9, 3) == "fen") {
@@ -86,8 +88,7 @@ namespace elixir::uci {
                 board.from_fen(start_position);
             } else if (input == "print") {
                 board.print_board();
-            } 
-            else if (input.substr(0, 9) == "position ") {
+            } else if (input.substr(0, 9) == "position ") {
                 parse_position(input, board);
             } else if (input.substr(0, 2) == "go") {
                 parse_go(input, board);
