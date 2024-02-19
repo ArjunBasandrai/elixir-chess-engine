@@ -148,6 +148,10 @@ namespace elixir {
             return (get_attackers(sq, c) != 0ULL) ? true : false;
         }
 
+        [[nodiscard]] inline bool is_in_check() const {
+            return is_square_attacked(kings[static_cast<I8>(side)], static_cast<Color>(static_cast<I8>(side)^1));
+        }
+
         void clear_board() noexcept;
         void from_fen(std::string fen);
         void to_startpos();

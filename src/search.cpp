@@ -11,6 +11,7 @@
 
 namespace elixir::search {
     int negamax(Board& board, int alpha, int beta, int depth, SearchInfo& info, PVariation& pv) {
+        pv.length = 0;
         if (info.timed) {
             if (info.nodes % 2047 == 0) {
                 if (timer::m_timer.time() - info.start_time > info.time_left) {
@@ -24,15 +25,18 @@ namespace elixir::search {
             return eval::evaluate(board);
         }
 
+        int legals = 0;
+
         auto local_pv = PVariation();
         int best_score = -50000;
 
         StaticVector<elixir::move::Move, 256> moves = movegen::generate_moves(board);
-
+        
         for (const auto& move : moves) {
             if (!board.make_move(move)) { continue; }
             info.nodes++;
             info.ply++;
+            legals++;
             int score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv);
             board.unmake_move(move, true);
             if (info.stopped) { return 0; }
@@ -47,6 +51,14 @@ namespace elixir::search {
                         return score;
                     }
                 }
+            }
+        }
+
+        if (legals == 0) {
+            if (board.is_in_check()) {
+                return -49000 + info.ply;
+            } else {
+                return 0;
             }
         }
 
