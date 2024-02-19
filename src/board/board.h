@@ -85,13 +85,13 @@ namespace elixir {
 
         [[nodiscard]] U64 get_board_hash();
 
-        constexpr inline void set_piece(const Square sq, const PieceType piece, const Color color) {
+        inline void set_piece(const Square sq, const PieceType piece, const Color color) {
             assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
             bits::set_bit(b_occupancies[static_cast<I8>(color)], sq);
             bits::set_bit(b_pieces[static_cast<I8>(piece)], sq);
         }
 
-        constexpr inline void remove_piece(const Square sq, const PieceType piece, const Color color) {
+        inline void remove_piece(const Square sq, const PieceType piece, const Color color) {
             assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
             bits::clear_bit(b_occupancies[static_cast<I8>(color)], sq);
             bits::clear_bit(b_pieces[static_cast<I8>(piece)], sq);

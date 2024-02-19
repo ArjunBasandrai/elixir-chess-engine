@@ -33,7 +33,7 @@ namespace elixir::timer
 		struct timespec time;
 		clock_gettime(CLOCK_MONOTONIC, &time);
 
-		m_initTime = static_cast<F64>(time.tv_sec) + static_cast<F64>(time.tv_nsec) / 1000000000.0;
+		init_time = static_cast<F64>(time.tv_sec) + static_cast<F64>(time.tv_nsec) / 1000000000.0;
 	}
 
 	auto Timer::time() const -> F64
@@ -41,7 +41,7 @@ namespace elixir::timer
 		struct timespec time{};
 		clock_gettime(CLOCK_MONOTONIC, &time);
 
-		return (static_cast<F64>(time.tv_sec) + static_cast<F64>(time.tv_nsec) / 1000000000.0) - m_initTime;
+		return (static_cast<F64>(time.tv_sec) + static_cast<F64>(time.tv_nsec) / 1000000000.0) - init_time;
 	}
 }
 #endif
