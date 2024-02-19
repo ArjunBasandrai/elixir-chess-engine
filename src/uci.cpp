@@ -7,6 +7,7 @@
 
 #include "utils/test_fens.h"
 #include "utils/str_utils.h"
+#include "utils/perft.h"
 #include "utils/timer.h"
 #include "search.h"
 
@@ -38,8 +39,14 @@ namespace elixir::uci {
         int depth = 64, movestogo = 20;
         F64 time = 0, inc = 0;
         for (int i = 0; i < tokens.size(); i++) {
-             if (tokens[i] == "depth") {
+            if (tokens[i] == "depth") {
                 depth = std::stoi(tokens[++i]);
+            } else if (tokens[i] == "perft") {
+                const int depth = std::stoi(tokens[++i]);
+                long long nodes = 0;
+                perft_driver(board, depth, nodes);
+                std::cout << "Nodes: " << nodes << std::endl;
+                return;
             } else {
                 if (tokens[i] == "infinite") {
                     search::SearchInfo info(MAX_DEPTH);
