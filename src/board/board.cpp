@@ -380,7 +380,7 @@ namespace elixir {
 
         // Handling En Passant
         if (flag == move::Flag::EN_PASSANT && en_passant_square != Square::NO_SQ) {
-            Square captured_square = static_cast<Square>(int_to + (side == Color::WHITE ? -8 : 8));
+            Square captured_square = static_cast<Square>(int_to - 8 * color_offset[stm]);
             remove_piece(captured_square, PieceType::PAWN, enemy_side);
             hash_key ^= zobrist::piece_keys[static_cast<int>(PieceType::PAWN)+xstm*6][static_cast<int>(captured_square)];
         }
@@ -391,7 +391,7 @@ namespace elixir {
 
         // Handling Double Pawn Push
         if (flag == move::Flag::DOUBLE_PAWN_PUSH) {
-            en_passant_square = static_cast<Square>(int_to + (side == Color::WHITE ? -8 : 8));
+            en_passant_square = static_cast<Square>(int_to - 8 * color_offset[stm]);
             hash_key ^= zobrist::ep_keys[static_cast<int>(en_passant_square)];
         }
 
@@ -497,6 +497,10 @@ namespace elixir {
             flag = move::Flag::DOUBLE_PAWN_PUSH;
         } else if (piece == Piece::bP && from_rank == RANK_7 && to_rank == RANK_5) {
             flag = move::Flag::DOUBLE_PAWN_PUSH;
+        }
+
+        if (en_passant_square == to && (piece == Piece::wP || piece == Piece::bP)) {
+            flag = move::Flag::EN_PASSANT;
         }
 
         move::Move m;
