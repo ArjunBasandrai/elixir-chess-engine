@@ -26,7 +26,7 @@ namespace elixir::uci {
                     }
                 }
             }
-        } else if (input.substr(9, 3) == "fen") {
+        } else if (input.substr(9, 3) == "fen" && input.length() > 13){
             std::string fen = input.substr(13);
             board.from_fen(fen);
         }
@@ -38,9 +38,14 @@ namespace elixir::uci {
         const auto start_time = timer::m_timer.time();
         int depth = 64, movestogo = 20;
         F64 time = 0, inc = 0;
-        for (int i = 0; i < tokens.size(); i++) {
+        // If there are no tokens after "go" command, return
+        if (tokens.size() <= 1) { return; }
+
+        for (int i = 1; i < tokens.size(); i++) {
             if (tokens[i] == "depth") {
-                depth = std::stoi(tokens[++i]);
+                // If depth is not specified, return
+                if (++i >= tokens.size()) { return; }
+                depth = std::stoi(tokens[i]);
             } else if (tokens[i] == "perft") {
                 const int depth = std::stoi(tokens[++i]);
                 long long nodes = 0;
