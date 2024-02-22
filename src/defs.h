@@ -55,4 +55,7 @@ namespace elixir {
     // Search Terms
     constexpr I8 MoveOverhead = 50;
     constexpr I8 IncrementScale = 2;
+
+    // Evaluation Terms
+    enum Phase { OPENING, ENDGAME, MIDDLEGAME };
 }

@@ -36,3 +36,6 @@
 *.ilk
 
 .vscode
+
+# Python Utlities
+*.py

@@ -26,6 +26,7 @@ int main() {
     init();
     Board board;
     board.to_startpos();
-    uci::uci_loop(board);
+    uci::parse_go("go depth 7", board);
+    // uci::uci_loop(board);
     return 0;
 }
