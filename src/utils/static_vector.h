@@ -52,6 +52,8 @@ public:
     [[nodiscard]] inline auto begin() const { return m_data.begin(); }
     [[nodiscard]] inline auto end() const { return m_data.begin() + static_cast<std::ptrdiff_t>(m_size); }
 
+    inline auto fill(const T &v) { m_data.fill(v); }
+
     inline auto resize(std::size_t size)
     {
         assert(size <= Capacity);

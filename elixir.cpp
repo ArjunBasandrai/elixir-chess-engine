@@ -12,6 +12,7 @@
 #include "src/uci.h"
 #include "src/evaluate.h"
 #include "src/search.h"
+#include "src/movegen.h"
 #include "src/utils/perft.h"
 
 using namespace elixir;
