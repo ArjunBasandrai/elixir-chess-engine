@@ -49,7 +49,7 @@ namespace elixir::search
             scores[i] = value;
         }
     }
-
+    // (~300 ELO)
     void sort_moves(Board &board, StaticVector<elixir::move::Move, 256> &moves)
     {
         StaticVector<int, 256> scores;
@@ -69,6 +69,7 @@ namespace elixir::search
         }
     }
 
+    // (~20 ELO)
     int qsearch(Board &board, int alpha, int beta, SearchInfo &info, PVariation &pv)
     {
         int best_score, eval = eval::evaluate(board);
