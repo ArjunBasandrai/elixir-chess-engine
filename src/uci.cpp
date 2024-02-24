@@ -5,6 +5,7 @@
 
 #include "uci.h"
 
+#include "bench/bench.h"
 #include "utils/test_fens.h"
 #include "utils/str_utils.h"
 #include "utils/perft.h"
@@ -98,6 +99,9 @@ namespace elixir::uci {
                 break;
             } else if (input == "ucinewgame") {
                 board.from_fen(start_position);
+            } else if (input == "bench") {
+                bench::bench();
+                break;
             } else if (input == "print") {
                 board.print_board();
                 print_bitboard(board.pawns());

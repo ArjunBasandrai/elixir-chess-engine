@@ -74,8 +74,9 @@ namespace elixir::search
     // (~20 ELO)
     int qsearch(Board &board, int alpha, int beta, SearchInfo &info, PVariation &pv)
     {
-        int best_score, eval = eval::evaluate(board);
+        
         pv.length = 0;
+        info.nodes++;
 
         if (info.timed)
         {
@@ -89,7 +90,7 @@ namespace elixir::search
             }
         }
 
-        info.nodes++;
+        int best_score, eval = eval::evaluate(board);
 
         if (info.ply > MAX_PLY - 1)
         {
@@ -144,7 +145,6 @@ namespace elixir::search
 
     int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv)
     {
-        pv.length = 0;
         if (info.timed)
         {
             if (info.nodes % 2047 == 0)
@@ -162,7 +162,9 @@ namespace elixir::search
             return qsearch(board, alpha, beta, info, pv);
         }
 
+        pv.length = 0;
         int legals = 0;
+        info.nodes++;
 
         auto local_pv = PVariation();
         int best_score = -INF;
@@ -176,7 +178,6 @@ namespace elixir::search
             {
                 continue;
             }
-            info.nodes++;
             info.ply++;
             legals++;
             int score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv);
@@ -217,7 +218,7 @@ namespace elixir::search
         return best_score;
     }
 
-    void search(Board &board, SearchInfo &info)
+    void search(Board &board, SearchInfo &info, bool print_info)
     {
         auto start = std::chrono::high_resolution_clock::now();
         PVariation pv;
@@ -256,12 +257,19 @@ namespace elixir::search
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-            std::cout << "info score cp " << score << " depth " << current_depth << " nodes " << info.nodes << " time " << duration.count() << " pv ";
-            pv.print_pv();
+            if (print_info)
+            {
+                std::cout << "info score cp " << score << " depth " << current_depth << " nodes " << info.nodes << " time " << duration.count() << " pv ";
+                pv.print_pv();
+                std::cout << std::endl;
+            }
+        }
+
+        if (print_info)
+        {
+            std::cout << "bestmove ";
+            pv.line[0].print_uci();
             std::cout << std::endl;
         }
-        std::cout << "bestmove ";
-        pv.line[0].print_uci();
-        std::cout << std::endl;
     }
 }
