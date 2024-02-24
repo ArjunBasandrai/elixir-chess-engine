@@ -58,22 +58,5 @@ namespace elixir::search {
     };
     
     int negamax(Board& board, int alpha, int beta, int depth, SearchInfo& info, PVariation& pv);
-    inline void search(Board& board, SearchInfo& info) {
-        PVariation pv;
-        int score = 0, alpha = -50000, beta = 50000;
-        auto start = std::chrono::high_resolution_clock::now();
-        for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
-            if (info.stopped) { break; }
-            score = negamax(board, -50000, 50000, current_depth, info, pv);
-            auto end = std::chrono::high_resolution_clock::now();
-            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-            std::cout << "info score cp " << score << " depth " << current_depth << " nodes " << info.nodes << " time " << duration.count() << " pv ";
-            pv.print_pv();
-            std::cout << std::endl;
-        }
-        std::cout << "bestmove ";
-        pv.line[0].print_uci();
-        std::cout << std::endl;
-    }
+    void search(Board& board, SearchInfo& info);
 }

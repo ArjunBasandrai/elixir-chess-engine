@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 
 #include "search.h"
 
@@ -49,6 +50,7 @@ namespace elixir::search
             scores[i] = value;
         }
     }
+
     // (~300 ELO)
     void sort_moves(Board &board, StaticVector<elixir::move::Move, 256> &moves)
     {
@@ -163,7 +165,7 @@ namespace elixir::search
         int legals = 0;
 
         auto local_pv = PVariation();
-        int best_score = -50000;
+        int best_score = -INF;
 
         StaticVector<elixir::move::Move, 256> moves = movegen::generate_moves<false>(board);
         sort_moves(board, moves);
@@ -204,7 +206,7 @@ namespace elixir::search
         {
             if (board.is_in_check())
             {
-                return -49000 + info.ply;
+                return -MATE + info.ply;
             }
             else
             {
@@ -213,5 +215,53 @@ namespace elixir::search
         }
 
         return best_score;
+    }
+
+    void search(Board &board, SearchInfo &info)
+    {
+        auto start = std::chrono::high_resolution_clock::now();
+        PVariation pv;
+        for (int current_depth = 1; current_depth <= info.depth; current_depth++)
+        {
+            int score = 0, alpha = -INF, beta = INF, delta = 10;
+
+            if (info.depth >= 4)
+            {
+                alpha = std::max(-INF, score - delta);
+                beta = std::min(INF, score + delta);
+            }
+
+            // aspiration windows
+            while (1)
+            {
+                score = negamax(board, -INF, INF, current_depth, info, pv);
+                if (score > alpha && score < beta)
+                {
+                    break;
+                }
+
+                if (score <= alpha)
+                {
+                    beta = (alpha + beta) / 2;
+                    alpha = std::max(-INF, alpha - delta);
+                }
+
+                else if (score >= beta)
+                {
+                    beta = std::min(INF, beta + delta);
+                }
+
+                delta = delta + delta / 2;
+            }
+            auto end = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+            std::cout << "info score cp " << score << " depth " << current_depth << " nodes " << info.nodes << " time " << duration.count() << " pv ";
+            pv.print_pv();
+            std::cout << std::endl;
+        }
+        std::cout << "bestmove ";
+        pv.line[0].print_uci();
+        std::cout << std::endl;
     }
 }
