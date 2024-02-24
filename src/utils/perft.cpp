@@ -15,7 +15,7 @@ namespace elixir {
             nodes++;
             return;
         }
-        StaticVector<move::Move, 256> moves = movegen::generate_moves(board);
+        StaticVector<move::Move, 256> moves = movegen::generate_moves<false>(board);
         for (auto m: moves) {
             if (!board.make_move(m)) {
                 continue;
@@ -28,7 +28,7 @@ namespace elixir {
 
     void perft_test(Board& board, int depth, long long& nodes) {
         nodes = 0;
-        StaticVector<move::Move, 256> moves = movegen::generate_moves(board);
+        StaticVector<move::Move, 256> moves = movegen::generate_moves<false>(board);
         auto start = std::chrono::high_resolution_clock::now();
         for (auto m: moves) {
 

@@ -207,6 +207,7 @@ namespace elixir::movegen {
         }
     }
 
+    template <bool only_captures>
     void generate_knight_moves(Board& board, StaticVector<move::Move, 256>& moves) {
         Bitboard knights;
         Color enemy_side;
@@ -234,6 +235,9 @@ namespace elixir::movegen {
             while (attacks) {
                 Square target = static_cast<Square>(bits::pop_bit(attacks));
                 if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
+                    if (only_captures) {
+                        continue;
+                    }
                     m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
                 } else {
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
@@ -243,6 +247,7 @@ namespace elixir::movegen {
         }
     }
 
+    template <bool only_captures>
     void generate_bishop_moves(Board& board, StaticVector<move::Move, 256>& moves) {
         Bitboard bishops;
         Piece piece;
@@ -270,6 +275,9 @@ namespace elixir::movegen {
             while (attacks) {
                 Square target = static_cast<Square>(bits::pop_bit(attacks));
                 if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
+                    if (only_captures) {
+                        continue;
+                    }
                     m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
                 } else {
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
@@ -279,6 +287,7 @@ namespace elixir::movegen {
         }
     }
     
+    template <bool only_captures>
     void generate_rook_moves(Board& board, StaticVector<move::Move, 256>& moves) {
         Bitboard rooks;
         Piece piece;
@@ -306,6 +315,9 @@ namespace elixir::movegen {
             while (attacks) {
                 Square target = static_cast<Square>(bits::pop_bit(attacks));
                 if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
+                    if (only_captures) {
+                        continue;
+                    }
                     m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
                 } else {
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
@@ -315,6 +327,7 @@ namespace elixir::movegen {
         }
     }
     
+    template <bool only_captures>
     void generate_queen_moves(Board& board, StaticVector<move::Move, 256>& moves) {
         Bitboard queens;
         Piece piece;
@@ -342,6 +355,9 @@ namespace elixir::movegen {
             while (attacks) {
                 Square target = static_cast<Square>(bits::pop_bit(attacks));
                 if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
+                    if (only_captures) {
+                        continue;
+                    }
                     m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
                 } else {
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
@@ -350,7 +366,8 @@ namespace elixir::movegen {
             }
         }
     }
-    
+
+    template <bool only_captures>
     void generate_king_moves(Board& board, StaticVector<move::Move, 256>& moves) {
         Bitboard kings;
         Piece piece;
@@ -378,6 +395,9 @@ namespace elixir::movegen {
             while (attacks) {
                 Square target = static_cast<Square>(bits::pop_bit(attacks));
                 if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
+                    if (only_captures) {
+                        continue;
+                    }
                     m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
                 } else {
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
@@ -387,31 +407,38 @@ namespace elixir::movegen {
         }
     }
     
+    template <bool only_captures>
     StaticVector<move::Move, 256> generate_moves(Board& board) {
         StaticVector<move::Move, 256> moves;
 
         // Generate Pawn Moves
+        if (!only_captures)
         generate_quiet_pawn_moves(board, moves);
         generate_capture_pawn_moves(board, moves);
         generate_enpassant_pawn_moves(board, moves);
 
         // Generate Castling Moves
+        if (!only_captures)
         generate_castling_moves(board, moves);
 
         // Generate Knight Moves
-        generate_knight_moves(board, moves);
+        generate_knight_moves<only_captures>(board, moves);
 
         // Generate Bishop Moves
-        generate_bishop_moves(board, moves);
+        generate_bishop_moves<only_captures>(board, moves);
 
         // Generate Rook Moves
-        generate_rook_moves(board, moves);
+        generate_rook_moves<only_captures>(board, moves);
 
         // Generate Queen Moves
-        generate_queen_moves(board, moves);
+        generate_queen_moves<only_captures>(board, moves);
 
         // Generate King Moves
-        generate_king_moves(board, moves);
+        generate_king_moves<only_captures>(board, moves);
         return moves;
     }
+
+    // forward declaration of move generator
+    template StaticVector<move::Move, 256> generate_moves<true>(Board& board);
+    template StaticVector<move::Move, 256> generate_moves<false>(Board& board);
 }
