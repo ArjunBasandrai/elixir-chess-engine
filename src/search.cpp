@@ -104,6 +104,7 @@ namespace elixir::search
         }
 
         auto moves = movegen::generate_moves<true>(board);
+        sort_moves(board, moves);
 
         for (const auto &move : moves)
         {
