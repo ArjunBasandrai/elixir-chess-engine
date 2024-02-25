@@ -9,7 +9,8 @@ SRC = src/utils/bits.cpp \
 	  src/evaluate.cpp \
 	  src/search.cpp \
 	  src/utils/timer.cpp \
-	  src/bench/bench.cpp 
+	  src/bench/bench.cpp \
+	  src/tt.cpp 
 
 all: __compile __run
 

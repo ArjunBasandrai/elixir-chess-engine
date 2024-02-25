@@ -41,6 +41,8 @@ namespace elixir::move {
         [[nodiscard]] constexpr bool is_normal() const noexcept { return get_flag() == Flag::NORMAL; }
         [[nodiscard]] constexpr bool is_quiet() const noexcept { return !(is_capture() || is_en_passant()); }
 
+        bool operator==(const Move &other) const noexcept { return m_move == other.m_move; }
+
         void print_uci() const;
     private:
         Move_T m_move;
