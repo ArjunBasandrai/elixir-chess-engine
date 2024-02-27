@@ -7,6 +7,7 @@
 #include "evaluate.h"
 #include "move.h"
 #include "movegen.h"
+#include "tt.h"
 #include "utils/static_vector.h"
 #include "utils/timer.h"
 
@@ -74,7 +75,7 @@ namespace elixir::search
     // (~20 ELO)
     int qsearch(Board &board, int alpha, int beta, SearchInfo &info, PVariation &pv)
     {
-        
+
         pv.length = 0;
         info.nodes++;
 
@@ -162,13 +163,21 @@ namespace elixir::search
             return qsearch(board, alpha, beta, info, pv);
         }
 
-        pv.length = 0;
         int legals = 0;
         info.nodes++;
 
         auto local_pv = PVariation();
         int best_score = -INF;
+        auto best_move = move::Move();
+        ProbedEntry result;
+        TTFlag flag = TT_ALPHA;
 
+        if (tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta) && info.ply)
+        {
+            return result.score;
+        }
+
+        pv.length = 0;
         StaticVector<elixir::move::Move, 256> moves = movegen::generate_moves<false>(board);
         sort_moves(board, moves);
 
@@ -189,16 +198,19 @@ namespace elixir::search
             info.ply--;
             if (score > best_score)
             {
+                best_move = move;
                 best_score = score;
                 if (score > alpha)
                 {
-                    alpha = score;
                     pv.load_from(move, local_pv);
                     pv.score = score;
                     if (score >= beta)
                     {
+                        flag = TT_BETA;
                         return score;
                     }
+                    flag = TT_EXACT;
+                    alpha = score;
                 }
             }
         }
@@ -215,6 +227,8 @@ namespace elixir::search
             }
         }
 
+        tt->store_tt(board.get_hash_key(), best_score, best_move, depth, flag);
+
         return best_score;
     }
 
@@ -226,6 +240,11 @@ namespace elixir::search
         {
             int score = 0, alpha = -INF, beta = INF, delta = 10;
 
+            if (current_depth < 4)
+            {
+                score = negamax(board, alpha, beta, current_depth, info, pv);
+            }
+
             if (info.depth >= 4)
             {
                 alpha = std::max(-INF, score - delta);
@@ -235,7 +254,7 @@ namespace elixir::search
             // aspiration windows
             while (1)
             {
-                score = negamax(board, -INF, INF, current_depth, info, pv);
+                score = negamax(board, alpha, beta, current_depth, info, pv);
                 if (score > alpha && score < beta)
                 {
                     break;

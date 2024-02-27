@@ -9,16 +9,25 @@
 
 namespace elixir
 {
+    TranspositionTable tt[1];
+
     void TranspositionTable::clear_tt()
     {
+        entries = 0;
         std::fill(table.begin(), table.end(), TTEntry());
+    }
+
+    void TranspositionTable::resize(U16 size)
+    {
+        U32 num_entries = (size * 0x100000 / sizeof(TTEntry)) - 2;
+        table.resize(num_entries);
+        std::cout << "Transposition Table: " << num_entries << " entries" << std::endl;
+        clear_tt();
     }
 
     TranspositionTable::TranspositionTable(U16 size)
     {
-        U32 num_entries = (size * 0x100000 / sizeof(TTEntry)) - 2;
-        table.resize(num_entries);
-        clear_tt();
+        resize(size);
     }
 
     bool TranspositionTable::probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta)
@@ -73,6 +82,9 @@ namespace elixir
 
         if (!replace)
             return;
+
+        if (entry.key == 0)
+            entries++;
 
         entry.key = key;
         entry.score = score;
