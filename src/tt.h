@@ -42,6 +42,17 @@ namespace elixir
         move::Move best_move;
         U8 depth;
         TTFlag flag;
+
+        ProbedEntry() : score(0), best_move(move::Move()), depth(0), flag(TT_NONE) {}
+
+        inline ProbedEntry operator=(const TTEntry &entry)
+        {
+            score = entry.score;
+            best_move = entry.move;
+            depth = entry.depth;
+            flag = entry.flag;
+            return *this;
+        }
     };
 
     class TranspositionTable
@@ -51,7 +62,8 @@ namespace elixir
         ~TranspositionTable() = default;
         void clear_tt();
         void store_tt(U64 key, int score, move::Move move, U8 depth, TTFlag flag);
-        ProbedEntry probe_tt(U64 key);
+        bool probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta);
+        // assign probed entry to tt entry, oeprator overload
 
     private:
         inline U32 get_index(U64 key) const { return key % table.size(); }

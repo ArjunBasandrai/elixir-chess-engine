@@ -21,20 +21,47 @@ namespace elixir
         clear_tt();
     }
 
-    ProbedEntry TranspositionTable::probe_tt(U64 key)
+    bool TranspositionTable::probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta)
     {
+
+        if (table.empty())
+            return false;
         U32 index = get_index(key);
         TTEntry entry = table[index];
+
         if (entry.key == key)
         {
-            ProbedEntry result;
-            result.depth = entry.depth;
-            result.score = entry.score;
             result.best_move = entry.move;
-            result.flag = entry.flag;
-            return result;
+            if (entry.depth > depth)
+            {
+                switch (entry.flag)
+                {
+                case TT_ALPHA:
+                    if (entry.score <= alpha)
+                    {
+                        result = entry;
+                        result.score = alpha;
+                    }
+                    else
+                        return false;
+                    break;
+                case TT_BETA:
+                    if (entry.score >= beta)
+                    {
+                        result = entry;
+                        result.score = beta;
+                    }
+                    else
+                        return false;
+                    break;
+                default:
+                    result = entry;
+                    break;
+                }
+                return true;
+            }
         }
-        return ProbedEntry();
+        return false;
     }
 
     void TranspositionTable::store_tt(U64 key, int score, move::Move move, U8 depth, TTFlag flag)
@@ -46,14 +73,14 @@ namespace elixir
 
         if (!replace)
             return;
-        
+
         entry.key = key;
         entry.score = score;
         entry.move = move;
         entry.depth = depth;
-        entry.flag = flag;  
+        entry.flag = flag;
 
-        table[index] = entry; 
+        table[index] = entry;
     }
 
 }
