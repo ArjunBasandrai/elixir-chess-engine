@@ -13,7 +13,7 @@
 
 namespace elixir::search
 {
-    void score_moves(Board &board, StaticVector<int, 256> &scores, StaticVector<elixir::move::Move, 256> &moves)
+    void score_moves(Board &board, StaticVector<int, 256> &scores, StaticVector<elixir::move::Move, 256> &moves, move::Move tt_move)
     {
         int value;
         Square from, to;
@@ -34,6 +34,11 @@ namespace elixir::search
             from_val = eval::piece_values[from_piece];
             to_val = eval::piece_values[to_piece];
 
+            if (move == tt_move)
+            {
+                value += 16384;
+            }
+
             value += 5 * to_val;
 
             if (move.is_en_passant())
@@ -53,11 +58,11 @@ namespace elixir::search
     }
 
     // (~300 ELO)
-    void sort_moves(Board &board, StaticVector<elixir::move::Move, 256> &moves)
+    void sort_moves(Board &board, StaticVector<elixir::move::Move, 256> &moves, move::Move tt_move)
     {
         StaticVector<int, 256> scores;
         scores.resize(moves.size());
-        score_moves(board, scores, moves);
+        score_moves(board, scores, moves, tt_move);
 
         for (int i = 0; i < moves.size(); i++)
         {
@@ -100,16 +105,32 @@ namespace elixir::search
 
         int legals = 0;
         auto local_pv = PVariation();
-
         best_score = eval;
-        alpha = std::max(alpha, eval);
-        if (alpha >= beta)
+        auto best_move = move::Move();
+        ProbedEntry result;
+        TTFlag flag = TT_ALPHA;
+        const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), 0, alpha, beta);
+        const auto tt_move = tt_hit ? result.best_move : move::Move();
+
+        if (tt_hit && info.ply)
         {
-            return eval;
+            pv = result.pv;
+            return result.score;
         }
 
+        if (!board.is_in_check() && tt_hit)
+        {
+            best_score = result.score;
+        }
+
+        if (best_score >= beta)
+        {
+            return best_score;
+        }
+        alpha = std::max(alpha, best_score);
+
         auto moves = movegen::generate_moves<true>(board);
-        sort_moves(board, moves);
+        sort_moves(board, moves, tt_move);
 
         for (const auto &move : moves)
         {
@@ -131,16 +152,20 @@ namespace elixir::search
                 best_score = score;
                 if (score > alpha)
                 {
+                    best_move = move;
                     alpha = score;
                     pv.load_from(move, local_pv);
                     pv.score = score;
+                    flag = TT_EXACT;
                 }
                 if (alpha >= beta)
                 {
+                    flag = TT_BETA;
                     break;
                 }
             }
         }
+        tt->store_tt(board.get_hash_key(), best_score, best_move, 0, info.ply, flag, pv);
         return best_score;
     }
 
@@ -172,15 +197,19 @@ namespace elixir::search
         ProbedEntry result;
         TTFlag flag = TT_ALPHA;
 
-        if (tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta) && info.ply)
+        const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta);
+
+        if (tt_hit && info.ply)
         {
             pv = result.pv;
             return result.score;
         }
 
+        const auto tt_move = tt_hit ? result.best_move : move::Move();
+
         pv.length = 0;
         StaticVector<elixir::move::Move, 256> moves = movegen::generate_moves<false>(board);
-        sort_moves(board, moves);
+        sort_moves(board, moves, tt_move);
 
         for (const auto &move : moves)
         {
