@@ -36,6 +36,7 @@ namespace elixir::search
 
             if (move == tt_move)
             {
+                // (~20 ELO)
                 value += 16384;
             }
 
@@ -198,7 +199,7 @@ namespace elixir::search
         TTFlag flag = TT_ALPHA;
 
         const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta);
-
+        // (~130 ELO)
         if (tt_hit && info.ply)
         {
             pv = result.pv;
