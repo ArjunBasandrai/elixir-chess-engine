@@ -7,6 +7,7 @@
 #include "../utils/timer.h"
 #include "../utils/test_fens.h"
 #include "../search.h"
+#include "../tt.h"
 
 namespace elixir::bench
 {
@@ -71,7 +72,8 @@ namespace elixir::bench
         Board board;
         int c = 0;
         for (auto fen : fens)
-        {
+        {   
+            tt->clear_tt();
             info.nodes = 0;
             board.from_fen(fen);
             search::search(board, info, false);
