@@ -129,7 +129,7 @@ namespace elixir::search
         {
             return best_score;
         }
-        
+
         alpha = std::max(alpha, best_score);
 
         auto moves = movegen::generate_moves<true>(board);
@@ -245,7 +245,7 @@ namespace elixir::search
                     if (score >= beta)
                     {
                         flag = TT_BETA;
-                        return score;
+                        break;
                     }
                     flag = TT_EXACT;
                     alpha = score;
