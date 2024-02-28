@@ -10,7 +10,6 @@
 
 namespace elixir
 {
-    constexpr int default_tt_size = 64;
     enum TTFlag : U8
     {
         TT_NONE,
@@ -62,13 +61,14 @@ namespace elixir
     class TranspositionTable
     {
     public:
-        TranspositionTable(U16 size = default_tt_size);
+        TranspositionTable(U16 size = DEFAULT_HASH_SIZE);
         ~TranspositionTable() = default;
         void clear_tt();
         void resize(U16 size);
         void store_tt(U64 key, int score, move::Move move, U8 depth, int ply, TTFlag flag, search::PVariation pv);
         bool probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta);
         inline U32 get_hashfull() { return static_cast<U32>(static_cast<F64>(entries) / static_cast<F64>(table.capacity()) * 1000.0); }
+
     private:
         inline U32 get_index(U64 key) const { return key % table.size(); }
         std::size_t entries;

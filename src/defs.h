@@ -154,6 +154,12 @@ namespace elixir
     constexpr I16 MAX_PLY = 512;
     constexpr I8 MAX_DEPTH = 64;
 
+    // TT size terms
+    constexpr int MIN_HASH = 4;
+    constexpr int DEFAULT_HASH_SIZE = 64;
+    constexpr int MAX_HASH = 1024;
+
+
     static inline int get_rank(Square sq)
     {
         return (static_cast<int>(sq) >> 3) & 7;

@@ -22,7 +22,6 @@ namespace elixir
     {
         U32 num_entries = (size * 0x100000 / sizeof(TTEntry)) - 2;
         table.resize(num_entries);
-        std::cout << "Transposition Table: " << num_entries << " entries" << std::endl;
         clear_tt();
     }
 

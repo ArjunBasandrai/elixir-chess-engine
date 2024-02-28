@@ -11,98 +11,165 @@
 #include "utils/perft.h"
 #include "utils/timer.h"
 #include "search.h"
+#include "tt.h"
 
 #define version "0.1"
 
-namespace elixir::uci {
-    void parse_position(std::string input, Board &board) {
-        if (input.substr(9, 8) == "startpos") {
+namespace elixir::uci
+{
+    void parse_position(std::string input, Board &board)
+    {
+        if (input.substr(9, 8) == "startpos")
+        {
             board.from_fen(start_position);
-            if (input.length() > 23) {
-                if (input.substr(18, 5) == "moves") {
+            if (input.length() > 23)
+            {
+                if (input.substr(18, 5) == "moves")
+                {
                     std::string moves = input.substr(24);
                     std::vector<std::string> move_list = str_utils::split(moves, ' ');
-                    for (auto move: move_list) {
+                    for (auto move : move_list)
+                    {
                         board.parse_uci_move(move);
                     }
                 }
             }
-        } else if (input.substr(9, 3) == "fen" && input.length() > 13){
+        }
+        else if (input.substr(9, 3) == "fen" && input.length() > 13)
+        {
             std::string fen = input.substr(13);
             board.from_fen(fen);
         }
     }
 
-    void parse_go(std::string input, Board &board) {
+    void parse_go(std::string input, Board &board)
+    {
         std::vector<std::string> tokens = str_utils::split(input, ' ');
         search::SearchInfo info;
         const auto start_time = timer::m_timer.time();
         int depth = 64, movestogo = 20;
         F64 time = 0, inc = 0;
         // If there are no tokens after "go" command, return
-        if (tokens.size() <= 1) { return; }
+        if (tokens.size() <= 1)
+        {
+            return;
+        }
 
-        for (int i = 1; i < tokens.size(); i++) {
-            if (tokens[i] == "depth") {
+        for (int i = 1; i < tokens.size(); i++)
+        {
+            if (tokens[i] == "depth")
+            {
                 // If depth is not specified, return
-                if (++i >= tokens.size()) { return; }
+                if (++i >= tokens.size())
+                {
+                    return;
+                }
                 depth = std::stoi(tokens[i]);
-            } else if (tokens[i] == "perft") {
+            }
+            else if (tokens[i] == "perft")
+            {
                 const int depth = std::stoi(tokens[++i]);
                 long long nodes = 0;
                 perft_driver(board, depth, nodes);
                 std::cout << "Nodes: " << nodes << std::endl;
                 return;
-            } else {
-                if (tokens[i] == "infinite") {
+            }
+            else
+            {
+                if (tokens[i] == "infinite")
+                {
                     search::SearchInfo info(MAX_DEPTH);
-                } else if ((tokens[i] == "wtime" || tokens[i] == "btime") && ++i < tokens.size() 
-                    && tokens[i-1] == (board.get_side_to_move() == Color::WHITE ? "wtime" : "btime"))  {
+                }
+                else if ((tokens[i] == "wtime" || tokens[i] == "btime") && ++i < tokens.size() && tokens[i - 1] == (board.get_side_to_move() == Color::WHITE ? "wtime" : "btime"))
+                {
                     time = std::stoi(tokens[i]);
                     time = std::max<F64>(time, 1.0);
-                } else if ((tokens[i] == "winc" || tokens[i] == "binc") && ++i < tokens.size() 
-                    && tokens[i-1] == (board.get_side_to_move() == Color::WHITE ? "winc" : "binc"))  {
+                }
+                else if ((tokens[i] == "winc" || tokens[i] == "binc") && ++i < tokens.size() && tokens[i - 1] == (board.get_side_to_move() == Color::WHITE ? "winc" : "binc"))
+                {
                     inc = std::stoi(tokens[i]);
                     inc = std::max<F64>(inc, 1.0);
-                } else if (tokens[i] == "movestogo"  && ++i < tokens.size()) {
+                }
+                else if (tokens[i] == "movestogo" && ++i < tokens.size())
+                {
                     movestogo = std::stoi(tokens[i]);
                     movestogo = std::min<int>(movestogo, static_cast<U32>(std::numeric_limits<I32>::max()));
-                    if (movestogo == 0) {
+                    if (movestogo == 0)
+                    {
                         movestogo = 20;
                     }
                 }
             }
         }
 
-        if (time != 0) {
+        if (time != 0)
+        {
             const F64 limit = std::max(0.001, time - MoveOverhead);
             const F64 search_time = (limit / static_cast<F64>(movestogo) + inc / IncrementScale);
             info = search::SearchInfo(depth, start_time, search_time);
-        } else {
+        }
+        else
+        {
             info = search::SearchInfo(depth);
         }
 
         search::search(board, info);
     }
 
-    void uci_loop(Board &board) {
-        while (true) {
+    void parse_setoption(std::string input)
+    {
+        std::vector<std::string> tokens = str_utils::split(input, ' ');
+        if (tokens.size() < 3)
+        {
+            return;
+        }
+        if (tokens[1] == "name")
+        {
+            if (tokens[2] == "Hash")
+            {
+                if (tokens.size() < 5 || tokens[3] != "value")
+                {
+                    return;
+                }
+                int tt_size = std::stoi(tokens[4]);
+                tt_size = std::clamp<int>(tt_size, MIN_HASH, MAX_HASH);
+                tt->resize(tt_size);
+            }
+        }
+    }
+
+    void uci_loop(Board &board)
+    {
+        while (true)
+        {
             std::string input;
             std::getline(std::cin, input);
-            if (input == "uci") {
+            if (input == "uci")
+            {
                 std::cout << "id name Elixir " << version << std::endl;
                 std::cout << "id author Arjun Basandrai" << std::endl;
+                std::cout << "option name Hash type spin default " << DEFAULT_HASH_SIZE << " min " << MIN_HASH << " max " << MAX_HASH << std::endl;
                 std::cout << "uciok" << std::endl;
-            } else if (input == "isready") {
+            }
+            else if (input == "isready")
+            {
                 std::cout << "readyok" << std::endl;
-            } else if (input == "quit") {
+            }
+            else if (input == "quit")
+            {
                 break;
-            } else if (input == "ucinewgame") {
+            }
+            else if (input == "ucinewgame")
+            {
                 board.from_fen(start_position);
-            } else if (input == "bench") {
+            }
+            else if (input == "bench")
+            {
                 bench::bench();
                 break;
-            } else if (input == "print") {
+            }
+            else if (input == "print")
+            {
                 board.print_board();
                 print_bitboard(board.pawns());
                 print_bitboard(board.knights());
@@ -112,10 +179,18 @@ namespace elixir::uci {
                 print_bitboard(board.king());
                 print_bitboard(board.white_occupancy());
                 print_bitboard(board.black_occupancy());
-            } else if (input.substr(0, 9) == "position ") {
+            }
+            else if (input.substr(0, 9) == "position ")
+            {
                 parse_position(input, board);
-            } else if (input.substr(0, 2) == "go") {
+            }
+            else if (input.substr(0, 2) == "go")
+            {
                 parse_go(input, board);
+            }
+            else if (input.substr(0, 9) == "setoption")
+            {
+                parse_setoption(input);
             }
         }
     }
