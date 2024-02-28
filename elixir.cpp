@@ -30,8 +30,6 @@ int main() {
     Board board;
     board.to_startpos();
 
-    tt->resize(128);
-
     uci::uci_loop(board);
     return 0;
 }

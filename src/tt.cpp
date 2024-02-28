@@ -3,6 +3,7 @@
 #include "defs.h"
 #include "types.h"
 #include "move.h"
+#include "search.h"
 #include "hashing/hash.h"
 
 #include "tt.h"
@@ -41,14 +42,15 @@ namespace elixir
         if (entry.key == key)
         {
             result.best_move = entry.move;
-            if (entry.depth > depth)
+            result.pv = entry.pv;
+            if (entry.depth >= depth)
             {
+                result = entry;
                 switch (entry.flag)
                 {
                 case TT_ALPHA:
                     if (entry.score <= alpha)
                     {
-                        result = entry;
                         result.score = alpha;
                     }
                     else
@@ -57,14 +59,12 @@ namespace elixir
                 case TT_BETA:
                     if (entry.score >= beta)
                     {
-                        result = entry;
                         result.score = beta;
                     }
                     else
                         return false;
                     break;
                 default:
-                    result = entry;
                     break;
                 }
                 return true;
@@ -73,7 +73,7 @@ namespace elixir
         return false;
     }
 
-    void TranspositionTable::store_tt(U64 key, int score, move::Move move, U8 depth, TTFlag flag)
+    void TranspositionTable::store_tt(U64 key, int score, move::Move move, U8 depth, int ply, TTFlag flag, search::PVariation pv)
     {
         U32 index = get_index(key);
         TTEntry entry = table[index];
@@ -86,11 +86,16 @@ namespace elixir
         if (entry.key != key)
             entries++;
 
+        if (score > MATE)
+            score += ply;
+        else if (score < -MATE)
+            score -= ply;
         entry.key = key;
         entry.score = score;
         entry.move = move;
         entry.depth = depth;
         entry.flag = flag;
+        entry.pv = pv;
 
         table[index] = entry;
     }

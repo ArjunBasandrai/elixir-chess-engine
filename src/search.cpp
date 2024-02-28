@@ -174,6 +174,7 @@ namespace elixir::search
 
         if (tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta) && info.ply)
         {
+            pv = result.pv;
             return result.score;
         }
 
@@ -227,7 +228,7 @@ namespace elixir::search
             }
         }
 
-        tt->store_tt(board.get_hash_key(), best_score, best_move, depth, flag);
+        tt->store_tt(board.get_hash_key(), best_score, best_move, depth, info.ply, flag, pv);
 
         return best_score;
     }

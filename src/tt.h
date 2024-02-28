@@ -5,6 +5,7 @@
 #include "defs.h"
 #include "types.h"
 #include "move.h"
+#include "search.h"
 #include "hashing/hash.h"
 
 namespace elixir
@@ -25,6 +26,7 @@ namespace elixir
         move::Move move = move::Move();
         U8 depth = 0;
         TTFlag flag = TT_NONE;
+        search::PVariation pv;
 
         bool operator==(const TTEntry &other) const
         {
@@ -42,6 +44,7 @@ namespace elixir
         move::Move best_move;
         U8 depth;
         TTFlag flag;
+        search::PVariation pv;
 
         ProbedEntry() : score(0), best_move(move::Move()), depth(0), flag(TT_NONE) {}
 
@@ -51,6 +54,7 @@ namespace elixir
             best_move = entry.move;
             depth = entry.depth;
             flag = entry.flag;
+            pv = entry.pv;
             return *this;
         }
     };
@@ -62,7 +66,7 @@ namespace elixir
         ~TranspositionTable() = default;
         void clear_tt();
         void resize(U16 size);
-        void store_tt(U64 key, int score, move::Move move, U8 depth, TTFlag flag);
+        void store_tt(U64 key, int score, move::Move move, U8 depth, int ply, TTFlag flag, search::PVariation pv);
         bool probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta);
         inline U32 get_hashfull() { return static_cast<U32>(static_cast<F64>(entries) / static_cast<F64>(table.capacity()) * 1000.0); }
     private:
