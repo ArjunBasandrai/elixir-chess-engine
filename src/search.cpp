@@ -106,8 +106,9 @@ namespace elixir::search
 
         int legals = 0;
         auto local_pv = PVariation();
-        best_score = eval;
         auto best_move = move::Move();
+        best_score = eval;
+
         ProbedEntry result;
         TTFlag flag = TT_ALPHA;
         const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), 0, alpha, beta);
@@ -128,6 +129,7 @@ namespace elixir::search
         {
             return best_score;
         }
+        
         alpha = std::max(alpha, best_score);
 
         auto moves = movegen::generate_moves<true>(board);
@@ -189,6 +191,11 @@ namespace elixir::search
             return qsearch(board, alpha, beta, info, pv);
         }
 
+        if (info.ply > MAX_PLY - 1)
+        {
+            return eval::evaluate(board);
+        }
+
         int legals = 0;
         info.nodes++;
 
@@ -209,7 +216,7 @@ namespace elixir::search
         const auto tt_move = tt_hit ? result.best_move : move::Move();
 
         pv.length = 0;
-        StaticVector<elixir::move::Move, 256> moves = movegen::generate_moves<false>(board);
+        auto moves = movegen::generate_moves<false>(board);
         sort_moves(board, moves, tt_move);
 
         for (const auto &move : moves)
