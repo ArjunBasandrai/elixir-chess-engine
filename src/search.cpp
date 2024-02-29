@@ -232,24 +232,32 @@ namespace elixir::search
             {
                 continue;
             }
+
             const bool is_quiet_move = move.is_quiet();
             legals++;
+
+            // (~25 ELO)
             int score = 0;
-            // (~20 ELO)
-            if (legals == 1) {
+            if (legals == 1)
+            {
                 score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
-            } else {
+            }
+            else
+            {
                 score = -negamax(board, -alpha - 1, -alpha, depth - 1, info, local_pv, ss + 1);
-                if (score > alpha && score < beta) {
+                if (score > alpha && score < beta)
+                {
                     score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
                 }
             }
 
             board.unmake_move(move, true);
+
             if (info.stopped)
             {
                 return 0;
             }
+
             if (score > best_score)
             {
                 best_move = move;
@@ -279,14 +287,7 @@ namespace elixir::search
 
         if (legals == 0)
         {
-            if (board.is_in_check())
-            {
-                return -MATE + ss->ply;
-            }
-            else
-            {
-                return 0;
-            }
+            return board.is_in_check() ? -MATE + ss->ply : 0;
         }
 
         tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv);
