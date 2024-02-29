@@ -234,7 +234,17 @@ namespace elixir::search
             }
             const bool is_quiet_move = move.is_quiet();
             legals++;
-            int score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
+            int score = 0;
+            // (~20 ELO)
+            if (legals == 1) {
+                score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
+            } else {
+                score = -negamax(board, -alpha - 1, -alpha, depth - 1, info, local_pv, ss + 1);
+                if (score > alpha && score < beta) {
+                    score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
+                }
+            }
+
             board.unmake_move(move, true);
             if (info.stopped)
             {
