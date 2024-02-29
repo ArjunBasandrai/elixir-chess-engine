@@ -203,6 +203,9 @@ namespace elixir::search
             return eval::evaluate(board);
         }
 
+        bool root_node = ss->ply == 0;
+        bool pv_node = ((beta - alpha > 1) || root_node);
+
         int legals = 0;
         info.nodes++;
 
@@ -214,7 +217,7 @@ namespace elixir::search
 
         const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta);
         // (~130 ELO)
-        if (tt_hit && ss->ply)
+        if (tt_hit && !pv_node)
         {
             pv = result.pv;
             return result.score;
