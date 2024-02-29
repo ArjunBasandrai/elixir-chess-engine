@@ -8,15 +8,21 @@
 #include "move.h"
 
 namespace elixir::search {
+    struct SearchStack
+    {
+        move::Move move = move::Move();
+        move::Move killers[2] = {};
+        int ply;
+    };
+    
     class SearchInfo {
     public:
         SearchInfo() = default;
-        SearchInfo(int depth) : depth(depth), nodes(0), ply(0), stopped(false), timed(false), start_time(0), time_left(0) {};
-        SearchInfo(int depth, F64 start_time, F64 time_left) : depth(depth), nodes(0), ply(0), stopped(false), timed(true), start_time(start_time), time_left(time_left) {};
+        SearchInfo(int depth) : depth(depth), nodes(0), stopped(false), timed(false), start_time(0), time_left(0) {};
+        SearchInfo(int depth, F64 start_time, F64 time_left) : depth(depth), nodes(0), stopped(false), timed(true), start_time(start_time), time_left(time_left) {};
         ~SearchInfo() = default;
         unsigned long long nodes;
         int depth;
-        int ply;
         bool stopped;
         bool timed;
         F64 start_time;
@@ -56,6 +62,6 @@ namespace elixir::search {
         }
     };
     
-    int negamax(Board& board, int alpha, int beta, int depth, SearchInfo& info, PVariation& pv);
+    int negamax(Board& board, int alpha, int beta, int depth, SearchInfo& info, PVariation& pv, SearchStack *ss);
     void search(Board& board, SearchInfo& info, bool print_info = true);
 }

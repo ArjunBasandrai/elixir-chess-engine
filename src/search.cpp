@@ -13,7 +13,7 @@
 
 namespace elixir::search
 {
-    void score_moves(Board &board, StaticVector<int, 256> &scores, StaticVector<elixir::move::Move, 256> &moves, move::Move tt_move)
+    void score_moves(Board &board, StaticVector<int, 256> &scores, StaticVector<elixir::move::Move, 256> &moves, move::Move tt_move, SearchStack *ss)
     {
         int value;
         Square from, to;
@@ -40,6 +40,15 @@ namespace elixir::search
                 value += 16384;
             }
 
+            if (move == ss->killers[0])
+            {
+                value += 512;
+            }
+            else if (move == ss->killers[1])
+            {
+                value += 256;
+            }
+
             value += 5 * to_val;
 
             if (move.is_en_passant())
@@ -59,11 +68,11 @@ namespace elixir::search
     }
 
     // (~300 ELO)
-    void sort_moves(Board &board, StaticVector<elixir::move::Move, 256> &moves, move::Move tt_move)
+    void sort_moves(Board &board, StaticVector<elixir::move::Move, 256> &moves, move::Move tt_move, SearchStack *ss)
     {
         StaticVector<int, 256> scores;
         scores.resize(moves.size());
-        score_moves(board, scores, moves, tt_move);
+        score_moves(board, scores, moves, tt_move, ss);
 
         for (int i = 0; i < moves.size(); i++)
         {
@@ -79,7 +88,7 @@ namespace elixir::search
     }
 
     // (~20 ELO)
-    int qsearch(Board &board, int alpha, int beta, SearchInfo &info, PVariation &pv)
+    int qsearch(Board &board, int alpha, int beta, SearchInfo &info, PVariation &pv, SearchStack *ss)
     {
 
         pv.length = 0;
@@ -99,7 +108,7 @@ namespace elixir::search
 
         int best_score, eval = eval::evaluate(board);
 
-        if (info.ply > MAX_PLY - 1)
+        if (ss->ply > MAX_PLY - 1)
         {
             return eval;
         }
@@ -114,7 +123,7 @@ namespace elixir::search
         const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), 0, alpha, beta);
         const auto tt_move = tt_hit ? result.best_move : move::Move();
 
-        if (tt_hit && info.ply)
+        if (tt_hit && ss->ply)
         {
             pv = result.pv;
             return result.score;
@@ -133,7 +142,7 @@ namespace elixir::search
         alpha = std::max(alpha, best_score);
 
         auto moves = movegen::generate_moves<true>(board);
-        sort_moves(board, moves, tt_move);
+        sort_moves(board, moves, tt_move, ss);
 
         for (const auto &move : moves)
         {
@@ -141,15 +150,13 @@ namespace elixir::search
             {
                 continue;
             }
-            info.ply++;
             legals++;
-            int score = -qsearch(board, -beta, -alpha, info, local_pv);
+            int score = -qsearch(board, -beta, -alpha, info, local_pv, ss);
             board.unmake_move(move, true);
             if (info.stopped)
             {
                 return 0;
             }
-            info.ply--;
             if (score > best_score)
             {
                 best_score = score;
@@ -168,11 +175,11 @@ namespace elixir::search
                 }
             }
         }
-        tt->store_tt(board.get_hash_key(), best_score, best_move, 0, info.ply, flag, pv);
+        tt->store_tt(board.get_hash_key(), best_score, best_move, 0, ss->ply, flag, pv);
         return best_score;
     }
 
-    int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv)
+    int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss)
     {
         if (info.timed)
         {
@@ -188,10 +195,10 @@ namespace elixir::search
 
         if (depth == 0)
         {
-            return qsearch(board, alpha, beta, info, pv);
+            return qsearch(board, alpha, beta, info, pv, ss);
         }
 
-        if (info.ply > MAX_PLY - 1)
+        if (ss->ply > MAX_PLY - 1)
         {
             return eval::evaluate(board);
         }
@@ -207,7 +214,7 @@ namespace elixir::search
 
         const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta);
         // (~130 ELO)
-        if (tt_hit && info.ply)
+        if (tt_hit && ss->ply)
         {
             pv = result.pv;
             return result.score;
@@ -217,7 +224,7 @@ namespace elixir::search
 
         pv.length = 0;
         auto moves = movegen::generate_moves<false>(board);
-        sort_moves(board, moves, tt_move);
+        sort_moves(board, moves, tt_move, ss);
 
         for (const auto &move : moves)
         {
@@ -225,15 +232,14 @@ namespace elixir::search
             {
                 continue;
             }
-            info.ply++;
+            const bool is_quiet_move = move.is_quiet();
             legals++;
-            int score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv);
+            int score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
             board.unmake_move(move, true);
             if (info.stopped)
             {
                 return 0;
             }
-            info.ply--;
             if (score > best_score)
             {
                 best_move = move;
@@ -244,6 +250,14 @@ namespace elixir::search
                     pv.score = score;
                     if (score >= beta)
                     {
+                        if (is_quiet_move)
+                        {
+                            if (ss->killers[0] != move)
+                            {
+                                ss->killers[1] = ss->killers[0];
+                                ss->killers[0] = best_move;
+                            }
+                        }
                         flag = TT_BETA;
                         break;
                     }
@@ -257,7 +271,7 @@ namespace elixir::search
         {
             if (board.is_in_check())
             {
-                return -MATE + info.ply;
+                return -MATE + ss->ply;
             }
             else
             {
@@ -265,7 +279,7 @@ namespace elixir::search
             }
         }
 
-        tt->store_tt(board.get_hash_key(), best_score, best_move, depth, info.ply, flag, pv);
+        tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv);
 
         return best_score;
     }
@@ -277,10 +291,19 @@ namespace elixir::search
         for (int current_depth = 1; current_depth <= info.depth; current_depth++)
         {
             int score = 0, alpha = -INF, beta = INF, delta = 10;
+            SearchStack stack[MAX_DEPTH], *ss = stack;
+            for (int i = 0; i < MAX_DEPTH; i++)
+            {
+                // stack[i].static_eval = SCORE_NONE;
+                stack[i].move = move::Move();
+                stack[i].killers[0] = move::Move();
+                stack[i].killers[1] = move::Move();
+                stack[i].ply = i;
+            }
 
             if (current_depth < 4)
             {
-                score = negamax(board, alpha, beta, current_depth, info, pv);
+                score = negamax(board, alpha, beta, current_depth, info, pv, ss);
             }
 
             if (info.depth >= 4)
@@ -292,7 +315,7 @@ namespace elixir::search
             // aspiration windows
             while (1)
             {
-                score = negamax(board, alpha, beta, current_depth, info, pv);
+                score = negamax(board, alpha, beta, current_depth, info, pv, ss);
                 if (score > alpha && score < beta)
                 {
                     break;
