@@ -22,7 +22,7 @@ namespace elixir
     {
         U64 key = 0ULL;
         I16 score = 0;
-        move::Move move = move::Move();
+        move::Move move = move::NO_MOVE;
         U8 depth = 0;
         TTFlag flag = TT_NONE;
         search::PVariation pv;
@@ -45,7 +45,7 @@ namespace elixir
         TTFlag flag;
         search::PVariation pv;
 
-        ProbedEntry() : score(0), best_move(move::Move()), depth(0), flag(TT_NONE) {}
+        ProbedEntry() : score(0), best_move(move::NO_MOVE), depth(0), flag(TT_NONE) {}
 
         inline ProbedEntry operator=(const TTEntry &entry)
         {

@@ -52,4 +52,5 @@ namespace elixir::move {
     private:
         Move_T m_move;
     };
+    const Move NO_MOVE = Move(0);
 }   

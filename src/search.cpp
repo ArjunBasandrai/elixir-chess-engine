@@ -115,13 +115,13 @@ namespace elixir::search
 
         int legals = 0;
         auto local_pv = PVariation();
-        auto best_move = move::Move();
+        auto best_move = move::NO_MOVE;
         best_score = eval;
 
         ProbedEntry result;
         TTFlag flag = TT_ALPHA;
         const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), 0, alpha, beta);
-        const auto tt_move = tt_hit ? result.best_move : move::Move();
+        const auto tt_move = tt_hit ? result.best_move : move::NO_MOVE;
 
         if (tt_hit && ss->ply)
         {
@@ -202,7 +202,7 @@ namespace elixir::search
         {
             return eval::evaluate(board);
         }
-        
+
         bool root_node = ss->ply == 0;
         bool pv_node = ((beta - alpha > 1) || root_node);
         bool in_check = board.is_in_check();
@@ -217,7 +217,7 @@ namespace elixir::search
 
         auto local_pv = PVariation();
         int best_score = -INF;
-        auto best_move = move::Move();
+        auto best_move = move::NO_MOVE;
         ProbedEntry result;
         TTFlag flag = TT_ALPHA;
 
@@ -229,7 +229,7 @@ namespace elixir::search
             return result.score;
         }
 
-        const auto tt_move = tt_hit ? result.best_move : move::Move();
+        const auto tt_move = tt_hit ? result.best_move : move::NO_MOVE;
 
         pv.length = 0;
         auto moves = movegen::generate_moves<false>(board);
@@ -315,9 +315,9 @@ namespace elixir::search
             for (int i = 0; i < MAX_DEPTH; i++)
             {
                 // stack[i].static_eval = SCORE_NONE;
-                stack[i].move = move::Move();
-                stack[i].killers[0] = move::Move();
-                stack[i].killers[1] = move::Move();
+                stack[i].move = move::NO_MOVE;
+                stack[i].killers[0] = move::NO_MOVE;
+                stack[i].killers[1] = move::NO_MOVE;
                 stack[i].ply = i;
             }
 
