@@ -197,7 +197,7 @@ namespace elixir::search
         bool pv_node = ((beta - alpha > 1) || root_node);
         bool in_check = board.is_in_check();
 
-        // Check extension (~35 ELO)
+        // Check extension (~25 ELO)
         if (in_check) depth++;
 
         if (depth == 0)
