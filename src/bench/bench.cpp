@@ -80,8 +80,7 @@ namespace elixir::bench
             nodes += info.nodes;
         }
         time = (timer::m_timer.time() - time) / 1000;
-        std::cout << "Nodes: " << nodes;
-        std::cout << " Time: " << time;
-        std::cout << "s NPS: " << (int)(nodes / time) << std::endl;
+        std::cout << nodes << " nodes ";
+        std::cout << (int)(nodes / time) << " nps" << std::endl;
     }
 }

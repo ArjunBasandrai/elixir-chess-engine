@@ -149,6 +149,7 @@ namespace elixir::uci
                 std::cout << "id name Elixir " << version << std::endl;
                 std::cout << "id author Arjun Basandrai" << std::endl;
                 std::cout << "option name Hash type spin default " << DEFAULT_HASH_SIZE << " min " << MIN_HASH << " max " << MAX_HASH << std::endl;
+                std::cout << "option name Threads type spin default 1 min 1 max 1" << std::endl;
                 std::cout << "uciok" << std::endl;
             }
             else if (input == "isready")
