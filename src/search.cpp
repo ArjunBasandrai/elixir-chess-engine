@@ -202,9 +202,15 @@ namespace elixir::search
         {
             return eval::evaluate(board);
         }
-
+        
         bool root_node = ss->ply == 0;
         bool pv_node = ((beta - alpha > 1) || root_node);
+        bool in_check = board.is_in_check();
+        // Check extension
+        if (in_check)
+        {
+            depth++;
+        }
 
         int legals = 0;
         info.nodes++;
