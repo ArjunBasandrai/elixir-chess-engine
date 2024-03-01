@@ -7,6 +7,7 @@
 #include "src/defs.h"
 #include "src/utils/test_fens.h"
 #include "src/board/board.h"
+#include "src/bench/bench.h"
 #include "src/hashing/hash.h"
 #include "src/attacks/attacks.h"
 #include "src/uci.h"
@@ -24,8 +25,15 @@ void init() {
     // magic::init_magic_numbers();
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     init();
+
+    if (argc > 1) {
+        if (std::string(argv[1]) == "bench") {
+            bench::bench();
+            return 0;
+        }
+    }
 
     Board board;
     board.to_startpos();
