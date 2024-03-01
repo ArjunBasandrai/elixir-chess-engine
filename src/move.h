@@ -21,6 +21,11 @@ namespace elixir::move {
     };
     class Move {
     public:
+        Move() = default;
+        Move(Move_T move);
+        Move(Square from, Square to, Piece piece, Flag flag, Promotion promotion);
+        ~Move() = default;
+
         [[nodiscard]] Move_T encode_move(Square from, Square to, Piece piece, Flag flag, Promotion promotion) const noexcept;
 
         [[nodiscard]] constexpr Square get_from() const noexcept { return static_cast<Square>(m_move & 0x3f); }

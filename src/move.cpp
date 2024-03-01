@@ -6,6 +6,14 @@
 #include "board/board.h"
 
 namespace elixir::move {
+    Move::Move(Move_T move) {
+        set_move(move);    
+    }
+
+    Move::Move(Square from, Square to, Piece piece, Flag flag, Promotion promotion) {
+        set_move(from, to, piece, flag, promotion);
+    }
+
     [[nodiscard]] Move_T Move::encode_move(Square from, Square to, Piece piece, Flag flag, Promotion promotion) const noexcept {
         Move_T move = 0;
         move |= static_cast<Move_T>(from);
