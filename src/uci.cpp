@@ -37,8 +37,23 @@ namespace elixir::uci
         }
         else if (input.substr(9, 3) == "fen" && input.length() > 13)
         {
-            std::string fen = input.substr(13);
-            board.from_fen(fen);
+            size_t fen_pos = input.find("fen");
+            if (fen_pos != std::string::npos) {
+                size_t moves_pos = input.find("moves", fen_pos);
+                if (moves_pos != std::string::npos) {
+                    std::string fen = input.substr(fen_pos + 4, moves_pos - (fen_pos + 5)); // Offset by 4 to skip "fen " and subtract 5 to exclude the space before "moves"
+                    board.from_fen(fen);
+                    std::string moves = input.substr(moves_pos + 6);
+                    std::vector<std::string> move_list = str_utils::split(moves, ' ');
+                    for (auto move : move_list)
+                    {
+                        board.parse_uci_move(move);
+                    }
+                } else {
+                    std::string fen = input.substr(fen_pos + 4);
+                    board.from_fen(fen);
+                }
+            }
         }
     }
 
@@ -172,14 +187,14 @@ namespace elixir::uci
             else if (input == "print")
             {
                 board.print_board();
-                print_bitboard(board.pawns());
-                print_bitboard(board.knights());
-                print_bitboard(board.bishops());
-                print_bitboard(board.rooks());
-                print_bitboard(board.queens());
-                print_bitboard(board.king());
-                print_bitboard(board.white_occupancy());
-                print_bitboard(board.black_occupancy());
+                // print_bitboard(board.pawns());
+                // print_bitboard(board.knights());
+                // print_bitboard(board.bishops());
+                // print_bitboard(board.rooks());
+                // print_bitboard(board.queens());
+                // print_bitboard(board.king());
+                // print_bitboard(board.white_occupancy());
+                // print_bitboard(board.black_occupancy());
             }
             else if (input.substr(0, 9) == "position ")
             {
