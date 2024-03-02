@@ -12,6 +12,17 @@ SRC = src/utils/bits.cpp \
 	  src/bench/bench.cpp \
 	  src/tt.cpp 
 
+
+CXX = clang++
+EXE = elixir
+
+SUFFIX = 
+ifeq ($(OS),Windows_NT)
+	SUFFIX = .exe
+endif
+
+EXE_NAME = $(EXE)$(SUFFIX)
+
 all: __compile
 
 debug: __debug_compile __run
@@ -19,13 +30,13 @@ debug: __debug_compile __run
 test: __test_compile
 
 __compile:
-	$(CXX) -Ofast -march=native -DNDEBUG -std=c++20 -o $(EXE) elixir.cpp $(SRC)
+	$(CXX) -Ofast -march=native -DNDEBUG -std=c++20 -o $(EXE_NAME) elixir.cpp $(SRC)
 
 __test_compile:
 	$(CXX) -Ofast -march=native -DNDEBUG -std=c++20 -o elixir_test.exe elixir.cpp $(SRC)
 
 __debug_compile:
-	$(CXX) -Og -g -std=c++20 -o $(EXE) elixir.cpp $(SRC)
+	$(CXX) -Og -g -std=c++20 -o $(EXE_NAME) elixir.cpp $(SRC)
 
 __run:
-	./$(EXE)
+	./$(EXE_NAME)
