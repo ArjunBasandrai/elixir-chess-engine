@@ -174,6 +174,6 @@ namespace elixir
     constexpr I8 MoveOverhead = 50;
     constexpr I8 IncrementScale = 2;
 
-    constexpr I32 INF = 40000;
-    constexpr I32 MATE = 39000;
+    constexpr I32 INF = 32001;
+    constexpr I32 MATE = 32000;
 }
