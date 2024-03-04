@@ -38,9 +38,6 @@ int main(int argc, char *argv[]) {
     Board board;
     board.to_startpos();
 
-    EvalScore score = S(-MATE, MATE);
-    std::cout << "Score: " << O(score) << " " << E(score) << std::endl;
-
-    // uci::uci_loop(board);
+    uci::uci_loop(board);
     return 0;
 }

@@ -21,4 +21,6 @@ namespace elixir {
     using Castling = std::uint8_t;
     using Move_T = std::uint32_t;
     using EvalScore = std::int32_t;
+    using Score = std::int32_t;
+    using PhaseType = std::uint8_t;
 }
