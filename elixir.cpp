@@ -38,6 +38,10 @@ int main(int argc, char *argv[]) {
     Board board;
     board.to_startpos();
 
+    // board.from_fen("8/8/1p2k1p1/3p3p/1p1P1P1P/1P2PK2/8/8 w - - 3 54");
+    // board.print_board();
+    // std::cout << eval::evaluate(board) << std::endl;
+
     uci::uci_loop(board);
     return 0;
 }

@@ -55,8 +55,9 @@ namespace elixir::eval {
                 Bitboard piece_bb = board.piece_bitboard(static_cast<PieceType>(i)) & side_occ;
                 while (piece_bb) {
                     int square = bits::pop_bit(piece_bb);
-                    score_opening += O(material_score[i]) * color_offset[color]; // + piece_square_table[i][square];
-                    score_endgame += E(material_score[i]) * color_offset[color]; // + piece_square_table[i][square];
+                    if (color == static_cast<I8>(Color::WHITE)) { square ^= 0b111000; }
+                    score_opening += (O(material_score[i]) + O(psqt[i][square])) * color_offset[color];
+                    score_endgame += (E(material_score[i]) + E(psqt[i][square])) * color_offset[color];
                 }
             }
         }
