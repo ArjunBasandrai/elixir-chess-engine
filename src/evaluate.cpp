@@ -101,7 +101,7 @@ namespace elixir::eval {
                 score_opening += (O(eval::psqt[static_cast<int>(PieceType::ROOK)][to_rook_square]) - O(psqt[static_cast<int>(PieceType::ROOK)][from_rook_square])) * color_offset[color];
                 score_endgame += (E(eval::psqt[static_cast<int>(PieceType::ROOK)][to_rook_square]) - E(psqt[static_cast<int>(PieceType::ROOK)][from_rook_square])) * color_offset[color];
                 return S(score_opening, score_endgame);
-            } else if (move.get_flag() == move::Flag::PROMOTION) {
+            } else if (move.is_promotion()) {
                 auto from = static_cast<int>(move.get_from());
                 auto to = static_cast<int>(move.get_to());
                 const auto piece = move.get_piece();
@@ -131,6 +131,12 @@ namespace elixir::eval {
                 score_endgame += (E(eval::psqt[promotion_piece][to]) - E(psqt[piecetype][from])) * color_offset[color];
                 score_opening += (O(material_score[promotion_piece]) - O(material_score[piecetype])) * color_offset[color];
                 score_endgame += (E(material_score[promotion_piece]) - E(material_score[piecetype])) * color_offset[color];
+                if (move.get_flag() == move::Flag::CAPTURE_PROMOTION) {
+                    const auto captured_piece = board.get_last_state().captured_piece;
+                    const auto captured_piecetype = static_cast<int>(board.piece_to_piecetype(captured_piece));
+                    score_opening -= (O(material_score[captured_piecetype]) + O(psqt[captured_piecetype][to ^ 0b111000])) * color_offset[color^1];
+                    score_endgame -= (E(material_score[captured_piecetype]) + E(psqt[captured_piecetype][to ^ 0b111000])) * color_offset[color^1];
+                }
                 return S(score_opening, score_endgame);
             }
         }
