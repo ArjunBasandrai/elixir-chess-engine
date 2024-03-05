@@ -138,6 +138,20 @@ namespace elixir::eval {
                     score_endgame -= (E(material_score[captured_piecetype]) + E(psqt[captured_piecetype][to ^ 0b111000])) * color_offset[color^1];
                 }
                 return S(score_opening, score_endgame);
+            } else if (move.is_capture()) {
+                auto from = static_cast<int>(move.get_from());
+                auto to = static_cast<int>(move.get_to());
+                const auto piece = move.get_piece();
+                const auto piecetype = static_cast<int>(board.piece_to_piecetype(piece));
+                const int color = static_cast<int>(side)^1;
+                if (color == static_cast<I8>(Color::WHITE)) { from ^= 0b111000; to ^= 0b111000; }
+                score_opening += (O(eval::psqt[piecetype][to]) - O(psqt[piecetype][from])) * color_offset[color];
+                score_endgame += (E(eval::psqt[piecetype][to]) - E(psqt[piecetype][from])) * color_offset[color];
+                const auto captured_piece = board.get_last_state().captured_piece;
+                const auto captured_piecetype = static_cast<int>(board.piece_to_piecetype(captured_piece));
+                score_opening -= (O(material_score[captured_piecetype]) + O(psqt[captured_piecetype][to ^ 0b111000])) * color_offset[color^1];
+                score_endgame -= (E(material_score[captured_piecetype]) + E(psqt[captured_piecetype][to ^ 0b111000])) * color_offset[color^1];
+                return S(score_opening, score_endgame);
             }
         }
         score_opening = 0;
@@ -160,7 +174,7 @@ namespace elixir::eval {
     int evaluate(Board& board) {
         Score score = 0, score_opening = 0, score_endgame = 0;
         Color side = board.get_side_to_move();
-        EvalScore eval = base_eval(board);
+        EvalScore eval = board.get_eval();
         score_opening = O(eval);
         score_endgame = E(eval);
         score = interpolate_eval(score_opening, score_endgame, board);
