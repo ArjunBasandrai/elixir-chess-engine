@@ -85,17 +85,8 @@ namespace elixir {
 
         [[nodiscard]] U64 get_board_hash();
 
-        inline void set_piece(const Square sq, const PieceType piece, const Color color) {
-            assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
-            bits::set_bit(b_occupancies[static_cast<I8>(color)], sq);
-            bits::set_bit(b_pieces[static_cast<I8>(piece)], sq);
-        }
-
-        inline void remove_piece(const Square sq, const PieceType piece, const Color color) {
-            assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
-            bits::clear_bit(b_occupancies[static_cast<I8>(color)], sq);
-            bits::clear_bit(b_pieces[static_cast<I8>(piece)], sq);
-        }
+        void set_piece(const Square sq, const PieceType piece, const Color color);
+        void remove_piece(const Square sq, const PieceType piece, const Color color);
 
         [[nodiscard]] inline Piece piece_on(Square sq) const {
             
@@ -153,6 +144,10 @@ namespace elixir {
             return is_square_attacked(kings[static_cast<I8>(side)], static_cast<Color>(static_cast<I8>(side)^1));
         }
 
+        [[nodiscard]] inline bool has_undo_state() const noexcept { return undo_stack.size() > 0; }
+        [[nodiscard]] inline State get_last_state() const noexcept { return undo_stack[undo_stack.size() - 1]; }
+        [[nodiscard]] inline EvalScore get_last_eval() const noexcept { return undo_stack[undo_stack.size() - 1].eval; }
+
         void clear_board() noexcept;
         void from_fen(std::string fen);
         void to_startpos();
@@ -176,6 +171,5 @@ namespace elixir {
         I8 search_ply;
         U64 hash_key;
         EvalScore eval;
-        move::Move from_move = move::NO_MOVE;
     };
 }

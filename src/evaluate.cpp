@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cassert>
 
 #include "evaluate.h"
 
@@ -46,8 +47,8 @@ namespace elixir::eval {
         }
     }
 
-    int evaluate(Board& board) {
-        Score score = 0, score_opening = 0, score_endgame = 0;
+    EvalScore base_eval(Board& board) {
+        Score score_opening = 0, score_endgame = 0;
         Color side = board.get_side_to_move();
         for (int i = 0; i < 6; i++) {
             for (int color = 0; color < 2; color++) {
@@ -61,6 +62,15 @@ namespace elixir::eval {
                 }
             }
         }
+        return S(score_opening, score_endgame);
+    }
+
+    int evaluate(Board& board) {
+        Score score = 0, score_opening = 0, score_endgame = 0;
+        Color side = board.get_side_to_move();
+        EvalScore eval = board.get_eval();
+        score_opening = O(eval);
+        score_endgame = E(eval);
         score = interpolate_eval(score_opening, score_endgame, board);
         return (side == Color::WHITE) ? score : -score;
     }
