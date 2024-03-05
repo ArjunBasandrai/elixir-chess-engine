@@ -163,6 +163,9 @@ namespace elixir {
         bool make_move(move::Move move);
         void unmake_move(move::Move move, bool from_make_move);
         bool parse_uci_move(std::string move);
+
+        void make_null_move();
+        void unmake_null_move();
     private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};

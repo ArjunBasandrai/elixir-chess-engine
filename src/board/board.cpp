@@ -517,4 +517,25 @@ namespace elixir {
         m.set_move(from, to, piece, flag, promotion);
         return make_move(m);
     }
+
+    void Board::make_null_move() {
+        State s = State(hash_key, castling_rights, en_passant_square, fifty_move_counter, Piece::NO_PIECE, eval, from_move);
+        undo_stack.push(s);
+        fifty_move_counter++;
+        if (en_passant_square != Square::NO_SQ) {
+            hash_key ^= zobrist::ep_keys[static_cast<int>(en_passant_square)];
+        }
+        en_passant_square = Square::NO_SQ;
+        hash_key ^= zobrist::side_key;
+        side = static_cast<Color>(static_cast<int>(side)^1);
+    }
+
+    void Board::unmake_null_move() {
+        State s = undo_stack[undo_stack.size()-1];
+        undo_stack.pop_back();
+        fifty_move_counter = s.fifty_move_counter;
+        en_passant_square = s.enpass;
+        hash_key ^= zobrist::side_key;
+        side = static_cast<Color>(static_cast<int>(side)^1);
+    }
 }
