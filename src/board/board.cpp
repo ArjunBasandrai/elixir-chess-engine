@@ -121,7 +121,32 @@ namespace elixir {
         search_ply = 0;
         hash_key = 0ULL;
         eval = 0;
-        from_move = move::NO_MOVE;
+    }
+
+    void Board::set_piece(const Square sq, const PieceType piece, const Color color) {
+        assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
+        bits::set_bit(b_occupancies[static_cast<I8>(color)], sq);
+        bits::set_bit(b_pieces[static_cast<I8>(piece)], sq);
+        int square = static_cast<int>(sq);
+        Score score_opening = O(eval);
+        Score score_endgame = E(eval);
+        if (color == Color::WHITE) { square ^= 56; }
+        score_opening += (O(eval::material_score[static_cast<I8>(piece)]) + O(eval::psqt[static_cast<I8>(piece)][square])) * color_offset[static_cast<int>(color)];
+        score_endgame += (E(eval::material_score[static_cast<I8>(piece)]) + E(eval::psqt[static_cast<I8>(piece)][square])) * color_offset[static_cast<int>(color)];
+        eval = S(score_opening, score_endgame);
+    }
+
+    void Board::remove_piece(const Square sq, const PieceType piece, const Color color) {
+        assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
+        bits::clear_bit(b_occupancies[static_cast<I8>(color)], sq);
+        bits::clear_bit(b_pieces[static_cast<I8>(piece)], sq);
+        int square = static_cast<int>(sq);
+        Score score_opening = O(eval);
+        Score score_endgame = E(eval);
+        if (color == Color::WHITE) { square ^= 56; }
+        score_opening -= (O(eval::material_score[static_cast<I8>(piece)]) + O(eval::psqt[static_cast<I8>(piece)][square])) * color_offset[static_cast<int>(color)];
+        score_endgame -= (E(eval::material_score[static_cast<I8>(piece)]) + E(eval::psqt[static_cast<I8>(piece)][square])) * color_offset[static_cast<int>(color)];
+        eval = S(score_opening, score_endgame);
     }
 
     void Board::from_fen(std::string fen) {
@@ -187,7 +212,6 @@ namespace elixir {
         set_hash_key();
 
         eval = eval::base_eval(*this);
-        from_move = move::NO_MOVE;
     }
 
     void Board::to_startpos() {
@@ -243,8 +267,6 @@ namespace elixir {
         castling_rights = s.castling_rights;
         en_passant_square = s.enpass;
         fifty_move_counter = s.fifty_move_counter;
-        eval = s.eval;
-        from_move = s.last_move;
         Piece captured_piece = s.captured_piece;
 
         if (side == Color::BLACK) {
@@ -318,9 +340,11 @@ namespace elixir {
         assert(piece_color(piece_) == side);
         
         Piece captured_piece = piece_on(to);
-        State s = State(hash_key, castling_rights, en_passant_square, fifty_move_counter, captured_piece, eval, from_move);
+        State s = State(hash_key, castling_rights, en_passant_square, fifty_move_counter, captured_piece, eval);
         undo_stack.push(s);
         
+        eval = s.eval;
+
         remove_piece(from, piecetype, side);
         // Move source piece to target only if not a capturing move
         // In case of a capture, moving of piece is handled in the "Handling Captures" section
@@ -448,8 +472,6 @@ namespace elixir {
         hash_key ^= zobrist::castle_keys[castling_rights];
 
         hash_key ^= zobrist::side_key;
-        from_move = move;
-        eval = eval::base_eval(*this);
         return true;     
     }
 
