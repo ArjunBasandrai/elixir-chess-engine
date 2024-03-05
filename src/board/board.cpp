@@ -535,6 +535,8 @@ namespace elixir {
         undo_stack.pop_back();
         fifty_move_counter = s.fifty_move_counter;
         en_passant_square = s.enpass;
+        eval = s.eval;
+        from_move = s.last_move;
         hash_key ^= zobrist::side_key;
         side = static_cast<Color>(static_cast<int>(side)^1);
     }
