@@ -75,7 +75,7 @@ namespace elixir {
                 S(-44, -38), S( 19, -28), S(  2, -12), S(-72,  -5), S(  4, -33), S(-46,  -5), S( 33, -30), S( 25, -52)
             }
         };
-        Phase get_game_phase_score(Board &board, int &game_phase_score);
+        Phase get_game_phase(Board &board, int game_phase_score);
         int evaluate(Board& board);
         Score interpolate_eval(EvalScore score, Board &board);
     }

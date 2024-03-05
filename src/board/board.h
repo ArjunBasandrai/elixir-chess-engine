@@ -124,6 +124,7 @@ namespace elixir {
         [[nodiscard]] inline I8 get_search_ply() const noexcept { return search_ply; }
         [[nodiscard]] inline U64 get_hash_key() const noexcept { return hash_key; }
         [[nodiscard]] inline EvalScore get_eval() const noexcept { return eval; }
+        [[nodiscard]] inline int get_phase_score() const noexcept { return phase_score;}
         
         [[nodiscard]] inline Bitboard get_attackers(Square sq, Color c) const {
             Bitboard attackers = 0ULL;
@@ -144,9 +145,6 @@ namespace elixir {
             return is_square_attacked(kings[static_cast<I8>(side)], static_cast<Color>(static_cast<I8>(side)^1));
         }
 
-        [[nodiscard]] inline bool has_undo_state() const noexcept { return undo_stack.size() > 0; }
-        [[nodiscard]] inline State get_last_state() const noexcept { return undo_stack[undo_stack.size() - 1]; }
-        [[nodiscard]] inline EvalScore get_last_eval() const noexcept { return undo_stack[undo_stack.size() - 1].eval; }
 
         void clear_board() noexcept;
         void from_fen(std::string fen);
@@ -171,5 +169,6 @@ namespace elixir {
         I8 search_ply;
         U64 hash_key;
         EvalScore eval;
+        int phase_score;
     };
 }

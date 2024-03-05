@@ -121,6 +121,7 @@ namespace elixir {
         search_ply = 0;
         hash_key = 0ULL;
         eval = 0;
+        phase_score = 0;
     }
 
     void Board::set_piece(const Square sq, const PieceType piece, const Color color) {
@@ -134,6 +135,9 @@ namespace elixir {
         score_opening += (O(eval::material_score[static_cast<I8>(piece)]) + O(eval::psqt[static_cast<I8>(piece)][square])) * color_offset[static_cast<int>(color)];
         score_endgame += (E(eval::material_score[static_cast<I8>(piece)]) + E(eval::psqt[static_cast<I8>(piece)][square])) * color_offset[static_cast<int>(color)];
         eval = S(score_opening, score_endgame);
+        if (piece != PieceType::PAWN && piece != PieceType::KING) {
+            phase_score += O(eval::material_score[static_cast<I8>(piece)]);
+        }
     }
 
     void Board::remove_piece(const Square sq, const PieceType piece, const Color color) {
@@ -147,6 +151,9 @@ namespace elixir {
         score_opening -= (O(eval::material_score[static_cast<I8>(piece)]) + O(eval::psqt[static_cast<I8>(piece)][square])) * color_offset[static_cast<int>(color)];
         score_endgame -= (E(eval::material_score[static_cast<I8>(piece)]) + E(eval::psqt[static_cast<I8>(piece)][square])) * color_offset[static_cast<int>(color)];
         eval = S(score_opening, score_endgame);
+        if (piece != PieceType::PAWN && piece != PieceType::KING) {
+            phase_score -= O(eval::material_score[static_cast<I8>(piece)]);
+        }
     }
 
     void Board::from_fen(std::string fen) {
