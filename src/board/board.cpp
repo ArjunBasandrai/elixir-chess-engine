@@ -13,6 +13,7 @@
 #include "../utils/test_fens.h"
 #include "../utils/state.h"
 #include "../hashing/hash.h"
+#include "../evaluate.h"
 
 namespace elixir {
     const int castling_update[64] = {
@@ -119,6 +120,8 @@ namespace elixir {
         fullmove_number = 0;
         search_ply = 0;
         hash_key = 0ULL;
+        eval = 0;
+        from_move = move::NO_MOVE;
     }
 
     void Board::from_fen(std::string fen) {
@@ -182,6 +185,9 @@ namespace elixir {
         kings[static_cast<I8>(Color::BLACK)] = static_cast<Square>(bits::lsb_index(black_king()));
 
         set_hash_key();
+
+        eval = eval::evaluate(*this);
+        from_move = move::NO_MOVE;
     }
 
     void Board::to_startpos() {
@@ -237,6 +243,8 @@ namespace elixir {
         castling_rights = s.castling_rights;
         en_passant_square = s.enpass;
         fifty_move_counter = s.fifty_move_counter;
+        eval = s.eval;
+        from_move = s.last_move;
         Piece captured_piece = s.captured_piece;
 
         if (side == Color::BLACK) {
@@ -310,7 +318,7 @@ namespace elixir {
         assert(piece_color(piece_) == side);
         
         Piece captured_piece = piece_on(to);
-        State s = State(hash_key, castling_rights, en_passant_square, fifty_move_counter, captured_piece);
+        State s = State(hash_key, castling_rights, en_passant_square, fifty_move_counter, captured_piece, eval, from_move);
         undo_stack.push(s);
         
         remove_piece(from, piecetype, side);
@@ -440,6 +448,8 @@ namespace elixir {
         hash_key ^= zobrist::castle_keys[castling_rights];
 
         hash_key ^= zobrist::side_key;
+        eval = eval::evaluate(*this);
+        from_move = move;
         return true;     
     }
 

@@ -132,7 +132,8 @@ namespace elixir {
         [[nodiscard]] inline I16 get_fullmove_number() const noexcept { return fullmove_number; }
         [[nodiscard]] inline I8 get_search_ply() const noexcept { return search_ply; }
         [[nodiscard]] inline U64 get_hash_key() const noexcept { return hash_key; }
-
+        [[nodiscard]] inline EvalScore get_eval() const noexcept { return eval; }
+        
         [[nodiscard]] inline Bitboard get_attackers(Square sq, Color c) const {
             Bitboard attackers = 0ULL;
             attackers |= (attacks::get_pawn_attacks(Color::WHITE, sq) & black_pawns());
@@ -174,5 +175,7 @@ namespace elixir {
         I16 fullmove_number;
         I8 search_ply;
         U64 hash_key;
+        EvalScore eval;
+        move::Move from_move = move::NO_MOVE;
     };
 }

@@ -106,7 +106,7 @@ namespace elixir::search
             }
         }
 
-        int best_score, eval = eval::evaluate(board);
+        int best_score, eval = board.get_eval();
 
         if (ss->ply > MAX_PLY - 1)
         {
@@ -208,7 +208,7 @@ namespace elixir::search
         if (ss->ply > MAX_PLY - 1)
         {
         
-            return eval::evaluate(board);
+            return board.get_eval();
         }
 
         int legals = 0;

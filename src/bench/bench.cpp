@@ -71,11 +71,12 @@ namespace elixir::bench
         F64 time = timer::m_timer.time();
         Board board;
         int c = 0;
-        for (auto fen : fens)
+        for (int i = 0; i< bench_size; i++)
         {   
+            // std::cout << i << std::endl;
             tt->clear_tt();
             info.nodes = 0;
-            board.from_fen(fen);
+            board.from_fen(fens[i]);
             search::search(board, info, false);
             nodes += info.nodes;
         }
