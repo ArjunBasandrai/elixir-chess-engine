@@ -73,8 +73,7 @@ namespace elixir::eval {
                 const auto piecetype = static_cast<int>(board.piece_to_piecetype(piece));
                 assert(piecetype == static_cast<int>(PieceType::KING));
                 const int color = static_cast<int>(side)^1;
-                int from_rook_square;
-                int to_rook_square;
+                int from_rook_square, to_rook_square;
                 switch (static_cast<Square>(to)) {
                     case Square::C1:
                         from_rook_square = static_cast<int>(Square::A1);
@@ -101,6 +100,37 @@ namespace elixir::eval {
                 score_endgame += (E(eval::psqt[piecetype][to]) - E(psqt[piecetype][from])) * color_offset[color];
                 score_opening += (O(eval::psqt[static_cast<int>(PieceType::ROOK)][to_rook_square]) - O(psqt[static_cast<int>(PieceType::ROOK)][from_rook_square])) * color_offset[color];
                 score_endgame += (E(eval::psqt[static_cast<int>(PieceType::ROOK)][to_rook_square]) - E(psqt[static_cast<int>(PieceType::ROOK)][from_rook_square])) * color_offset[color];
+                return S(score_opening, score_endgame);
+            } else if (move.get_flag() == move::Flag::PROMOTION) {
+                auto from = static_cast<int>(move.get_from());
+                auto to = static_cast<int>(move.get_to());
+                const auto piece = move.get_piece();
+                const auto piecetype = static_cast<int>(board.piece_to_piecetype(piece));
+                const auto promo = move.get_promotion();
+                int promotion_piece;
+                switch (promo) {
+                    case move::Promotion::KNIGHT:
+                        promotion_piece = static_cast<int>(PieceType::KNIGHT);
+                        break;
+                    case move::Promotion::BISHOP:
+                        promotion_piece = static_cast<int>(PieceType::BISHOP);
+                        break;
+                    case move::Promotion::ROOK:
+                        promotion_piece = static_cast<int>(PieceType::ROOK);
+                        break;
+                    case move::Promotion::QUEEN:
+                        promotion_piece = static_cast<int>(PieceType::QUEEN);
+                        break;
+                    default:
+                        assert(false);
+                        break;
+                }
+                const int color = static_cast<int>(side)^1;
+                if (color == static_cast<I8>(Color::WHITE)) { from ^= 0b111000; to ^= 0b111000; }
+                score_opening += (O(eval::psqt[promotion_piece][to]) - O(psqt[piecetype][from])) * color_offset[color];
+                score_endgame += (E(eval::psqt[promotion_piece][to]) - E(psqt[piecetype][from])) * color_offset[color];
+                score_opening += (O(material_score[promotion_piece]) - O(material_score[piecetype])) * color_offset[color];
+                score_endgame += (E(material_score[promotion_piece]) - E(material_score[piecetype])) * color_offset[color];
                 return S(score_opening, score_endgame);
             }
         }

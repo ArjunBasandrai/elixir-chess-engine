@@ -154,6 +154,7 @@ namespace elixir {
         }
 
         [[nodiscard]] inline bool has_undo_state() const noexcept { return undo_stack.size() > 0; }
+        [[nodiscard]] inline State get_last_state() const noexcept { return undo_stack[undo_stack.size() - 1]; }
         [[nodiscard]] inline EvalScore get_last_eval() const noexcept { return undo_stack[undo_stack.size() - 1].eval; }
         [[nodiscard]] inline move::Move get_last_move() const noexcept { return from_move; }
 
