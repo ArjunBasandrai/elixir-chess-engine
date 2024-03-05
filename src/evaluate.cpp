@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cassert>
 
 #include "evaluate.h"
 
@@ -58,13 +59,49 @@ namespace elixir::eval {
             if (move.is_normal()) {
                 auto from = static_cast<int>(move.get_from());
                 auto to = static_cast<int>(move.get_to());
-                auto piece = move.get_piece();
-                auto piecetype = static_cast<int>(board.piece_to_piecetype(piece));
-                int color = static_cast<int>(board.piece_color(piece));
+                const auto piece = move.get_piece();
+                const auto piecetype = static_cast<int>(board.piece_to_piecetype(piece));
+                const int color = static_cast<int>(side)^1;
                 if (color == static_cast<I8>(Color::WHITE)) { from ^= 0b111000; to ^= 0b111000; }
                 score_opening += (O(eval::psqt[piecetype][to]) - O(psqt[piecetype][from])) * color_offset[color];
                 score_endgame += (E(eval::psqt[piecetype][to]) - E(psqt[piecetype][from])) * color_offset[color];
                 return S(score_opening, score_endgame);                         
+            } else if (move.is_castling()) {
+                auto from = static_cast<int>(move.get_from());
+                auto to = static_cast<int>(move.get_to());
+                const auto piece = move.get_piece();
+                const auto piecetype = static_cast<int>(board.piece_to_piecetype(piece));
+                assert(piecetype == static_cast<int>(PieceType::KING));
+                const int color = static_cast<int>(side)^1;
+                int from_rook_square;
+                int to_rook_square;
+                switch (static_cast<Square>(to)) {
+                    case Square::C1:
+                        from_rook_square = static_cast<int>(Square::A1);
+                        to_rook_square = static_cast<int>(Square::D1);
+                        break;
+                    case Square::G1:
+                        from_rook_square = static_cast<int>(Square::H1);
+                        to_rook_square = static_cast<int>(Square::F1);
+                        break;
+                    case Square::C8:
+                        from_rook_square = static_cast<int>(Square::A8);
+                        to_rook_square = static_cast<int>(Square::D8);
+                        break;
+                    case Square::G8:
+                        from_rook_square = static_cast<int>(Square::H8);
+                        to_rook_square = static_cast<int>(Square::F8);
+                        break;
+                    default:
+                        assert(false);
+                        break;
+                }
+                if (color == static_cast<I8>(Color::WHITE)) { from ^= 0b111000; to ^= 0b111000; from_rook_square ^= 0b111000; to_rook_square ^= 0b111000; }
+                score_opening += (O(eval::psqt[piecetype][to]) - O(psqt[piecetype][from])) * color_offset[color];
+                score_endgame += (E(eval::psqt[piecetype][to]) - E(psqt[piecetype][from])) * color_offset[color];
+                score_opening += (O(eval::psqt[static_cast<int>(PieceType::ROOK)][to_rook_square]) - O(psqt[static_cast<int>(PieceType::ROOK)][from_rook_square])) * color_offset[color];
+                score_endgame += (E(eval::psqt[static_cast<int>(PieceType::ROOK)][to_rook_square]) - E(psqt[static_cast<int>(PieceType::ROOK)][from_rook_square])) * color_offset[color];
+                return S(score_opening, score_endgame);
             }
         }
         score_opening = 0;
