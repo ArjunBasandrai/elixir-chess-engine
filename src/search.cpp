@@ -196,6 +196,7 @@ namespace elixir::search
         bool root_node = ss->ply == 0;
         bool pv_node = ((beta - alpha > 1) || root_node);
         bool in_check = board.is_in_check();
+        pv.length = 0;
 
         // Check extension (~25 ELO)
         if (in_check) depth++;
@@ -230,7 +231,19 @@ namespace elixir::search
 
         const auto tt_move = tt_hit ? result.best_move : move::Move();
 
-        pv.length = 0;
+        if (depth >= 3 && !in_check && !pv_node && board.get_eval() >= beta && (ss-1)->move != move::NO_MOVE)
+        {
+            int r = 2;
+            board.make_null_move();
+            ss->move = move::NO_MOVE;
+            int score = -negamax(board, -beta, -beta + 1, depth - r - 1, info, local_pv, ss + 1);
+            board.unmake_null_move();
+            if (score >= beta)
+            {
+                return score;
+            }
+        }
+
         auto moves = movegen::generate_moves<false>(board);
         sort_moves(board, moves, tt_move, ss);
 
@@ -240,21 +253,17 @@ namespace elixir::search
             {
                 continue;
             }
-
+            ss->move = move;
             const bool is_quiet_move = move.is_quiet();
             legals++;
 
             // (~25 ELO)
             int score = 0;
-            if (legals == 1)
-            {
+            if (legals == 1) {
                 score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
-            }
-            else
-            {
+            } else {
                 score = -negamax(board, -alpha - 1, -alpha, depth - 1, info, local_pv, ss + 1);
-                if (score > alpha && score < beta)
-                {
+                if (score > alpha && score < beta) {
                     score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
                 }
             }
