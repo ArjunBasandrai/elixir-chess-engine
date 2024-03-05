@@ -76,6 +76,7 @@ namespace elixir {
             }
         };
         Phase get_game_phase_score(Board &board, int &game_phase_score);
+        EvalScore base_eval(Board& board);
         int evaluate(Board& board);
         Score interpolate_eval(EvalScore score, Board &board);
     }

@@ -186,7 +186,7 @@ namespace elixir {
 
         set_hash_key();
 
-        eval = eval::evaluate(*this);
+        eval = eval::base_eval(*this);
         from_move = move::NO_MOVE;
     }
 
@@ -448,8 +448,8 @@ namespace elixir {
         hash_key ^= zobrist::castle_keys[castling_rights];
 
         hash_key ^= zobrist::side_key;
-        eval = eval::evaluate(*this);
         from_move = move;
+        eval = eval::base_eval(*this);
         return true;     
     }
 

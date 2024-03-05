@@ -153,6 +153,10 @@ namespace elixir {
             return is_square_attacked(kings[static_cast<I8>(side)], static_cast<Color>(static_cast<I8>(side)^1));
         }
 
+        [[nodiscard]] inline bool has_undo_state() const noexcept { return undo_stack.size() > 0; }
+        [[nodiscard]] inline EvalScore get_last_eval() const noexcept { return undo_stack[undo_stack.size() - 1].eval; }
+        [[nodiscard]] inline move::Move get_last_move() const noexcept { return from_move; }
+
         void clear_board() noexcept;
         void from_fen(std::string fen);
         void to_startpos();

@@ -46,9 +46,29 @@ namespace elixir::eval {
         }
     }
 
-    int evaluate(Board& board) {
-        Score score = 0, score_opening = 0, score_endgame = 0;
+    EvalScore base_eval(Board& board) {
+        Score score_opening = 0, score_endgame = 0;
         Color side = board.get_side_to_move();
+        if (board.has_undo_state()) {
+            EvalScore eval = board.get_last_eval();
+            score_opening = O(eval);
+            score_endgame = E(eval);
+            auto move = board.get_last_move();
+            
+            if (move.is_normal()) {
+                auto from = static_cast<int>(move.get_from());
+                auto to = static_cast<int>(move.get_to());
+                auto piece = move.get_piece();
+                auto piecetype = static_cast<int>(board.piece_to_piecetype(piece));
+                int color = static_cast<int>(board.piece_color(piece));
+                if (color == static_cast<I8>(Color::WHITE)) { from ^= 0b111000; to ^= 0b111000; }
+                score_opening += (O(eval::psqt[piecetype][to]) - O(psqt[piecetype][from])) * color_offset[color];
+                score_endgame += (E(eval::psqt[piecetype][to]) - E(psqt[piecetype][from])) * color_offset[color];
+                return S(score_opening, score_endgame);                         
+            }
+        }
+        score_opening = 0;
+        score_endgame = 0;
         for (int i = 0; i < 6; i++) {
             for (int color = 0; color < 2; color++) {
                 Bitboard side_occ = board.color_occupancy(color);
@@ -61,6 +81,15 @@ namespace elixir::eval {
                 }
             }
         }
+        return S(score_opening, score_endgame);
+    }
+
+    int evaluate(Board& board) {
+        Score score = 0, score_opening = 0, score_endgame = 0;
+        Color side = board.get_side_to_move();
+        EvalScore eval = base_eval(board);
+        score_opening = O(eval);
+        score_endgame = E(eval);
         score = interpolate_eval(score_opening, score_endgame, board);
         return (side == Color::WHITE) ? score : -score;
     }
