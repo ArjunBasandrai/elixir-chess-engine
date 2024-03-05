@@ -56,7 +56,7 @@ namespace elixir::eval {
             score_endgame = E(eval);
             auto move = board.get_last_move();
             
-            if (move.is_normal()) {
+            if (move.is_normal() || move.is_double_pawn_push()) {
                 auto from = static_cast<int>(move.get_from());
                 auto to = static_cast<int>(move.get_to());
                 const auto piece = move.get_piece();
