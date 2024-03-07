@@ -82,5 +82,13 @@ namespace elixir {
         else
         moves = movegen::generate_moves<false>(board);
         sort_moves(board, tt_move, ss);
+        index = 0;
+    }
+
+    move::Move MovePicker::next_move() {
+        if (index < moves.size()) {
+            return moves[index++];
+        }
+        return move::NO_MOVE;
     }
 }

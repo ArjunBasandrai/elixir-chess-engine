@@ -144,9 +144,9 @@ namespace elixir::search
 
         MovePicker mp;
         mp.init_mp(board, tt_move, ss, true);
-        auto moves = mp.get_moves();
+        move::Move move;
 
-        for (const auto &move : moves)
+        while ((move = mp.next_move()) != move::NO_MOVE)
         {
             if (!board.make_move(move))
             {
@@ -233,16 +233,14 @@ namespace elixir::search
         const auto tt_move = tt_hit ? result.best_move : move::Move();
 
         pv.length = 0;
+        
         MovePicker mp;
-        mp.init_mp(board, tt_move, ss, false);
-        auto moves = mp.get_moves();
+        mp.init_mp(board, tt_move, ss, false); 
+        move::Move move;
 
-        for (const auto &move : moves)
-        {
-            if (!board.make_move(move))
-            {
-                continue;
-            }
+        while ((move = mp.next_move()) != move::NO_MOVE) {
+
+            if (!board.make_move(move)) continue;
 
             const bool is_quiet_move = move.is_quiet();
             legals++;
