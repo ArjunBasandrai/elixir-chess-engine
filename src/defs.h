@@ -67,6 +67,20 @@ namespace elixir
     constexpr int PromotionRank[2] = {RANK_8, RANK_1};
     constexpr int DoublePawnRank[2] = {RANK_2, RANK_7};
 
+    constexpr Bitboard Rank_1_BB = 0x00000000000000FF;
+    constexpr Bitboard Rank_2_BB = 0x000000000000FF00;
+    constexpr Bitboard Rank_3_BB = 0x0000000000FF0000;
+    constexpr Bitboard Rank_4_BB = 0x00000000FF000000;
+    constexpr Bitboard Rank_5_BB = 0x000000FF00000000;
+    constexpr Bitboard Rank_6_BB = 0x0000FF0000000000;
+    constexpr Bitboard Rank_7_BB = 0x00FF000000000000;
+    constexpr Bitboard Rank_8_BB = 0xFF00000000000000;
+
+    constexpr Bitboard not_a_file = 18374403900871474942ULL;
+    constexpr Bitboard not_h_file = 9187201950435737471ULL;
+    constexpr Bitboard not_gh_file = 4557430888798830399ULL;
+    constexpr Bitboard not_ab_file = 18229723555195321596ULL;
+
     constexpr I16 MAX_PLY = 512;
     constexpr I8 MAX_DEPTH = 64;
 

@@ -10,56 +10,105 @@
 #include "utils/static_vector.h"
 
 namespace elixir::movegen {
+    template <bool only_captures>
     void generate_quiet_pawn_moves(Board& board, StaticVector<move::Move, 256>& moves) {
-        Bitboard pawns;
         Color side = board.get_side_to_move();
         I8 stm = static_cast<int>(side);
-        Piece piece;
-        
-        switch (side) {
-            case Color::WHITE:
-                pawns = board.pawns<Color::WHITE>();
-                piece = Piece::wP;
-                break;
-            case Color::BLACK:
-                pawns = board.pawns<Color::BLACK>();
-                piece = Piece::bP;
-                break;
-            default:
-                assert(false);
-                break;
-        }
-        
-        while (pawns) {
-            move::Move m;
-            Square source = static_cast<Square>(bits::pop_bit(pawns));
-            Square target = static_cast<Square>(static_cast<int>(source) + 8 * color_offset[stm]);
-            int target_rank = get_rank(target);
-            
-            // Quiet move check
-            if (board.piece_on(target) != Piece::NO_PIECE) {
-                continue;
+        Bitboard pawns = side == Color::WHITE ? board.pawns<Color::WHITE>() : board.pawns<Color::BLACK>();
+
+        Bitboard our_rank_3 = side == Color::WHITE ? Rank_3_BB : Rank_6_BB;
+        Bitboard our_rank_7 = side == Color::WHITE ? Rank_7_BB : Rank_2_BB;
+        Bitboard not_our_rank_7 = ~our_rank_7;
+
+        int push = side == Color::WHITE ? 8 : -8;
+        int diag_0 = side == Color::WHITE ? 9 : -7;
+        int diag_1 = side == Color::WHITE ? 7 : -9;
+        Piece piece = side == Color::WHITE ? Piece::wP : Piece::bP;
+
+        move::Move m;
+
+        if (!only_captures) {
+            Bitboard push_1 = sh_l((pawns & not_our_rank_7), push) & ~board.occupancy();
+            Bitboard push_2 = sh_l((push_1 & our_rank_3), push) & ~board.occupancy();
+            while (push_1) {
+                int to = bits::pop_bit(push_1);  
+                m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::NORMAL, move::Promotion::QUEEN);
+                moves.push(m);
             }
-            
-            if (target_rank == PromotionRank[stm]) { 
-                m.set_move(source, target, piece, move::Flag::PROMOTION, move::Promotion::QUEEN);
+
+            while (push_2) {
+                int to = bits::pop_bit(push_2);
+                m.set_move(static_cast<Square>(to - 2*push), static_cast<Square>(to), piece, move::Flag::DOUBLE_PAWN_PUSH, move::Promotion::QUEEN);
                 moves.push(m);
-                m.set_move(source, target, piece, move::Flag::PROMOTION, move::Promotion::ROOK);
-                moves.push(m);
-                m.set_move(source, target, piece, move::Flag::PROMOTION, move::Promotion::BISHOP);
-                moves.push(m);
-                m.set_move(source, target, piece, move::Flag::PROMOTION, move::Promotion::KNIGHT);
-                moves.push(m);
-            } else {
-                m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
-                moves.push(m);
-                target = static_cast<Square>(static_cast<int>(source) + 2 * 8 * color_offset[stm]);
-                if (get_rank(source) == DoublePawnRank[stm] && board.piece_on(target) == Piece::NO_PIECE){
-                    m.set_move(source, target, piece, move::Flag::DOUBLE_PAWN_PUSH, move::Promotion::QUEEN);
-                    moves.push(m);
-                }
             }
         }
+
+        Bitboard capture_0 = sh_l((pawns & not_our_rank_7 & not_h_file), diag_0) & board.color_occupancy(stm^1);
+        Bitboard capture_1 = sh_l((pawns & not_our_rank_7 & not_a_file), diag_1) & board.color_occupancy(stm^1);
+
+        while (capture_0) {
+            int to = bits::pop_bit(capture_0);
+            m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
+            moves.push(m);
+        }
+
+        while (capture_1) {
+            int to = bits::pop_bit(capture_1);
+            m.set_move(static_cast<Square>(to - diag_1), static_cast<Square>(to), piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
+            moves.push(m);
+        }
+
+        if (board.get_en_passant_square() != Square::NO_SQ) {
+            Bitboard ep_pawns = pawns & attacks::get_pawn_attacks(static_cast<Color>(stm^1), board.get_en_passant_square());
+            while (ep_pawns) {
+                int from = bits::pop_bit(ep_pawns);
+                m.set_move(static_cast<Square>(from), board.get_en_passant_square(), piece, move::Flag::EN_PASSANT, move::Promotion::QUEEN);
+                moves.push(m);
+            }
+        }
+
+        Bitboard promotion = sh_l((pawns & our_rank_7), push) & ~board.occupancy();
+        Bitboard promotion_capture_0 = sh_l((pawns & our_rank_7 & not_h_file), diag_0) & board.color_occupancy(stm^1);
+        Bitboard promotion_capture_1 = sh_l((pawns & our_rank_7 & not_a_file), diag_1) & board.color_occupancy(stm^1);
+
+        if (!only_captures) {
+            while (promotion) {
+                int to = bits::pop_bit(promotion);
+                m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::PROMOTION, move::Promotion::QUEEN);
+                moves.push(m);
+                m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::PROMOTION, move::Promotion::ROOK);
+                moves.push(m);
+                m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::PROMOTION, move::Promotion::BISHOP);
+                moves.push(m);
+                m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::PROMOTION, move::Promotion::KNIGHT);
+                moves.push(m);
+            }
+        }
+
+        while (promotion_capture_0) {
+            int to = bits::pop_bit(promotion_capture_0);
+            m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::QUEEN);
+            moves.push(m);
+            m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::ROOK);
+            moves.push(m);
+            m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::BISHOP);
+            moves.push(m);
+            m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::KNIGHT);
+            moves.push(m);
+        }
+
+        while (promotion_capture_1) {
+            int to = bits::pop_bit(promotion_capture_1);
+            m.set_move(static_cast<Square>(to - diag_1), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::QUEEN);
+            moves.push(m);
+            m.set_move(static_cast<Square>(to - diag_1), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::ROOK);
+            moves.push(m);
+            m.set_move(static_cast<Square>(to - diag_1), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::BISHOP);
+            moves.push(m);
+            m.set_move(static_cast<Square>(to - diag_1), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::KNIGHT);
+            moves.push(m);
+        }
+
     }
 
     void generate_capture_pawn_moves(Board& board, StaticVector<move::Move, 256>& moves) {
@@ -412,10 +461,10 @@ namespace elixir::movegen {
         StaticVector<move::Move, 256> moves;
 
         // Generate Pawn Moves
-        if (!only_captures)
-        generate_quiet_pawn_moves(board, moves);
-        generate_capture_pawn_moves(board, moves);
-        generate_enpassant_pawn_moves(board, moves);
+        // if (!only_captures)
+        generate_quiet_pawn_moves<only_captures>(board, moves);
+        // generate_capture_pawn_moves(board, moves);
+        // generate_enpassant_pawn_moves(board, moves);
 
         // Generate Castling Moves
         if (!only_captures)
