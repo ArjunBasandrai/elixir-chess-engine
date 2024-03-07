@@ -15,5 +15,5 @@ namespace elixir::movegen {
         else return b >> -n;
     }
     template <bool only_captures>
-    StaticVector<move::Move, 256> generate_moves(Board& board);
+    StaticVector<move::Move, 256> generate_moves(const Board& board);
 }
