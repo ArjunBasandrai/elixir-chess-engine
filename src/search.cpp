@@ -93,14 +93,10 @@ namespace elixir::search
     {
 
         pv.length = 0;
-        info.nodes++;
 
-        if (info.timed)
-        {
-            if (info.nodes % 2047 == 0)
-            {
-                if (timer::m_timer.time() - info.start_time > info.time_left)
-                {
+        if (info.timed) {
+            if (info.nodes % 2047 == 0) {
+                if (timer::m_timer.time() - info.start_time > info.time_left) {
                     info.stopped = true;
                     return 0;
                 }
@@ -109,10 +105,7 @@ namespace elixir::search
 
         int best_score, eval = eval::evaluate(board);
 
-        if (ss->ply > MAX_PLY - 1)
-        {
-            return eval;
-        }
+        if (ss->ply > MAX_PLY - 1) return eval;
 
         int legals = 0;
         auto local_pv = PVariation();
@@ -124,8 +117,7 @@ namespace elixir::search
         const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), 0, alpha, beta);
         const auto tt_move = tt_hit ? result.best_move : move::Move();
 
-        if (tt_hit && ss->ply)
-        {
+        if (tt_hit && ss->ply) {
             pv = result.pv;
             return result.score;
         }
@@ -146,32 +138,30 @@ namespace elixir::search
         mp.init_mp(board, tt_move, ss, true);
         move::Move move;
 
-        while ((move = mp.next_move()) != move::NO_MOVE)
-        {
-            if (!board.make_move(move))
-            {
-                continue;
-            }
+        while ((move = mp.next_move()) != move::NO_MOVE) {
+
+            if (!board.make_move(move)) continue; 
+
             legals++;
+            info.nodes++;
+
             int score = -qsearch(board, -beta, -alpha, info, local_pv, ss);
             board.unmake_move(move, true);
-            if (info.stopped)
-            {
-                return 0;
-            }
-            if (score > best_score)
-            {
+
+            if (info.stopped) return 0;
+
+            if (score > best_score) {
                 best_score = score;
-                if (score > alpha)
-                {
+
+                if (score > alpha) {
                     best_move = move;
                     alpha = score;
                     pv.load_from(move, local_pv);
                     pv.score = score;
                     flag = TT_EXACT;
                 }
-                if (alpha >= beta)
-                {
+
+                if (alpha >= beta) {
                     flag = TT_BETA;
                     break;
                 }
@@ -181,14 +171,13 @@ namespace elixir::search
         return best_score;
     }
 
-    int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss)
-    {
-        if (info.timed)
-        {
-            if (info.nodes % 2047 == 0)
-            {
-                if (timer::m_timer.time() - info.start_time > info.time_left)
-                {
+    int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss) {
+        
+        pv.length = 0;
+        
+        if (info.timed) {
+            if (info.nodes % 2047 == 0) {
+                if (timer::m_timer.time() - info.start_time > info.time_left) {
                     info.stopped = true;
                     return 0;
                 }
@@ -202,19 +191,11 @@ namespace elixir::search
         // Check extension (~25 ELO)
         if (in_check) depth++;
 
-        if (depth == 0)
-        {
-            return qsearch(board, alpha, beta, info, pv, ss);
-        }
-
-        if (ss->ply > MAX_PLY - 1)
-        {
+        if (depth == 0) return qsearch(board, alpha, beta, info, pv, ss);
         
-            return board.get_eval();
-        }
+        if (ss->ply > MAX_PLY - 1) return board.get_eval();
 
         int legals = 0;
-        info.nodes++;
 
         auto local_pv = PVariation();
         int best_score = -INF;
@@ -224,15 +205,12 @@ namespace elixir::search
 
         const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta);
         // (~130 ELO)
-        if (tt_hit && !pv_node)
-        {
+        if (tt_hit && !pv_node) {
             pv = result.pv;
             return result.score;
         }
 
         const auto tt_move = tt_hit ? result.best_move : move::Move();
-
-        pv.length = 0;
         
         MovePicker mp;
         mp.init_mp(board, tt_move, ss, false); 
@@ -242,45 +220,35 @@ namespace elixir::search
 
             if (!board.make_move(move)) continue;
 
-            const bool is_quiet_move = move.is_quiet();
             legals++;
+            info.nodes++;
 
-            // (~25 ELO)
+            const bool is_quiet_move = move.is_quiet();
+
+            // PVS (~25 ELO)
             int score = 0;
-            if (legals == 1)
-            {
+            if (legals == 1) {
                 score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
-            }
-            else
-            {
+            } else {
                 score = -negamax(board, -alpha - 1, -alpha, depth - 1, info, local_pv, ss + 1);
-                if (score > alpha && score < beta)
-                {
+                if (score > alpha && score < beta) {
                     score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
                 }
             }
 
             board.unmake_move(move, true);
 
-            if (info.stopped)
-            {
-                return 0;
-            }
+            if (info.stopped) return 0;
 
-            if (score > best_score)
-            {
+            if (score > best_score) {
                 best_move = move;
                 best_score = score;
-                if (score > alpha)
-                {
+                if (score > alpha) {
                     pv.load_from(move, local_pv);
                     pv.score = score;
-                    if (score >= beta)
-                    {
-                        if (is_quiet_move)
-                        {
-                            if (ss->killers[0] != move)
-                            {
+                    if (score >= beta) {
+                        if (is_quiet_move) {
+                            if (ss->killers[0] != move) {
                                 ss->killers[1] = ss->killers[0];
                                 ss->killers[0] = best_move;
                             }
@@ -294,8 +262,7 @@ namespace elixir::search
             }
         }
 
-        if (legals == 0)
-        {
+        if (legals == 0) {
             return board.is_in_check() ? -MATE + ss->ply : 0;
         }
 
@@ -304,69 +271,57 @@ namespace elixir::search
         return best_score;
     }
 
-    void search(Board &board, SearchInfo &info, bool print_info)
-    {
+    void search(Board &board, SearchInfo &info, bool print_info) {
         auto start = std::chrono::high_resolution_clock::now();
         PVariation pv;
-        for (int current_depth = 1; current_depth <= info.depth; current_depth++)
-        {
+        for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
             int score = 0, alpha = -INF, beta = INF, delta = 10;
             SearchStack stack[MAX_DEPTH], *ss = stack;
-            for (int i = 0; i < MAX_DEPTH; i++)
-            {
-                // stack[i].static_eval = SCORE_NONE;
+            for (int i = 0; i < MAX_DEPTH; i++) {
                 stack[i].move = move::Move();
                 stack[i].killers[0] = move::Move();
                 stack[i].killers[1] = move::Move();
                 stack[i].ply = i;
             }
 
-            if (current_depth < 4)
-            {
+            if (current_depth < 4) {
                 score = negamax(board, alpha, beta, current_depth, info, pv, ss);
             }
 
-            if (info.depth >= 4)
-            {
+            if (info.depth >= 4) {
                 alpha = std::max(-INF, score - delta);
                 beta = std::min(INF, score + delta);
             }
 
             // aspiration windows
-            while (1)
-            {
+            while (1) {
                 score = negamax(board, alpha, beta, current_depth, info, pv, ss);
-                if (score > alpha && score < beta)
-                {
-                    break;
-                }
 
-                if (score <= alpha)
-                {
+                if (score > alpha && score < beta) break;
+
+                if (score <= alpha) {
                     beta = (alpha + beta) / 2;
                     alpha = std::max(-INF, alpha - delta);
                 }
 
-                else if (score >= beta)
-                {
+                else if (score >= beta) {
                     beta = std::min(INF, beta + delta);
                 }
 
                 delta = delta + delta / 2;
             }
+
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-            if (print_info)
-            {
+            if (print_info) {
                 std::cout << "info score cp " << score << " depth " << current_depth << " nodes " << info.nodes << " time " << duration.count() << " pv ";
                 pv.print_pv();
                 std::cout << std::endl;
             }
         }
 
-        if (print_info)
-        {
+        if (print_info) {
             std::cout << "bestmove ";
             pv.line[0].print_uci();
             std::cout << std::endl;
