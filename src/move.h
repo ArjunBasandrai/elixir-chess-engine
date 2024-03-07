@@ -2,6 +2,7 @@
 
 #include "types.h"
 #include "defs.h"
+#include "utils/static_vector.h"
 
 namespace elixir::move {
     enum class Flag {
@@ -53,4 +54,8 @@ namespace elixir::move {
         Move_T m_move;
     };
     const Move NO_MOVE = Move(0);
-}   
+}
+
+namespace elixir {
+    using MoveList = StaticVector<move::Move, 256>;
+}
