@@ -6,6 +6,7 @@
 #include "board/board.h"
 #include "evaluate.h"
 #include "move.h"
+#include "movepicker.h"
 #include "movegen.h"
 #include "tt.h"
 #include "utils/static_vector.h"
@@ -13,7 +14,7 @@
 
 namespace elixir::search
 {
-    void score_moves(Board &board, StaticVector<int, 256> &scores, StaticVector<elixir::move::Move, 256> &moves, move::Move tt_move, SearchStack *ss)
+    void score_moves(Board &board, StaticVector<int, 256> &scores, MoveList &moves, move::Move tt_move, SearchStack *ss)
     {
         int value;
         Square from, to;
@@ -68,7 +69,7 @@ namespace elixir::search
     }
 
     // (~300 ELO)
-    void sort_moves(Board &board, StaticVector<elixir::move::Move, 256> &moves, move::Move tt_move, SearchStack *ss)
+    void sort_moves(Board &board, MoveList &moves, move::Move tt_move, SearchStack *ss)
     {
         StaticVector<int, 256> scores;
         scores.resize(moves.size());
@@ -141,8 +142,9 @@ namespace elixir::search
 
         alpha = std::max(alpha, best_score);
 
-        auto moves = movegen::generate_moves<true>(board);
-        sort_moves(board, moves, tt_move, ss);
+        MovePicker mp;
+        mp.init_mp(board, tt_move, ss, true);
+        auto moves = mp.get_moves();
 
         for (const auto &move : moves)
         {
@@ -231,8 +233,9 @@ namespace elixir::search
         const auto tt_move = tt_hit ? result.best_move : move::Move();
 
         pv.length = 0;
-        auto moves = movegen::generate_moves<false>(board);
-        sort_moves(board, moves, tt_move, ss);
+        MovePicker mp;
+        mp.init_mp(board, tt_move, ss, false);
+        auto moves = mp.get_moves();
 
         for (const auto &move : moves)
         {

@@ -10,7 +10,8 @@ SRC = src/utils/bits.cpp \
 	  src/search.cpp \
 	  src/utils/timer.cpp \
 	  src/bench/bench.cpp \
-	  src/tt.cpp 
+	  src/tt.cpp \
+	  src/movepicker.cpp
 
 
 CXX = clang++
