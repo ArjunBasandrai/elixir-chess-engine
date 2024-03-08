@@ -16,6 +16,7 @@
 #include "src/search.h"
 #include "src/movegen.h"
 #include "src/utils/perft.h"
+#include "src/utils/eval_masks.h"
 #include "src/tt.h"
 
 using namespace elixir;
@@ -24,6 +25,7 @@ void init() {
     zobrist::init_hash_keys();
     attacks::init_attacks();
     // magic::init_magic_numbers();
+    init_masks();
 }
 
 int main(int argc, char *argv[]) {

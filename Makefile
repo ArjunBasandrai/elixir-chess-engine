@@ -11,7 +11,8 @@ SRC = src/utils/bits.cpp \
 	  src/utils/timer.cpp \
 	  src/bench/bench.cpp \
 	  src/tt.cpp \
-	  src/movepicker.cpp
+	  src/movepicker.cpp \
+	  src/utils/eval_masks.cpp 
 
 
 CXX = clang++

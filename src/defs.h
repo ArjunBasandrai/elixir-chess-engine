@@ -76,6 +76,8 @@ namespace elixir
     constexpr Bitboard Rank_7_BB = 0x00FF000000000000;
     constexpr Bitboard Rank_8_BB = 0xFF00000000000000;
 
+    constexpr Bitboard File_A_BB = 0x0101010101010101;
+
     constexpr Bitboard not_a_file = 18374403900871474942ULL;
     constexpr Bitboard not_h_file = 9187201950435737471ULL;
     constexpr Bitboard not_gh_file = 4557430888798830399ULL;
