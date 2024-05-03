@@ -48,17 +48,15 @@ namespace elixir
                 switch (entry.flag)
                 {
                 case TT_ALPHA:
-                    if (entry.score <= alpha)
-                    {
-                        result.score = alpha;
+                    if (entry.score <= alpha) {
+                        result.score = entry.score;
                     }
                     else
                         return false;
                     break;
                 case TT_BETA:
-                    if (entry.score >= beta)
-                    {
-                        result.score = beta;
+                    if (entry.score >= beta) {
+                        result.score = entry.score;
                     }
                     else
                         return false;

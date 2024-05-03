@@ -210,7 +210,7 @@ namespace elixir::search
             return result.score;
         }
 
-        const auto tt_move = tt_hit ? result.best_move : move::Move();
+        const auto tt_move = result.best_move;
         
         MovePicker mp;
         mp.init_mp(board, tt_move, ss, false); 
