@@ -480,6 +480,29 @@ namespace elixir {
         return true;     
     }
 
+    void Board::make_null_move() {
+        State s = State(hash_key, castling_rights, en_passant_square, fifty_move_counter, Piece::NO_PIECE, eval);
+        undo_stack.push(s);
+        fifty_move_counter++;
+        if (en_passant_square != Square::NO_SQ) {
+            hash_key ^= zobrist::ep_keys[static_cast<int>(en_passant_square)];
+        }
+        en_passant_square = Square::NO_SQ;
+        hash_key ^= zobrist::side_key;
+        side = static_cast<Color>(static_cast<int>(side)^1);
+    }
+
+    void Board::unmake_null_move() {
+        State s = undo_stack[undo_stack.size()-1];
+        undo_stack.pop_back();
+        hash_key = s.hash_key;
+        fifty_move_counter = s.fifty_move_counter;
+        en_passant_square = s.enpass;
+        castling_rights = s.castling_rights;
+        eval = s.eval;
+        side = static_cast<Color>(static_cast<int>(side)^1);
+    }
+
     bool Board::parse_uci_move(std::string move) {
         
         assert(move.length() == 4 || move.length() == 5);

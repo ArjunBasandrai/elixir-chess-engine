@@ -171,7 +171,7 @@ namespace elixir::search
         return best_score;
     }
 
-    int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss) {
+    int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss, bool can_nmp) {
         
         pv.length = 0;
         
@@ -191,7 +191,7 @@ namespace elixir::search
         // Check extension (~25 ELO)
         if (in_check) depth++;
 
-        if (depth == 0) return qsearch(board, alpha, beta, info, pv, ss);
+        if (depth <= 0) return qsearch(board, alpha, beta, info, pv, ss);
         
         if (ss->ply > MAX_PLY - 1) return board.get_eval();
 
@@ -212,7 +212,24 @@ namespace elixir::search
 
         // (~160 ELO)
         const auto tt_move = result.best_move;
-        
+
+        if (!pv_node && !in_check) {
+            // Null Move Pruning
+            int eval = eval::evaluate(board);
+            if (depth >= 3 && can_nmp && eval >= beta) {
+                int R = 4 + depth / 6;
+                R = std::min(R, depth);
+
+                board.make_null_move();
+                int score = -negamax(board, -beta, -beta + 1, depth - R, info, local_pv, ss + 1, false);
+                board.unmake_null_move();
+
+                if (score >= beta) {
+                    return beta;
+                }
+            }
+        }
+
         MovePicker mp;
         mp.init_mp(board, tt_move, ss, false); 
         move::Move move;

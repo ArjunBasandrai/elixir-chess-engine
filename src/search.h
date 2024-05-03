@@ -72,6 +72,6 @@ namespace elixir::search
         }
     };
 
-    int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss);
+    int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss, bool can_nmp = true);
     void search(Board &board, SearchInfo &info, bool print_info = true);
 }
