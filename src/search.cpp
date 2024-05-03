@@ -214,8 +214,14 @@ namespace elixir::search
         const auto tt_move = result.best_move;
 
         if (!pv_node && !in_check) {
-            // Null Move Pruning
             int eval = eval::evaluate(board);
+
+            // Reverse Futility Pruning
+            if (depth <= 6 && eval - 200 * depth >= beta) {
+                return eval;
+            }
+
+            // Null Move Pruning (~60 ELO)
             if (depth >= 3 && can_nmp && eval >= beta) {
                 int R = 4 + depth / 6;
                 R = std::min(R, depth);
