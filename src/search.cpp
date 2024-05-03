@@ -209,7 +209,8 @@ namespace elixir::search
             pv = result.pv;
             return result.score;
         }
-
+        
+        // (~160 ELO)
         const auto tt_move = result.best_move;
         
         MovePicker mp;
