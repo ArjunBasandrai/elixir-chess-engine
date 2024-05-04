@@ -14,6 +14,15 @@
 
 namespace elixir::search
 {
+    int lmr[MAX_DEPTH][64] = {0};
+    void init_lmr() {
+        for (int depth = 1; depth < MAX_DEPTH; depth++) {
+            for (int move = 1; move < 64; move++) {
+                lmr[depth][move] = 0.75 + log(depth) * log(move) / 2.31;
+            }
+        }
+    }
+
     void score_moves(Board &board, StaticVector<int, 256> &scores, MoveList &moves, move::Move tt_move, SearchStack *ss)
     {
         int value;
@@ -254,8 +263,12 @@ namespace elixir::search
             if (legals == 1) {
                 score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
             } else {
-                score = -negamax(board, -alpha - 1, -alpha, depth - 1, info, local_pv, ss + 1);
-                if (score > alpha && score < beta) {
+                int R = 1;
+                if (move.is_quiet() && depth >= 3 && legals > 1 + (pv_node ? 1 : 0)) {
+                    R = lmr[depth][legals];
+                }
+                score = -negamax(board, -alpha - 1, -alpha, depth - R, info, local_pv, ss + 1);
+                if (score > alpha && (score < beta || R > 1)) {
                     score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
                 }
             }

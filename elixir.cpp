@@ -24,6 +24,7 @@ void init() {
     zobrist::init_hash_keys();
     attacks::init_attacks();
     // magic::init_magic_numbers();
+    search::init_lmr();
 }
 
 int main(int argc, char *argv[]) {
