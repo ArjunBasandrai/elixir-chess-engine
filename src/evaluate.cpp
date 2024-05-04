@@ -9,6 +9,28 @@
 #include "utils/bits.h"
 
 namespace elixir::eval {
+    bool is_material_draw(Board &board) {
+        // K v K
+        if (board.get_piece_count() == 2) {
+            return true;
+        } 
+        // KN v K, KB v K
+        else if (board.get_piece_count() == 3 && (bits::count_bits(board.knights()) == 1 || bits::count_bits(board.bishops()) == 1)) {
+            return true;
+        } 
+        else if (board.get_piece_count() == 4) {
+            // KNN v K, KN v KN
+            if (bits::count_bits(board.knights()) == 2) {
+                return true;            
+            } 
+            // KB v KB
+            else if (bits::count_bits(board.bishops()) == 1 && bits::count_bits(board.white_bishops()) == 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     Phase get_game_phase(Board &board, int game_phase_score) {
         if (game_phase_score > opening_phase_score) {
             return Phase::OPENING;

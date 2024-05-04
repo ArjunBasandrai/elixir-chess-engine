@@ -103,6 +103,8 @@ namespace elixir::search
             }
         }
 
+        if (eval::is_material_draw(board)) return 0;
+        
         int best_score, eval = eval::evaluate(board);
 
         if (ss->ply > MAX_PLY - 1) return eval;
@@ -192,6 +194,8 @@ namespace elixir::search
         if (in_check) depth++;
 
         if (depth <= 0) return qsearch(board, alpha, beta, info, pv, ss);
+
+        if (eval::is_material_draw(board) && !root_node) return 0;
         
         if (ss->ply > MAX_PLY - 1) return board.get_eval();
 

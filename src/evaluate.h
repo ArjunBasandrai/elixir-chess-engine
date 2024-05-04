@@ -17,8 +17,8 @@ namespace elixir {
 
     namespace eval {
         constexpr int piece_values[7] = {100, 300, 350, 500, 900, 20000, 0};
-        constexpr EvalScore material_score[7] = {S(82, 94), S(337, 281), S(365, 297), S(477, 512), S(1025, 936), S(0, 0), S(0, 0)};
-        constexpr EvalScore psqt[6][64] = {
+        const EvalScore material_score[7] = {S(82, 94), S(337, 281), S(365, 297), S(477, 512), S(1025, 936), S(0, 0), S(0, 0)};
+        const EvalScore psqt[6][64] = {
             {
                 S(  0,   0), S(  0,   0), S(  0,   0), S(  0,   0), S(  0,   0), S(  0,   0), S( 0,   0), S(  0,   0),
                 S(134, 148), S(147, 146), S(108, 124), S(112, 107), S(113, 111), S(117, 117), S(47, 156), S( -8, 173),
@@ -78,5 +78,7 @@ namespace elixir {
         Phase get_game_phase(Board &board, int game_phase_score);
         int evaluate(Board& board);
         Score interpolate_eval(EvalScore score, Board &board);
+
+        bool is_material_draw(Board &board);
     }
 }

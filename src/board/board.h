@@ -153,6 +153,8 @@ namespace elixir {
         void print_castling_rights() const noexcept;
         void print_board() const;
 
+        int get_piece_count() const;
+
         bool make_move(move::Move move);
         void unmake_move(move::Move move, bool from_make_move);
         void make_null_move();

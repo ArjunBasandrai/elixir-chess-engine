@@ -223,6 +223,10 @@ namespace elixir {
         from_fen(start_position);
     }
 
+    int Board::get_piece_count() const {
+        return (bits::count_bits(occupancy()));
+    }
+
     void Board::unmake_move(const move::Move move, bool from_make_move) {
         const Square from = move.get_from();
         const Square to = move.get_to();
