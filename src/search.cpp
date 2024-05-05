@@ -225,7 +225,7 @@ namespace elixir::search
         if (!pv_node && !in_check) {
             int eval = eval::evaluate(board);
 
-            // Reverse Futility Pruning
+            // Reverse Futility Pruning (~45 ELO)
             if (depth <= 6 && eval - 200 * depth >= beta) {
                 return eval;
             }
@@ -258,7 +258,7 @@ namespace elixir::search
 
             const bool is_quiet_move = move.is_quiet();
 
-            // PVS (~25 ELO)
+            // LMR + PVS (~40 ELO)
             int score = 0;
             if (legals == 1) {
                 score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
