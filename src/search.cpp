@@ -124,7 +124,7 @@ namespace elixir::search
         ProbedEntry result;
         TTFlag flag = TT_ALPHA;
         const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), 0, alpha, beta);
-        const auto tt_move = tt_hit ? result.best_move : move::Move();
+        const auto tt_move = result.best_move;
 
         if (tt_hit && ss->ply) {
             pv = result.pv;
