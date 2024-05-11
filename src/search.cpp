@@ -225,6 +225,14 @@ namespace elixir::search
         if (!pv_node && !in_check) {
             int eval = eval::evaluate(board);
 
+            // Razoring
+            if (depth <= 5 && eval + 256 * depth < alpha) {
+                const int razor_score = qsearch(board, alpha, beta, info, local_pv, ss);
+                if (razor_score <= alpha) {
+                    return razor_score;
+                }
+            }
+
             // Reverse Futility Pruning (~45 ELO)
             if (depth <= 6 && eval - 200 * depth >= beta) {
                 return eval;
