@@ -225,7 +225,7 @@ namespace elixir::search
         if (!pv_node && !in_check) {
             int eval = eval::evaluate(board);
 
-            // Razoring
+            // Razoring (~4 ELO)
             if (depth <= 5 && eval + 256 * depth < alpha) {
                 const int razor_score = qsearch(board, alpha, beta, info, local_pv, ss);
                 if (razor_score <= alpha) {
