@@ -25,7 +25,7 @@ namespace elixir {
             // from Ethereal
             from = move.get_from();
             to = move.get_to();
-            from_piece = static_cast<int>(board.piece_to_piecetype(board.piece_on(from)));
+            from_piece = static_cast<int>(board.piece_to_piecetype(move.get_piece()));
             to_piece = static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
             from_val = eval::piece_values[from_piece];
             to_val = eval::piece_values[to_piece];
@@ -41,6 +41,8 @@ namespace elixir {
             if (move.is_en_passant()) { value += 2 * eval::piece_values[static_cast<int>(PieceType::PAWN)]; }
             else if (move.is_promotion() && move.get_promotion() == move::Promotion::QUEEN) { value += 5 * eval::piece_values[static_cast<int>(PieceType::QUEEN)]; }
             else if (move.is_castling()) { value += 256; }
+
+            value += board.history[static_cast<int>(move.get_piece())][static_cast<int>(to)];
 
             scores[i] = value;
         }

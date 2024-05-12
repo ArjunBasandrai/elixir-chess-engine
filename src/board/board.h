@@ -157,8 +157,14 @@ namespace elixir {
         void unmake_move(move::Move move, bool from_make_move);
         void make_null_move();
         void unmake_null_move();
-        
+
+        inline void update_history(Piece piece, Square to, int depth) {
+            history[static_cast<int>(piece)][static_cast<int>(to)] += depth;
+        }
+
         bool parse_uci_move(std::string move);
+
+        int history[12][MAX_DEPTH]{};
     private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
