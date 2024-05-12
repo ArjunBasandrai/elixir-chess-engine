@@ -42,6 +42,7 @@ namespace elixir {
             else if (move.is_promotion() && move.get_promotion() == move::Promotion::QUEEN) { value += 5 * eval::piece_values[static_cast<int>(PieceType::QUEEN)]; }
             else if (move.is_castling()) { value += 256; }
 
+            // (~30 ELO)
             value += board.history[static_cast<int>(move.get_piece())][static_cast<int>(to)];
 
             scores[i] = value;
