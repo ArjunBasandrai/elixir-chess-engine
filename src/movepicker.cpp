@@ -43,7 +43,7 @@ namespace elixir {
             else if (move.is_castling()) { value += 256; }
 
             // (~30 ELO)
-            value += board.history[static_cast<int>(move.get_piece())][static_cast<int>(to)];
+            value += board.history[static_cast<int>(from)][static_cast<int>(to)];
 
             scores[i] = value;
         }

@@ -122,8 +122,8 @@ namespace elixir {
         hash_key = 0ULL;
         eval = 0;
         phase_score = 0;
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < MAX_DEPTH; j++) {
+        for (int i = 0; i < 64; i++) {
+            for (int j = 0; j < 64; j++) {
                 history[i][j] = 0;
             }
         }
