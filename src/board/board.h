@@ -158,13 +158,15 @@ namespace elixir {
         void make_null_move();
         void unmake_null_move();
 
-        inline void update_history(Piece piece, Square to, int depth) {
-            history[static_cast<int>(piece)][static_cast<int>(to)] += depth;
+        inline void update_history(Square from, Square to, int depth) {
+            history[static_cast<int>(from)][static_cast<int>(to)] += depth;
+            int hist_max = 1024;
+            history[static_cast<int>(from)][static_cast<int>(to)] = std::min(history[static_cast<int>(from)][static_cast<int>(to)], hist_max);
         }
 
         bool parse_uci_move(std::string move);
 
-        int history[12][MAX_DEPTH]{};
+        int history[64][64]{};
     private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
