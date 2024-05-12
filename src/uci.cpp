@@ -15,28 +15,20 @@
 
 #define version "0.1"
 
-namespace elixir::uci
-{
-    void parse_position(std::string input, Board &board)
-    {
-        if (input.substr(9, 8) == "startpos")
-        {
+namespace elixir::uci {
+    void parse_position(std::string input, Board &board) {
+        if (input.substr(9, 8) == "startpos") {
             board.from_fen(start_position);
-            if (input.length() > 23)
-            {
-                if (input.substr(18, 5) == "moves")
-                {
+            if (input.length() > 23) {
+                if (input.substr(18, 5) == "moves") {
                     std::string moves = input.substr(24);
                     std::vector<std::string> move_list = str_utils::split(moves, ' ');
-                    for (auto move : move_list)
-                    {
+                    for (auto move : move_list) {
                         board.parse_uci_move(move);
                     }
                 }
             }
-        }
-        else if (input.substr(9, 3) == "fen" && input.length() > 13)
-        {
+        } else if (input.substr(9, 3) == "fen" && input.length() > 13) {
             size_t fen_pos = input.find("fen");
             if (fen_pos != std::string::npos) {
                 size_t moves_pos = input.find("moves", fen_pos);
@@ -45,8 +37,7 @@ namespace elixir::uci
                     board.from_fen(fen);
                     std::string moves = input.substr(moves_pos + 6);
                     std::vector<std::string> move_list = str_utils::split(moves, ' ');
-                    for (auto move : move_list)
-                    {
+                    for (auto move : move_list) {
                         board.parse_uci_move(move);
                     }
                 } else {
@@ -57,62 +48,39 @@ namespace elixir::uci
         }
     }
 
-    void parse_go(std::string input, Board &board)
-    {
+    void parse_go(std::string input, Board &board) {
         std::vector<std::string> tokens = str_utils::split(input, ' ');
         search::SearchInfo info;
         const auto start_time = timer::m_timer.time();
         int depth = 64, movestogo = 20;
         F64 time = 0, inc = 0;
         // If there are no tokens after "go" command, return
-        if (tokens.size() <= 1)
-        {
-            return;
-        }
+        if (tokens.size() <= 1) return;
 
-        for (int i = 1; i < tokens.size(); i++)
-        {
-            if (tokens[i] == "depth")
-            {
+        for (int i = 1; i < tokens.size(); i++) {
+            if (tokens[i] == "depth") {
                 // If depth is not specified, return
-                if (++i >= tokens.size())
-                {
-                    return;
-                }
+                if (++i >= tokens.size()) return;
                 depth = std::stoi(tokens[i]);
-            }
-            else if (tokens[i] == "perft")
-            {
+            } else if (tokens[i] == "perft") {
                 const int depth = std::stoi(tokens[++i]);
                 long long nodes = 0;
                 perft_driver(board, depth, nodes);
                 std::cout << "Nodes: " << nodes << std::endl;
                 return;
-            }
-            else
-            {
-                if (tokens[i] == "infinite")
-                {
+            } else {
+                if (tokens[i] == "infinite") {
                     search::SearchInfo info(MAX_DEPTH);
-                }
-                else if ((tokens[i] == "wtime" || tokens[i] == "btime") && ++i < tokens.size() && tokens[i - 1] == (board.get_side_to_move() == Color::WHITE ? "wtime" : "btime"))
-                {
+                } else if ((tokens[i] == "wtime" || tokens[i] == "btime") && ++i < tokens.size() && tokens[i - 1] == (board.get_side_to_move() == Color::WHITE ? "wtime" : "btime")) {
                     time = std::stoi(tokens[i]);
                     time = std::max<F64>(time, 1.0);
-                }
-                else if ((tokens[i] == "winc" || tokens[i] == "binc") && ++i < tokens.size() && tokens[i - 1] == (board.get_side_to_move() == Color::WHITE ? "winc" : "binc"))
-                {
+                } else if ((tokens[i] == "winc" || tokens[i] == "binc") && ++i < tokens.size() && tokens[i - 1] == (board.get_side_to_move() == Color::WHITE ? "winc" : "binc")) {
                     inc = std::stoi(tokens[i]);
                     inc = std::max<F64>(inc, 1.0);
-                }
-                else if (tokens[i] == "movestogo" && ++i < tokens.size())
-                {
+                } else if (tokens[i] == "movestogo" && ++i < tokens.size()) {
                     movestogo = std::stoi(tokens[i]);
                     movestogo = std::min<int>(movestogo, static_cast<U32>(std::numeric_limits<I32>::max()));
-                    if (movestogo == 0)
-                    {
-                        movestogo = 20;
-                    }
+                    if (!movestogo) movestogo = 20;
                 }
             }
         }

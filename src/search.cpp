@@ -282,6 +282,8 @@ namespace elixir::search
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
+            if (info.stopped) break;
+
             if (print_info) {
                 std::cout << "info score cp " << score << " depth " << current_depth << " nodes " << info.nodes << " time " << duration.count() << " pv ";
                 pv.print_pv();
