@@ -159,7 +159,7 @@ namespace elixir {
         void unmake_null_move();
 
         inline void update_history(Square from, Square to, int depth) {
-            history[static_cast<int>(from)][static_cast<int>(to)] += depth;
+            history[static_cast<int>(from)][static_cast<int>(to)] += depth * depth;
             int hist_max = 1024;
             history[static_cast<int>(from)][static_cast<int>(to)] = std::min(history[static_cast<int>(from)][static_cast<int>(to)], hist_max);
         }
