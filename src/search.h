@@ -75,6 +75,6 @@ namespace elixir::search
     extern int lmr[MAX_DEPTH][64];
     void init_lmr();
 
-    int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss, bool can_nmp = true);
+    int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss);
     void search(Board &board, SearchInfo &info, bool print_info = true);
 }

@@ -106,7 +106,7 @@ namespace elixir::search
         return best_score;
     }
 
-    int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss, bool can_nmp) {
+    int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss) {
         
         pv.length = 0;
         
@@ -165,12 +165,12 @@ namespace elixir::search
             }
 
             // Null Move Pruning (~60 ELO)
-            if (depth >= 3 && can_nmp && eval >= beta) {
+            if (depth >= 3 && (ss-1)->move != move::NO_MOVE && eval >= beta) {
                 int R = 4 + depth / 6;
                 R = std::min(R, depth);
 
                 board.make_null_move();
-                int score = -negamax(board, -beta, -beta + 1, depth - R, info, local_pv, ss + 1, false);
+                int score = -negamax(board, -beta, -beta + 1, depth - R, info, local_pv, ss + 1);
                 board.unmake_null_move();
 
                 if (score >= beta) {
@@ -186,6 +186,8 @@ namespace elixir::search
         while ((move = mp.next_move()) != move::NO_MOVE) {
 
             if (!board.make_move(move)) continue;
+
+            ss->move = move;
 
             legals++;
             info.nodes++;
@@ -248,12 +250,15 @@ namespace elixir::search
         PVariation pv;
         for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
             int score = 0, alpha = -INF, beta = INF, delta = 10;
-            SearchStack stack[MAX_DEPTH], *ss = stack;
+            SearchStack stack[MAX_DEPTH + 4], *ss = stack + 4;
+            for (int i = -4; i < MAX_DEPTH; i++) {
+                (ss+i)->move = move::NO_MOVE;
+                (ss+i)->killers[0] = move::NO_MOVE;
+                (ss+i)->killers[1] = move::NO_MOVE;
+            }
+
             for (int i = 0; i < MAX_DEPTH; i++) {
-                stack[i].move = move::Move();
-                stack[i].killers[0] = move::Move();
-                stack[i].killers[1] = move::Move();
-                stack[i].ply = i;
+                (ss+i)->ply = i;
             }
 
             if (info.depth >= 4) {
