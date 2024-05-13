@@ -285,6 +285,8 @@ namespace elixir::search
 
                 delta = delta + delta / 2;
             }
+            
+            if (info.stopped) break;
 
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
