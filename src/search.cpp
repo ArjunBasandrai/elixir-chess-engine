@@ -48,16 +48,18 @@ namespace elixir::search
         best_score = eval;
 
         ProbedEntry result;
-        TTFlag flag = TT_ALPHA;
-        const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), 0, alpha, beta);
+        TTFlag tt_flag = TT_NONE;
+        const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), 0, alpha, beta, tt_flag);
         const auto tt_move = result.best_move;
 
-        if (tt_hit && ss->ply) {
+        bool can_cutoff = tt_hit && (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) || (tt_flag == TT_BETA && result.score >= beta));
+
+        if (ss->ply && can_cutoff) {
             pv = result.pv;
             return result.score;
         }
 
-        if (!board.is_in_check() && tt_hit)
+        if (!board.is_in_check() && can_cutoff)
         {
             best_score = result.score;
         }
@@ -72,6 +74,7 @@ namespace elixir::search
         MovePicker mp;
         mp.init_mp(board, tt_move, ss, true);
         move::Move move;
+        TTFlag flag = TT_ALPHA;
 
         while ((move = mp.next_move()) != move::NO_MOVE) {
 
@@ -136,11 +139,12 @@ namespace elixir::search
         int best_score = -INF;
         auto best_move = move::Move();
         ProbedEntry result;
-        TTFlag flag = TT_ALPHA;
+        TTFlag tt_flag = TT_NONE;
 
-        const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta);
+        const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta, tt_flag);
         // (~130 ELO)
-        if (tt_hit && !pv_node) {
+        if (tt_hit && !pv_node && result.depth >= depth &&
+            (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) || (tt_flag == TT_BETA && result.score >= beta))) {
             pv = result.pv;
             return result.score;
         }
@@ -182,6 +186,7 @@ namespace elixir::search
         MovePicker mp;
         mp.init_mp(board, tt_move, ss, false); 
         move::Move move;
+        TTFlag flag = TT_ALPHA;
 
         while ((move = mp.next_move()) != move::NO_MOVE) {
 
