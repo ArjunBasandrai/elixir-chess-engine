@@ -38,6 +38,8 @@ namespace elixir::search
             }
         }
 
+        if (board.is_repetition()) return 0;
+
         int best_score, eval = eval::evaluate(board);
 
         if (ss->ply > MAX_PLY - 1) return eval;
@@ -119,6 +121,8 @@ namespace elixir::search
         bool pv_node = ((beta - alpha > 1) || root_node);
         bool in_check = board.is_in_check();
         int eval;
+
+        if (board.is_repetition()) return 0;
 
         // Check extension (~25 ELO)
         if (in_check) depth++;
