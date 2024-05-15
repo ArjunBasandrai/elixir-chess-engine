@@ -166,6 +166,8 @@ namespace elixir {
 
         bool parse_uci_move(std::string move);
 
+        bool is_repetition() const;
+
         int history[64][64]{};
     private:
         std::array<Bitboard, 2> b_occupancies{};
