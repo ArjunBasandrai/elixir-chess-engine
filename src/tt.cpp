@@ -30,7 +30,7 @@ namespace elixir
         resize(size);
     }
 
-    bool TranspositionTable::probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta)
+    bool TranspositionTable::probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta, TTFlag &flag)
     {
 
         if (table.empty())
@@ -38,34 +38,15 @@ namespace elixir
         U32 index = get_index(key);
         TTEntry entry = table[index];
 
-        if (entry.key == key)
-        {
+        flag = TT_NONE;
+
+        if (entry.key == key) {
             result.best_move = entry.move;
             result.pv = entry.pv;
-            if (entry.depth >= depth)
-            {
-                result = entry;
-                switch (entry.flag)
-                {
-                case TT_ALPHA:
-                    if (entry.score <= alpha) {
-                        result.score = entry.score;
-                    }
-                    else
-                        return false;
-                    break;
-                case TT_BETA:
-                    if (entry.score >= beta) {
-                        result.score = entry.score;
-                    }
-                    else
-                        return false;
-                    break;
-                default:
-                    break;
-                }
-                return true;
-            }
+            result.score = entry.score;
+            result.depth = entry.depth;
+            flag = entry.flag;
+            return true;
         }
         return false;
     }
