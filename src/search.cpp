@@ -89,8 +89,7 @@ namespace elixir::search
                 if (score > alpha) {
                     best_move = move;
                     alpha = score;
-                    pv.load_from(move, local_pv);
-                    pv.score = score;
+                    pv.update(move, score, local_pv);
                     flag = TT_EXACT;
                 }
 
@@ -219,8 +218,7 @@ namespace elixir::search
                 best_move = move;
                 best_score = score;
                 if (score > alpha) {
-                    pv.load_from(move, local_pv);
-                    pv.score = score;
+                    if (pv_node) pv.update(move, score, local_pv);
                     if (score >= beta) {
                         if (is_quiet_move) {
                             if (ss->killers[0] != move) {
