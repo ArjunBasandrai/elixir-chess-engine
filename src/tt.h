@@ -25,7 +25,6 @@ namespace elixir
         move::Move move = move::NO_MOVE;
         U8 depth = 0;
         TTFlag flag = TT_NONE;
-        search::PVariation pv;
 
         bool operator==(const TTEntry &other) const
         {
@@ -43,7 +42,6 @@ namespace elixir
         move::Move best_move;
         U8 depth;
         TTFlag flag;
-        search::PVariation pv;
 
         ProbedEntry() : score(0), best_move(move::NO_MOVE), depth(0), flag(TT_NONE) {}
 
@@ -53,7 +51,6 @@ namespace elixir
             best_move = entry.move;
             depth = entry.depth;
             flag = entry.flag;
-            pv = entry.pv;
             return *this;
         }
     };

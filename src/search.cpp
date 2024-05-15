@@ -55,7 +55,6 @@ namespace elixir::search
         bool can_cutoff = tt_hit && (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) || (tt_flag == TT_BETA && result.score >= beta));
 
         if (ss->ply && can_cutoff) {
-            pv = result.pv;
             return result.score;
         }
 
@@ -89,8 +88,7 @@ namespace elixir::search
                 if (score > alpha) {
                     best_move = move;
                     alpha = score;
-                    pv.load_from(move, local_pv);
-                    pv.score = score;
+                    pv.update(move, score, local_pv);
                     flag = TT_EXACT;
                 }
 
@@ -141,7 +139,6 @@ namespace elixir::search
         // (~130 ELO)
         if (tt_hit && !pv_node && result.depth >= depth &&
             (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) || (tt_flag == TT_BETA && result.score >= beta))) {
-            pv = result.pv;
             return result.score;
         }
 
@@ -219,8 +216,7 @@ namespace elixir::search
                 best_move = move;
                 best_score = score;
                 if (score > alpha) {
-                    pv.load_from(move, local_pv);
-                    pv.score = score;
+                    if (pv_node) pv.update(move, score, local_pv);
                     if (score >= beta) {
                         if (is_quiet_move) {
                             if (ss->killers[0] != move) {

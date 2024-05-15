@@ -42,7 +42,6 @@ namespace elixir
 
         if (entry.key == key) {
             result.best_move = entry.move;
-            result.pv = entry.pv;
             result.score = entry.score;
             result.depth = entry.depth;
             flag = entry.flag;
@@ -73,7 +72,6 @@ namespace elixir
         entry.move = move;
         entry.depth = depth;
         entry.flag = flag;
-        entry.pv = pv;
 
         table[index] = entry;
     }

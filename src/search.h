@@ -65,11 +65,12 @@ namespace elixir::search
             }
         }
 
-        void load_from(move::Move m, const PVariation &rest)
+        void update(const move::Move m, const int s, const PVariation &rest)
         {
             line[0] = m;
             std::copy(rest.line.begin(), rest.line.begin() + rest.length, line.begin() + 1);
             length = rest.length + 1;
+            score = s;
         }
     };
 
