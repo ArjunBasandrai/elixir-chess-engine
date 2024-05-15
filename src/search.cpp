@@ -55,7 +55,6 @@ namespace elixir::search
         bool can_cutoff = tt_hit && (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) || (tt_flag == TT_BETA && result.score >= beta));
 
         if (ss->ply && can_cutoff) {
-            pv = result.pv;
             return result.score;
         }
 
@@ -140,7 +139,6 @@ namespace elixir::search
         // (~130 ELO)
         if (tt_hit && !pv_node && result.depth >= depth &&
             (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) || (tt_flag == TT_BETA && result.score >= beta))) {
-            pv = result.pv;
             return result.score;
         }
 
