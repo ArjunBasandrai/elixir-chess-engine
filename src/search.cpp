@@ -120,6 +120,7 @@ namespace elixir::search
         bool root_node = ss->ply == 0;
         bool pv_node = ((beta - alpha > 1) || root_node);
         bool in_check = board.is_in_check();
+        int eval;
 
         // Check extension (~25 ELO)
         if (in_check) depth++;
@@ -147,9 +148,10 @@ namespace elixir::search
         // (~160 ELO)
         const auto tt_move = result.best_move;
 
-        if (!pv_node && !in_check) {
-            int eval = eval::evaluate(board);
+        if (in_check) eval = ss->eval = INF;
+        else eval = ss->eval = (tt_hit) ? result.score : eval::evaluate(board);
 
+        if (!pv_node && !in_check) {
             // Razoring (~4 ELO)
             if (depth <= 5 && eval + 256 * depth < alpha) {
                 const int razor_score = qsearch(board, alpha, beta, info, local_pv, ss);
@@ -255,6 +257,7 @@ namespace elixir::search
                 (ss+i)->move = move::NO_MOVE;
                 (ss+i)->killers[0] = move::NO_MOVE;
                 (ss+i)->killers[1] = move::NO_MOVE;
+                (ss+i)->eval = INF;
             }
 
             for (int i = 0; i < MAX_DEPTH; i++) {
