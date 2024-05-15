@@ -59,11 +59,6 @@ namespace elixir::search
             return result.score;
         }
 
-        if (!board.is_in_check() && can_cutoff)
-        {
-            best_score = result.score;
-        }
-
         if (best_score >= beta)
         {
             return best_score;
