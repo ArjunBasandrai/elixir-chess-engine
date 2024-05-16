@@ -86,9 +86,9 @@ namespace elixir::search
 
             if (score > best_score) {
                 best_score = score;
+                best_move = move;
 
                 if (score > alpha) {
-                    best_move = move;
                     alpha = score;
                     pv.update(move, score, local_pv);
                     flag = TT_EXACT;
