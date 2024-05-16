@@ -4,6 +4,7 @@
 
 namespace elixir {
     namespace random {
+        extern U64 seed;
         U64 random_u64();
     }
 
