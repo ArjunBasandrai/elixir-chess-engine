@@ -150,6 +150,8 @@ namespace elixir::search
         // (~160 ELO)
         const auto tt_move = result.best_move;
 
+        if (depth >= 4 && tt_move == move::NO_MOVE) depth--;
+
         if (in_check) eval = ss->eval = INF;
         else eval = ss->eval = (tt_hit) ? result.score : eval::evaluate(board);
 
