@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 
 #include "search.h"
 
@@ -204,7 +205,7 @@ namespace elixir::search
             } else {
                 int R = 1;
                 if (move.is_quiet() && depth >= 3 && legals > 1 + (pv_node ? 1 : 0)) {
-                    R = lmr[depth][legals] + (pv_node ? 0 : 1);
+                    R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
                 }
                 score = -negamax(board, -alpha - 1, -alpha, depth - R, info, local_pv, ss + 1);
                 if (score > alpha && (score < beta || R > 1)) {

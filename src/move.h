@@ -36,8 +36,8 @@ namespace elixir::move {
         [[nodiscard]] constexpr Promotion get_promotion() const noexcept { return static_cast<Promotion>((m_move >> 19) & 0x3); }
         [[nodiscard]] constexpr Move_T get_move() const noexcept { return m_move; }
 
-        void constexpr set_move(Move_T move) noexcept { m_move = move; }
-        void constexpr set_move(Square from, Square to, Piece piece, Flag flag, Promotion promotion) noexcept { m_move = encode_move(from, to, piece, flag, promotion); }
+        void set_move(Move_T move) noexcept { m_move = move; }
+        void set_move(Square from, Square to, Piece piece, Flag flag, Promotion promotion) noexcept { m_move = encode_move(from, to, piece, flag, promotion); }
         
         [[nodiscard]] constexpr bool is_capture() const noexcept { Flag f = get_flag(); return f == Flag::CAPTURE || f == Flag::CAPTURE_PROMOTION; }
         [[nodiscard]] constexpr bool is_double_pawn_push() const noexcept { return get_flag() == Flag::DOUBLE_PAWN_PUSH; }
