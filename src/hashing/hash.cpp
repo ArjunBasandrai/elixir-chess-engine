@@ -9,8 +9,14 @@
 
 namespace elixir {
     namespace random {
+        U64 seed = 12436596276006385841ULL;
         U64 random_u64() {
-            return (U64)rand() + ((U64)rand() << 15) + ((U64)rand() << 30) + ((U64)rand() << 45) + (((U64)rand() & 0xf) << 60);
+            U64 num = seed;
+            num ^= num << 13;
+            num ^= num >> 17;
+            num ^= num << 5;
+            seed = num;
+            return num;
         }
     }
     namespace zobrist {
