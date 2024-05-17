@@ -26,9 +26,7 @@ namespace elixir {
             from = move.get_from();
             to = move.get_to();
             from_piece = static_cast<int>(board.piece_to_piecetype(move.get_piece()));
-            to_piece = static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
             from_val = eval::piece_values[from_piece];
-            to_val = eval::piece_values[to_piece];
 
             // (~20 ELO)
             if (move == tt_move) { value += 16384; }
@@ -36,11 +34,15 @@ namespace elixir {
             if (move == ss->killers[0]) { value += 512; }
             else if (move == ss->killers[1]) { value += 256; }
 
-            value += 5 * to_val;
+            else if (move.is_capture() || move.is_en_passant()) {
+                to_piece = move.is_en_passant() 
+                            ? static_cast<int>(PieceType::PAWN) 
+                            : static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
+                to_val = eval::piece_values[to_piece];
+                value += 5 * (to_val - from_val / 2);
+            }
 
-            if (move.is_en_passant()) { value += 2 * eval::piece_values[static_cast<int>(PieceType::PAWN)]; }
             else if (move.is_promotion() && move.get_promotion() == move::Promotion::QUEEN) { value += 5 * eval::piece_values[static_cast<int>(PieceType::QUEEN)]; }
-            else if (move.is_castling()) { value += 256; }
 
             // Butterfly History Move Ordering (~45 ELO)
             value += board.history[static_cast<int>(from)][static_cast<int>(to)];
