@@ -43,7 +43,7 @@ namespace elixir::search
 
         int best_score, eval = eval::evaluate(board);
 
-        if (ss->ply > MAX_PLY - 1) return eval;
+        if (ss->ply > MAX_DEPTH) return eval;
 
         int legals = 0;
         auto local_pv = PVariation();
@@ -130,7 +130,7 @@ namespace elixir::search
 
         if (depth <= 0) return qsearch(board, alpha, beta, info, pv, ss);
         
-        if (ss->ply > MAX_PLY - 1) return board.get_eval();
+        if (ss->ply > MAX_DEPTH) return board.get_eval();
 
         int legals = 0;
 

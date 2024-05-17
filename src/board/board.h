@@ -173,7 +173,7 @@ namespace elixir {
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
         std::array<Square, 2> kings{};
-        StaticVector<State, MAX_PLY> undo_stack;
+        StaticVector<State, 1024> undo_stack;
         Square en_passant_square;
         Color side;
         Castling castling_rights;

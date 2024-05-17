@@ -36,7 +36,7 @@ namespace elixir::search
     {
         std::size_t length;
         int score;
-        std::array<move::Move, MAX_PLY> line;
+        std::array<move::Move, 256> line;
 
         PVariation() : length(0), score(0)
         {

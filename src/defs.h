@@ -81,7 +81,6 @@ namespace elixir
     constexpr Bitboard not_gh_file = 4557430888798830399ULL;
     constexpr Bitboard not_ab_file = 18229723555195321596ULL;
 
-    constexpr I16 MAX_PLY = 512;
     constexpr I8 MAX_DEPTH = 64;
 
     // TT size terms
