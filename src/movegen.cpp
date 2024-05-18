@@ -73,22 +73,19 @@ namespace elixir::movegen {
         Bitboard promotion_capture_0 = sh_l((pawns & our_rank_7 & not_h_file), diag_0) & board.color_occupancy(stm^1);
         Bitboard promotion_capture_1 = sh_l((pawns & our_rank_7 & not_a_file), diag_1) & board.color_occupancy(stm^1);
 
-        while (promotion) {
-            int to = bits::pop_bit(promotion);
-            if (noisy) {
-                m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::PROMOTION, move::Promotion::QUEEN);
-                moves.push(m);
-            } else {
-                m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::PROMOTION, move::Promotion::ROOK);
-                moves.push(m);
-                m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::PROMOTION, move::Promotion::BISHOP);
-                moves.push(m);
-                m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::PROMOTION, move::Promotion::KNIGHT);
-                moves.push(m);
-            }
-        }
-
         if (noisy) {
+            while (promotion) {
+                int to = bits::pop_bit(promotion);
+                    m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::PROMOTION, move::Promotion::QUEEN);
+                    moves.push(m);
+                    m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::PROMOTION, move::Promotion::ROOK);
+                    moves.push(m);
+                    m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::PROMOTION, move::Promotion::BISHOP);
+                    moves.push(m);
+                    m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::PROMOTION, move::Promotion::KNIGHT);
+                    moves.push(m);
+            }
+
             while (promotion_capture_0) {
                 int to = bits::pop_bit(promotion_capture_0);
                 m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::QUEEN);

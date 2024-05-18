@@ -722,7 +722,9 @@ namespace elixir {
                             || is_square_attacked(to, static_cast<Color>(xstm))
                             || castle_blockers) {
                             return false;
-                        } else if (is_square_attacked(kings[static_cast<I8>(side)], static_cast<Color>(xstm))
+                        } 
+                    } else {
+                        if (is_square_attacked(kings[static_cast<I8>(side)], static_cast<Color>(xstm))
                             || is_square_attacked(static_cast<Square>(ifrom - 1), static_cast<Color>(xstm))
                             || is_square_attacked(to, static_cast<Color>(xstm))
                             || castle_blockers) {

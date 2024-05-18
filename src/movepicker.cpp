@@ -22,7 +22,7 @@ namespace elixir {
         switch (stage) {
             case STAGE::HASH_MOVE:
                 stage = STAGE::GEN_NOISY;
-                if (hash_move != move::NO_MOVE && board.is_psuedo_legal(hash_move)) {
+                if (board.is_psuedo_legal(hash_move)) {
                     return hash_move;
                 }
             case STAGE::GEN_NOISY:
@@ -44,7 +44,7 @@ namespace elixir {
                     noisy_scores[best_idx] = noisy_scores[noisy_size];
 
                     if (best_move == hash_move) {
-                        hash_move = next(board);
+                        return next(board);
                     }
 
                     if (best_move == killers[0]) killers[0] = move::NO_MOVE;
@@ -52,7 +52,6 @@ namespace elixir {
 
                     return best_move;
                 }
-
 
                 if (no_quiets) {
                     stage = STAGE::END;
@@ -76,7 +75,7 @@ namespace elixir {
                 score_quiets(board);
                 stage = STAGE::QUIET;
             case STAGE::QUIET:
-                if (quiet_size != 0) {
+                if (quiet_size > 0) {
                     int best_idx = 0;
                     for (int i = 1; i < quiet_size; i++) {
                         if (quiet_scores[i] > quiet_scores[best_idx]) {
@@ -129,6 +128,12 @@ namespace elixir {
 
             if (move.is_promotion() && move.get_promotion() == move::Promotion::QUEEN) {
                 value += 5 * eval::piece_values[static_cast<int>(PieceType::QUEEN)];
+            } else if (move.is_promotion() && move.get_promotion() == move::Promotion::ROOK) {
+                value += 5 * eval::piece_values[static_cast<int>(PieceType::ROOK)];
+            } else if (move.is_promotion() && move.get_promotion() == move::Promotion::BISHOP) {
+                value += 5 * eval::piece_values[static_cast<int>(PieceType::BISHOP)];
+            } else if (move.is_promotion() && move.get_promotion() == move::Promotion::KNIGHT) {
+                value += 5 * eval::piece_values[static_cast<int>(PieceType::KNIGHT)];
             } else if (move.is_en_passant()) {
                 value = 2 * eval::piece_values[static_cast<int>(PieceType::PAWN)];
             }
