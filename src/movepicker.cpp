@@ -125,12 +125,12 @@ namespace elixir {
             auto to_piece = static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
             auto to_val = eval::piece_values[to_piece];
 
-            value = to_val - from_piece;
+            value = 5 * to_val - from_piece;
 
             if (move.is_promotion() && move.get_promotion() == move::Promotion::QUEEN) {
-                value += eval::piece_values[static_cast<int>(PieceType::QUEEN)];
+                value += 5 * eval::piece_values[static_cast<int>(PieceType::QUEEN)];
             } else if (move.is_en_passant()) {
-                value = eval::piece_values[static_cast<int>(PieceType::PAWN)];
+                value = 2 * eval::piece_values[static_cast<int>(PieceType::PAWN)];
             }
 
             noisy_scores[i] = value;
@@ -147,10 +147,13 @@ namespace elixir {
 
         for (int i = 0; i < quiet_size; i++) {
             move = quiet_moves[i];
-            auto from = move.get_from();
-            auto to = move.get_to();
+            auto from = static_cast<int>(move.get_from());
+            auto to = static_cast<int>(move.get_to());
+            auto piece = static_cast<int>(board.piece_to_piecetype(move.get_piece()));
 
-            value = board.history[static_cast<int>(from)][static_cast<int>(to)];
+            value = board.history[from][to];
+            value += std::abs(O(eval::psqt[piece][to]));
+            value -= std::abs(O(eval::psqt[piece][from]));
 
             quiet_scores[i] = value;
         }
