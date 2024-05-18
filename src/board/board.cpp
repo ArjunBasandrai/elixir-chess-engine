@@ -715,6 +715,20 @@ namespace elixir {
 
                     CastlingRights rights = (side == Color::WHITE ? is_kingside_castling ? CASTLE_WHITE_KINGSIDE : CASTLE_WHITE_QUEENSIDE
                                                                   : is_kingside_castling ? CASTLE_BLACK_KINGSIDE : CASTLE_BLACK_QUEENSIDE);
+                    
+                    if (is_kingside_castling) {
+                        if (is_square_attacked(kings[static_cast<I8>(side)], static_cast<Color>(xstm))
+                            || is_square_attacked(static_cast<Square>(ifrom + 1), static_cast<Color>(xstm))
+                            || is_square_attacked(to, static_cast<Color>(xstm))
+                            || castle_blockers) {
+                            return false;
+                        } else if (is_square_attacked(kings[static_cast<I8>(side)], static_cast<Color>(xstm))
+                            || is_square_attacked(static_cast<Square>(ifrom - 1), static_cast<Color>(xstm))
+                            || is_square_attacked(to, static_cast<Color>(xstm))
+                            || castle_blockers) {
+                            return false;
+                        }
+                    }
 
                     if (!castle_blockers && (castling_rights & rights)) {
                         return true;
