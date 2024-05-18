@@ -10,8 +10,8 @@
 #include "utils/static_vector.h"
 
 namespace elixir::movegen {
-    template <bool only_captures>
-    void generate_quiet_pawn_moves(const Board& board, MoveList& moves) {
+    template <bool noisy>
+    void generate_pawn_moves(const Board& board, MoveList& moves) {
         Color side = board.get_side_to_move();
         I8 stm = static_cast<int>(side);
         Bitboard pawns = side == Color::WHITE ? board.pawns<Color::WHITE>() : board.pawns<Color::BLACK>();
@@ -27,7 +27,7 @@ namespace elixir::movegen {
 
         move::Move m;
 
-        if (!only_captures) {
+        if (!noisy) {
             Bitboard push_1 = sh_l((pawns & not_our_rank_7), push) & ~board.occupancy();
             Bitboard push_2 = sh_l((push_1 & our_rank_3), push) & ~board.occupancy();
             while (push_1) {
@@ -46,24 +46,26 @@ namespace elixir::movegen {
         Bitboard capture_0 = sh_l((pawns & not_our_rank_7 & not_h_file), diag_0) & board.color_occupancy(stm^1);
         Bitboard capture_1 = sh_l((pawns & not_our_rank_7 & not_a_file), diag_1) & board.color_occupancy(stm^1);
 
-        while (capture_0) {
-            int to = bits::pop_bit(capture_0);
-            m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
-            moves.push(m);
-        }
-
-        while (capture_1) {
-            int to = bits::pop_bit(capture_1);
-            m.set_move(static_cast<Square>(to - diag_1), static_cast<Square>(to), piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
-            moves.push(m);
-        }
-
-        if (board.get_en_passant_square() != Square::NO_SQ) {
-            Bitboard ep_pawns = pawns & attacks::get_pawn_attacks(static_cast<Color>(stm^1), board.get_en_passant_square());
-            while (ep_pawns) {
-                int from = bits::pop_bit(ep_pawns);
-                m.set_move(static_cast<Square>(from), board.get_en_passant_square(), piece, move::Flag::EN_PASSANT, move::Promotion::QUEEN);
+        if (noisy) {
+            while (capture_0) {
+                int to = bits::pop_bit(capture_0);
+                m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
                 moves.push(m);
+            }
+
+            while (capture_1) {
+                int to = bits::pop_bit(capture_1);
+                m.set_move(static_cast<Square>(to - diag_1), static_cast<Square>(to), piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
+                moves.push(m);
+            }
+
+            if (board.get_en_passant_square() != Square::NO_SQ) {
+                Bitboard ep_pawns = pawns & attacks::get_pawn_attacks(static_cast<Color>(stm^1), board.get_en_passant_square());
+                while (ep_pawns) {
+                    int from = bits::pop_bit(ep_pawns);
+                    m.set_move(static_cast<Square>(from), board.get_en_passant_square(), piece, move::Flag::EN_PASSANT, move::Promotion::QUEEN);
+                    moves.push(m);
+                }
             }
         }
 
@@ -71,11 +73,12 @@ namespace elixir::movegen {
         Bitboard promotion_capture_0 = sh_l((pawns & our_rank_7 & not_h_file), diag_0) & board.color_occupancy(stm^1);
         Bitboard promotion_capture_1 = sh_l((pawns & our_rank_7 & not_a_file), diag_1) & board.color_occupancy(stm^1);
 
-        if (!only_captures) {
-            while (promotion) {
-                int to = bits::pop_bit(promotion);
+        while (promotion) {
+            int to = bits::pop_bit(promotion);
+            if (noisy) {
                 m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::PROMOTION, move::Promotion::QUEEN);
                 moves.push(m);
+            } else {
                 m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::PROMOTION, move::Promotion::ROOK);
                 moves.push(m);
                 m.set_move(static_cast<Square>(to - push), static_cast<Square>(to), piece, move::Flag::PROMOTION, move::Promotion::BISHOP);
@@ -85,28 +88,30 @@ namespace elixir::movegen {
             }
         }
 
-        while (promotion_capture_0) {
-            int to = bits::pop_bit(promotion_capture_0);
-            m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::QUEEN);
-            moves.push(m);
-            m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::ROOK);
-            moves.push(m);
-            m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::BISHOP);
-            moves.push(m);
-            m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::KNIGHT);
-            moves.push(m);
-        }
+        if (noisy) {
+            while (promotion_capture_0) {
+                int to = bits::pop_bit(promotion_capture_0);
+                m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::QUEEN);
+                moves.push(m);
+                m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::ROOK);
+                moves.push(m);
+                m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::BISHOP);
+                moves.push(m);
+                m.set_move(static_cast<Square>(to - diag_0), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::KNIGHT);
+                moves.push(m);
+            }
 
-        while (promotion_capture_1) {
-            int to = bits::pop_bit(promotion_capture_1);
-            m.set_move(static_cast<Square>(to - diag_1), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::QUEEN);
-            moves.push(m);
-            m.set_move(static_cast<Square>(to - diag_1), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::ROOK);
-            moves.push(m);
-            m.set_move(static_cast<Square>(to - diag_1), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::BISHOP);
-            moves.push(m);
-            m.set_move(static_cast<Square>(to - diag_1), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::KNIGHT);
-            moves.push(m);
+            while (promotion_capture_1) {
+                int to = bits::pop_bit(promotion_capture_1);
+                m.set_move(static_cast<Square>(to - diag_1), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::QUEEN);
+                moves.push(m);
+                m.set_move(static_cast<Square>(to - diag_1), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::ROOK);
+                moves.push(m);
+                m.set_move(static_cast<Square>(to - diag_1), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::BISHOP);
+                moves.push(m);
+                m.set_move(static_cast<Square>(to - diag_1), static_cast<Square>(to), piece, move::Flag::CAPTURE_PROMOTION, move::Promotion::KNIGHT);
+                moves.push(m);
+            }
         }
 
     }
@@ -172,7 +177,7 @@ namespace elixir::movegen {
         }
     }
 
-    template <bool only_captures>
+    template <bool noisy>
     void generate_knight_moves(const Board& board, MoveList& moves) {
         Bitboard knights;
         Color enemy_side;
@@ -200,11 +205,10 @@ namespace elixir::movegen {
             while (attacks) {
                 Square target = static_cast<Square>(bits::pop_bit(attacks));
                 if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
-                    if (only_captures) {
-                        continue;
-                    }
+                    if (noisy) continue;
                     m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
                 } else {
+                    if (!noisy) continue;
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
                 }
                 moves.push(m);
@@ -212,7 +216,7 @@ namespace elixir::movegen {
         }
     }
 
-    template <bool only_captures>
+    template <bool noisy>
     void generate_bishop_moves(const Board& board, MoveList& moves) {
         Bitboard bishops;
         Piece piece;
@@ -240,11 +244,10 @@ namespace elixir::movegen {
             while (attacks) {
                 Square target = static_cast<Square>(bits::pop_bit(attacks));
                 if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
-                    if (only_captures) {
-                        continue;
-                    }
+                    if (noisy) continue;
                     m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
                 } else {
+                    if (!noisy) continue;
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
                 }
                 moves.push(m);
@@ -252,7 +255,7 @@ namespace elixir::movegen {
         }
     }
     
-    template <bool only_captures>
+    template <bool noisy>
     void generate_rook_moves(const Board& board, MoveList& moves) {
         Bitboard rooks;
         Piece piece;
@@ -280,11 +283,10 @@ namespace elixir::movegen {
             while (attacks) {
                 Square target = static_cast<Square>(bits::pop_bit(attacks));
                 if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
-                    if (only_captures) {
-                        continue;
-                    }
+                    if (noisy) continue;
                     m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
                 } else {
+                    if (!noisy) continue;
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
                 }
                 moves.push(m);
@@ -292,7 +294,7 @@ namespace elixir::movegen {
         }
     }
     
-    template <bool only_captures>
+    template <bool noisy>
     void generate_queen_moves(const Board& board, MoveList& moves) {
         Bitboard queens;
         Piece piece;
@@ -320,11 +322,10 @@ namespace elixir::movegen {
             while (attacks) {
                 Square target = static_cast<Square>(bits::pop_bit(attacks));
                 if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
-                    if (only_captures) {
-                        continue;
-                    }
+                    if (noisy) continue;
                     m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
                 } else {
+                    if (!noisy) continue;
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
                 }
                 moves.push(m);
@@ -332,7 +333,7 @@ namespace elixir::movegen {
         }
     }
 
-    template <bool only_captures>
+    template <bool noisy>
     void generate_king_moves(const Board& board, MoveList& moves) {
         Bitboard kings;
         Piece piece;
@@ -360,43 +361,48 @@ namespace elixir::movegen {
             while (attacks) {
                 Square target = static_cast<Square>(bits::pop_bit(attacks));
                 if (!bits::get_bit(board.color_occupancy(enemy_side), target)) {
-                    if (only_captures) {
-                        continue;
-                    }
+                    if (noisy) continue;
                     m.set_move(source, target, piece, move::Flag::NORMAL, move::Promotion::QUEEN);
                 } else {
+                    if (!noisy) continue;
                     m.set_move(source, target, piece, move::Flag::CAPTURE, move::Promotion::QUEEN);
                 }
                 moves.push(m);
             }
         }
     }
+
+    void generate_noisy_moves(const Board& board, MoveList& moves) {
+        generate_pawn_moves<true>(board, moves);
+        generate_knight_moves<true>(board, moves);
+        generate_bishop_moves<true>(board, moves);
+        generate_rook_moves<true>(board, moves);
+        generate_queen_moves<true>(board, moves);
+        generate_king_moves<true>(board, moves);
+    }
+
+    void generate_quiet_moves(const Board& board, MoveList& moves) {
+        generate_pawn_moves<false>(board, moves);
+        generate_castling_moves(board, moves);
+        generate_knight_moves<false>(board, moves);
+        generate_bishop_moves<false>(board, moves);
+        generate_rook_moves<false>(board, moves);
+        generate_queen_moves<false>(board, moves);
+        generate_king_moves<false>(board, moves);
+    }
+
     
-    template <bool only_captures>
+    template <bool noisy>
     MoveList generate_moves(const Board& board) {
         MoveList moves;
 
-        // Generate Pawn Moves
-        generate_quiet_pawn_moves<only_captures>(board, moves);
-
-        // Generate Castling Moves
-        if (!only_captures)
-        generate_castling_moves(board, moves);
-
-        // Generate Knight Moves
-        generate_knight_moves<only_captures>(board, moves);
-
-        // Generate Bishop Moves
-        generate_bishop_moves<only_captures>(board, moves);
-
-        // Generate Rook Moves
-        generate_rook_moves<only_captures>(board, moves);
-
-        // Generate Queen Moves
-        generate_queen_moves<only_captures>(board, moves);
-
-        // Generate King Moves
-        generate_king_moves<only_captures>(board, moves);
+        if (noisy) {
+            generate_noisy_moves(board, moves);
+        } else {
+            generate_noisy_moves(board, moves);
+            generate_quiet_moves(board, moves);
+        }
+        
         return moves;
     }
 
