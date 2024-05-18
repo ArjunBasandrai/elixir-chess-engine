@@ -69,12 +69,12 @@ namespace elixir::search
         alpha = std::max(alpha, best_score);
 
         MovePicker mp;
-        mp.init_mp(board, tt_move, ss, true);
+        mp.setup_mp(board, tt_move, ss, true);
         move::Move move;
         TTFlag flag = TT_ALPHA;
 
-        while ((move = mp.next_move()) != move::NO_MOVE) {
-
+        while ((move = mp.next(board)) != move::NO_MOVE) {
+            
             if (!board.make_move(move)) continue; 
 
             legals++;
@@ -185,11 +185,12 @@ namespace elixir::search
         }
 
         MovePicker mp;
-        mp.init_mp(board, tt_move, ss, false); 
+        mp.setup_mp(board, tt_move, ss, false); 
         move::Move move;
         TTFlag flag = TT_ALPHA;
 
-        while ((move = mp.next_move()) != move::NO_MOVE) {
+        while ((move = mp.next(board)) != move::NO_MOVE) {
+
 
             if (!board.make_move(move)) continue;
 
@@ -218,6 +219,7 @@ namespace elixir::search
             board.unmake_move(move, true);
 
             if (info.stopped) return 0;
+
 
             if (score > best_score) {
                 best_move = move;

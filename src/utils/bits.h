@@ -37,6 +37,13 @@ namespace elixir {
             bb &= ~bit(sq); 
         }
 
+        inline bool is_bit_set(const Bitboard bb, const Square sq) { 
+            
+            assert(sq != Square::NO_SQ);
+            
+            return bb & bit(sq); 
+        }
+
         inline void flip_bit(Bitboard &bb, const Square sq) { 
             
             assert(sq != Square::NO_SQ);

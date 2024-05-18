@@ -15,7 +15,7 @@ namespace elixir {
             nodes++;
             return;
         }
-        MoveList moves = movegen::generate_moves<false>(board);
+        MoveList moves = movegen::generate_moves(board);
         for (auto m: moves) {
             if (!board.make_move(m)) {
                 continue;
@@ -28,7 +28,7 @@ namespace elixir {
 
     void perft_test(Board& board, int depth, long long& nodes) {
         nodes = 0;
-        MoveList moves = movegen::generate_moves<false>(board);
+        MoveList moves = movegen::generate_moves(board);
         auto start = std::chrono::high_resolution_clock::now();
         for (auto m: moves) {
 

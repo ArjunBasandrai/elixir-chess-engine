@@ -14,6 +14,7 @@
 #include "../utils/state.h"
 #include "../hashing/hash.h"
 #include "../evaluate.h"
+#include "../movegen.h"
 
 namespace elixir {
     const int castling_update[64] = {
@@ -584,5 +585,157 @@ namespace elixir {
             }
         }
         return false;
+    }
+
+    bool Board::is_psuedo_legal(move::Move move) const {
+        if (move == move::NO_MOVE) {
+            return false;
+        }
+        const auto from = move.get_from();
+        const auto to = move.get_to();
+        const auto ifrom = static_cast<int>(from);
+        const auto ito = static_cast<int>(to);
+        const auto piece = move.get_piece();
+        const auto piecetype = piece_to_piecetype(piece);
+
+        const int stm = static_cast<int>(side);
+        const int xstm = static_cast<int>(side)^1;
+
+        if (from == to || piece == Piece::NO_PIECE || piece_on(from) != piece
+            || piece_color(piece) != side || color_occupancy(side) & bits::bit(to)) {
+            return false;
+        }
+
+        if ((!move.is_capture() || move.is_en_passant()) && piece_on(to) != Piece::NO_PIECE) {
+            return false;
+        }
+
+        if ((move.is_capture() && !move.is_en_passant()) && piece_on(to) == Piece::NO_PIECE) {
+            return false;
+        }
+
+        if (move.is_double_pawn_push() || move.is_promotion() || move.is_en_passant() && piecetype != PieceType::PAWN) {
+            return false;
+        }
+
+        if (move.is_castling() && piecetype != PieceType::KING) {
+            return false;
+        }
+
+        if (is_in_check() && bits::count_bits(get_attackers(kings[static_cast<I8>(side)], static_cast<Color>(xstm))) > 1 && piecetype != PieceType::KING) {
+            return false;
+        }
+
+        int NORTH = side == Color::WHITE ? 8 : -8;
+
+        switch(piecetype) {
+            case PieceType::PAWN:
+                if (move.is_double_pawn_push()) {
+                    if (ifrom + 2 * NORTH != ito
+                        || piece_on(static_cast<Square>(ifrom + NORTH)) != Piece::NO_PIECE) {
+                        return false;
+                    }
+
+                    if ((side == Color::WHITE && get_rank(from) != RANK_2)
+                        || (side == Color::BLACK && get_rank(from) != RANK_7)) {
+                        return false;
+                    }
+                }  else if (!move.is_capture() && ifrom + NORTH != ito) {
+                    return false;
+                } 
+                if (move.is_en_passant()) {
+                    if (to != en_passant_square) {
+                        return false;
+                    }
+                    if (!(bits::bit(static_cast<Square>(ito - NORTH)) & (pawns() & color_occupancy(xstm)))) {
+                        return false;
+                    }
+                } 
+                if (move.is_capture() && !(attacks::get_pawn_attacks(side, from) & bits::bit(to))) {
+                    return false;
+                }
+                if (move.is_promotion()) {
+                    if (   (side == Color::WHITE && get_rank(from) != RANK_7)
+                        || (side == Color::BLACK && get_rank(from) != RANK_2)) {
+                        return false;
+                    }
+
+                    if (   (side == Color::WHITE && get_rank(to) != RANK_8)
+                        || (side == Color::BLACK && get_rank(to) != RANK_1)) {
+                        return false;
+                    }
+                } 
+                else {
+                    if (   (side == Color::WHITE && get_rank(from) >= RANK_7)
+                        || (side == Color::BLACK && get_rank(from) <= RANK_2)) {
+                        return false;
+                    }
+                }
+
+                break;
+
+            case PieceType::KNIGHT:
+                if (!(attacks::get_knight_attacks(from) & bits::bit(to))) {
+                    return false;
+                }
+                break;
+
+            case PieceType::BISHOP:
+                if (!(attacks::get_bishop_attacks(from, occupancy()) & bits::bit(to))) {
+                    return false;
+                }
+                break;
+            
+            case PieceType::ROOK:
+                if (!(attacks::get_rook_attacks(from, occupancy()) & bits::bit(to))) {
+                    return false;
+                }
+                break;
+            
+            case PieceType::QUEEN:
+                if (!(attacks::get_queen_attacks(from, occupancy()) & bits::bit(to))) {
+                    return false;
+                }
+                break;
+            
+            case PieceType::KING:
+                if (move.is_castling()) {
+                    if (is_in_check()) {
+                        return false;
+                    }
+
+                    if (std::abs(ito - ifrom) != 2) {
+                        return false;
+                    }
+
+                    bool is_kingside_castling = ito > ifrom;
+
+                    Bitboard castle_blockers = occupancy() & (side == Color::WHITE ? is_kingside_castling ? 0x0000000000000060ULL : 0x000000000000000EULL
+                                                                 : is_kingside_castling ? 0x6000000000000000ULL : 0x0E00000000000000ULL);
+
+                    CastlingRights rights = (side == Color::WHITE ? is_kingside_castling ? CASTLE_WHITE_KINGSIDE : CASTLE_WHITE_QUEENSIDE
+                                                                  : is_kingside_castling ? CASTLE_BLACK_KINGSIDE : CASTLE_BLACK_QUEENSIDE);
+
+                    if (!castle_blockers && (castling_rights & rights)) {
+                        return true;
+                    }
+
+                    return false;
+                }
+                if (!(attacks::get_king_attacks(from) & bits::bit(to))) {
+                    return false;
+                }
+                break;
+            
+            case PieceType::NO_PIECE_TYPE:
+                return false;
+            
+            default:
+                assert(0);
+                return false;
+        }
+
+        return true;
+
     }
 }

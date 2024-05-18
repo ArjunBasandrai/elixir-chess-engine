@@ -392,21 +392,12 @@ namespace elixir::movegen {
     }
 
     
-    template <bool noisy>
     MoveList generate_moves(const Board& board) {
         MoveList moves;
 
-        if (noisy) {
-            generate_noisy_moves(board, moves);
-        } else {
-            generate_noisy_moves(board, moves);
-            generate_quiet_moves(board, moves);
-        }
+        generate_noisy_moves(board, moves);
+        generate_quiet_moves(board, moves);
         
         return moves;
     }
-
-    // forward declaration of move generator
-    template MoveList generate_moves<true>(const Board& board);
-    template MoveList generate_moves<false>(const Board& board);
 }

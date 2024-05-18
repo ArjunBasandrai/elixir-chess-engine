@@ -168,6 +168,8 @@ namespace elixir {
 
         bool is_repetition() const;
 
+        bool is_psuedo_legal(move::Move move) const;
+
         int history[64][64]{};
     private:
         std::array<Bitboard, 2> b_occupancies{};

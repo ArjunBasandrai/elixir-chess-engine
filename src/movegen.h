@@ -14,7 +14,7 @@ namespace elixir::movegen {
         if (n > 0) return b << n;
         else return b >> -n;
     }
-    template <bool noisy>
+
     MoveList generate_moves(const Board& board);
 
     void generate_noisy_moves(const Board& board, MoveList& moves);
