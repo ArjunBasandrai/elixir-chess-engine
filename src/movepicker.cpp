@@ -13,7 +13,8 @@ namespace elixir {
         noisy_size = 0;
         quiet_size = 0;
         hash_move = tt_move;
-        killers[0] = ss->killers[0]; killers[1] = ss->killers[1];
+        killers[0] = (ss->killers[0] != tt_move) ? ss->killers[0] : move::NO_MOVE; 
+        killers[1] = (ss->killers[1] != tt_move) ? ss->killers[1] : move::NO_MOVE;
     }
 
     move::Move MovePicker::next(Board& board) {
