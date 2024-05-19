@@ -117,7 +117,10 @@ namespace elixir {
 
         noisy_size = noisy_moves.size();
 
+        const int MVVAugment[6] = { 0, 2400, 2400, 4800, 9600, 10000};
+
         for (int i = 0; i < noisy_size; i++) {
+            value = 0;
             move = noisy_moves[i];
             auto from = move.get_from();
             auto to = move.get_to();
@@ -125,18 +128,12 @@ namespace elixir {
             auto to_piece = static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
             auto to_val = eval::piece_values[to_piece];
 
-            value = 5 * to_val - from_piece;
+            if (move.is_capture()) {
+                value += MVVAugment[to_piece] - MVVAugment[from_piece] / 50;
+            }
 
             if (move.is_promotion() && move.get_promotion() == move::Promotion::QUEEN) {
-                value += 5 * eval::piece_values[static_cast<int>(PieceType::QUEEN)];
-            } else if (move.is_promotion() && move.get_promotion() == move::Promotion::ROOK) {
-                value += 5 * eval::piece_values[static_cast<int>(PieceType::ROOK)];
-            } else if (move.is_promotion() && move.get_promotion() == move::Promotion::BISHOP) {
-                value += 5 * eval::piece_values[static_cast<int>(PieceType::BISHOP)];
-            } else if (move.is_promotion() && move.get_promotion() == move::Promotion::KNIGHT) {
-                value += 5 * eval::piece_values[static_cast<int>(PieceType::KNIGHT)];
-            } else if (move.is_en_passant()) {
-                value = 2 * eval::piece_values[static_cast<int>(PieceType::PAWN)];
+                value += 9000;
             }
 
             noisy_scores[i] = value;
@@ -144,7 +141,7 @@ namespace elixir {
     }
 
     void MovePicker::score_quiets(const Board& board) {
-        int value;
+        int value = 0;
         move::Move move;
 
         quiet_scores.resize(quiet_moves.size());
