@@ -14,8 +14,6 @@ namespace elixir {
 
         int value;
         Square from, to;
-        int from_piece, to_piece;
-        int from_val, to_val;
 
         for (int i = 0; i < moves.size(); i++){
 
@@ -26,10 +24,6 @@ namespace elixir {
             // from Ethereal
             from = move.get_from();
             to = move.get_to();
-            from_piece = static_cast<int>(board.piece_to_piecetype(move.get_piece()));
-            to_piece = static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
-            from_val = eval::piece_values[from_piece];
-            to_val = eval::piece_values[to_piece];
 
             // (~20 ELO)
             if (move == tt_move) { 
@@ -52,7 +46,7 @@ namespace elixir {
                         break;
                 }
             } else if (move.is_capture() || move.is_en_passant()) {
-                auto captured_piece = move.is_en_passant() ? static_cast<int>(PieceType::PAWN) : to_piece;
+                auto captured_piece = move.is_en_passant() ? static_cast<int>(PieceType::PAWN) : static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
                 value = eval::piece_values[captured_piece];
                 value += 1000000000;
             } else if (move == ss->killers[0]) { 
