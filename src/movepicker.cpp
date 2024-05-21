@@ -1,5 +1,5 @@
 #include <iostream>
-#include <limits>
+#include <climits>
 
 #include "movepicker.h"
 #include "move.h"
