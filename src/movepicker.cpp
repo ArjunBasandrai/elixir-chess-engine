@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 
 #include "movepicker.h"
 #include "move.h"
@@ -31,19 +32,37 @@ namespace elixir {
             to_val = eval::piece_values[to_piece];
 
             // (~20 ELO)
-            if (move == tt_move) { value += 16384; }
-
-            if (move == ss->killers[0]) { value += 512; }
-            else if (move == ss->killers[1]) { value += 256; }
-
-            value += 5 * to_val;
-
-            if (move.is_en_passant()) { value += 2 * eval::piece_values[static_cast<int>(PieceType::PAWN)]; }
-            else if (move.is_promotion() && move.get_promotion() == move::Promotion::QUEEN) { value += 5 * eval::piece_values[static_cast<int>(PieceType::QUEEN)]; }
-            else if (move.is_castling()) { value += 256; }
-
-            // Butterfly History Move Ordering (~45 ELO)
-            value += board.history[static_cast<int>(from)][static_cast<int>(to)];
+            if (move == tt_move) { 
+                value = INT_MAX; 
+            } else if (move.is_promotion()) {
+                switch (move.get_promotion()) {
+                    case move::Promotion::QUEEN:
+                        value = 2000000001;
+                        break;
+                    case move::Promotion::KNIGHT:
+                        value = 2000000000;
+                        break;
+                    case move::Promotion::ROOK:
+                        value = -2000000001;
+                        break;
+                    case move::Promotion::BISHOP:
+                        value = -2000000000;
+                        break;
+                    default:
+                        break;
+                }
+            } else if (move.is_capture() || move.is_en_passant()) {
+                auto captured_piece = move.is_en_passant() ? static_cast<int>(PieceType::PAWN) : to_piece;
+                value = eval::piece_values[captured_piece];
+                value += 1000000000;
+            } else if (move == ss->killers[0]) { 
+                value = 800000000; 
+            } else if (move == ss->killers[1]) { 
+                value = 700000000; 
+            } else {
+                // Butterfly History Move Ordering (~45 ELO)
+                value = board.history[static_cast<int>(from)][static_cast<int>(to)];
+            }
 
             scores[i] = value;
         }
