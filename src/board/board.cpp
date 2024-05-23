@@ -13,6 +13,7 @@
 #include "../utils/test_fens.h"
 #include "../utils/state.h"
 #include "../hashing/hash.h"
+#include "../utils/eval_terms.h"
 #include "../evaluate.h"
 
 namespace elixir {

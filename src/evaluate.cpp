@@ -6,6 +6,7 @@
 #include "types.h"
 #include "defs.h"
 #include "board/board.h"
+#include "utils/eval_terms.h"
 #include "utils/bits.h"
 
 using namespace elixir::bits;
@@ -90,22 +91,22 @@ namespace elixir::eval {
     int evaluate(Board& board) {
         Score score = 0, score_opening = 0, score_endgame = 0;
         Color side = board.get_side_to_move();
-        EvalScore eval = board.get_eval();
+        EvalInfo e_info = EvalInfo(board.get_eval());
 
-        eval += evaluate_knights(board, Color::WHITE);
-        eval += evaluate_knights(board, Color::BLACK);
+        e_info.add_score(evaluate_knights(board, Color::WHITE));
+        e_info.add_score(evaluate_knights(board, Color::BLACK));
 
-        eval += evaluate_bishops(board, Color::WHITE);
-        eval += evaluate_bishops(board, Color::BLACK);
+        e_info.add_score(evaluate_bishops(board, Color::WHITE));
+        e_info.add_score(evaluate_bishops(board, Color::BLACK));
 
-        eval += evaluate_rooks(board, Color::WHITE);
-        eval += evaluate_rooks(board, Color::BLACK);
+        e_info.add_score(evaluate_rooks(board, Color::WHITE));
+        e_info.add_score(evaluate_rooks(board, Color::BLACK));
 
-        eval += evaluate_queens(board, Color::WHITE);
-        eval += evaluate_queens(board, Color::BLACK);
+        e_info.add_score(evaluate_queens(board, Color::WHITE));
+        e_info.add_score(evaluate_queens(board, Color::BLACK));
 
-        score_opening = O(eval);
-        score_endgame = E(eval);
+        score_opening = e_info.opening_score();
+        score_endgame = e_info.endgame_score();
         int phase = count_bits(board.minors()) + 2 * count_bits(board.rooks()) + 4 * count_bits(board.queens());
         phase = std::clamp(phase, 0, 24);
         score = (score_opening * phase + score_endgame * (24 - phase)) / 24;
