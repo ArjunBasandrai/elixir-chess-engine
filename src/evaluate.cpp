@@ -95,15 +95,6 @@ namespace elixir::eval {
         eval += evaluate_knights(board, Color::WHITE);
         eval += evaluate_knights(board, Color::BLACK);
 
-        eval += evaluate_bishops(board, Color::WHITE);
-        eval += evaluate_bishops(board, Color::BLACK);
-
-        eval += evaluate_rooks(board, Color::WHITE);
-        eval += evaluate_rooks(board, Color::BLACK);
-
-        eval += evaluate_queens(board, Color::WHITE);
-        eval += evaluate_queens(board, Color::BLACK);
-
         score_opening = O(eval);
         score_endgame = E(eval);
         int phase = count_bits(board.minors()) + 2 * count_bits(board.rooks()) + 4 * count_bits(board.queens());
