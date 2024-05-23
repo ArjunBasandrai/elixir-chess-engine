@@ -48,6 +48,10 @@ namespace elixir
         NO_SQ
     };
 
+    static inline Square sq(int i) {
+        return static_cast<Square>(i);
+    }
+
     enum CastlingRights : U8
     {
         CASTLE_WHITE_KINGSIDE = 1,
