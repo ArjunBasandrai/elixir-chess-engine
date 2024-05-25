@@ -24,21 +24,24 @@ namespace elixir::search
         }
     }
 
+    bool should_stop(SearchInfo &info) {
+        if (info.timed && !(info.nodes & 2047) &&
+             timer::m_timer.time() - info.start_time > info.time_left) {
+                info.stopped = true;
+                return true;
+        }
+        return false;
+    }
+
     // (~20 ELO)
     int qsearch(Board &board, int alpha, int beta, SearchInfo &info, PVariation &pv, SearchStack *ss)
     {
 
         pv.length = 0;
 
-        if (info.timed) {
-            if (info.nodes % 2047 == 0) {
-                if (timer::m_timer.time() - info.start_time > info.time_left) {
-                    info.stopped = true;
-                    return 0;
-                }
-            }
-        }
+        if (should_stop(info)) return 0;
 
+        // Three-Fold Repetition Detection (~50 ELO)
         if (board.is_repetition()) return 0;
 
         int best_score, eval = eval::evaluate(board);
@@ -57,14 +60,9 @@ namespace elixir::search
 
         bool can_cutoff = tt_hit && (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) || (tt_flag == TT_BETA && result.score >= beta));
 
-        if (ss->ply && can_cutoff) {
-            return result.score;
-        }
+        if (ss->ply && can_cutoff) { return result.score; }
 
-        if (best_score >= beta)
-        {
-            return best_score;
-        }
+        if (best_score >= beta) { return best_score; }
 
         alpha = std::max(alpha, best_score);
 
@@ -109,20 +107,14 @@ namespace elixir::search
         
         pv.length = 0;
         
-        if (info.timed) {
-            if (info.nodes % 2047 == 0) {
-                if (timer::m_timer.time() - info.start_time > info.time_left) {
-                    info.stopped = true;
-                    return 0;
-                }
-            }
-        }
+        if (should_stop(info)) return 0;
 
         bool root_node = ss->ply == 0;
         bool pv_node = ((beta - alpha > 1) || root_node);
         bool in_check = board.is_in_check();
         int eval;
 
+        // Three-Fold Repetition Detection (~50 ELO)
         if (board.is_repetition()) return 0;
 
         // Check extension (~25 ELO)
@@ -141,15 +133,15 @@ namespace elixir::search
         TTFlag tt_flag = TT_NONE;
 
         const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta, tt_flag);
-        // (~130 ELO)
+        // TT Cutoff (~130 ELO)
         if (tt_hit && !pv_node && result.depth >= depth &&
             (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) || (tt_flag == TT_BETA && result.score >= beta))) {
             return result.score;
         }
 
-        // (~160 ELO)
         const auto tt_move = result.best_move;
 
+        // Internal Iterative Reduction (~6 ELO)
         if (depth >= 4 && tt_move == move::NO_MOVE) depth--;
 
         if (in_check) eval = ss->eval = INF;
