@@ -29,8 +29,6 @@ namespace elixir {
     }
 
     namespace eval {
-        Phase get_game_phase(Board &board, int game_phase_score);
         int evaluate(Board& board);
-        Score interpolate_eval(EvalScore score, Board &board);
     }
 }

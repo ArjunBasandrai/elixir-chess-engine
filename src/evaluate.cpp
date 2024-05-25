@@ -12,30 +12,6 @@
 using namespace elixir::bits;
 
 namespace elixir::eval {
-    Phase get_game_phase(Board &board, int game_phase_score) {
-        if (game_phase_score > opening_phase_score) {
-            return Phase::OPENING;
-        } else if (game_phase_score < endgame_phase_score) {
-            return Phase::ENDGAME;
-        } else {
-            return Phase::MIDDLEGAME;
-        }
-    }
-
-    Score interpolate_eval(Score opening_score, Score endgame_score, Board &board) {
-        int game_phase_score = board.get_phase_score();
-        Phase phase = get_game_phase(board, game_phase_score);
-        if (phase == Phase::OPENING) {
-            return opening_score;
-        } else if (phase == Phase::ENDGAME) {
-            return endgame_score;
-        } else {
-            return ((opening_score * game_phase_score +
-                    endgame_score * (opening_phase_score - game_phase_score)) /
-                    opening_phase_score);
-        }
-    }
-
     EvalScore evaluate_knights(const Board &board, const Color side) {
         Bitboard ours = board.color_occupancy(side);
         Bitboard knights = board.knights() & ours;
