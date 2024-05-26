@@ -68,6 +68,7 @@ namespace elixir::eval {
             }
         };
 
+        // Piece Mobility (~75 ELO)
         const EvalScore knight_mobility[9] = {S(23, 12), S(40, 9), S(47, 14), S(51, 9), S(55, 14), S(53, 20), S(51, 22), S(49, 23), S(52, 19)};
         const EvalScore bishop_mobility[14] = {S(3, -60), S(12, -37), S(21, -28), S(23, -16), S(31, -1), S(39, 13), S(46, 18), S(50, 25), S(50, 34), S(53, 32), S(56, 31), S(60, 31), S(59, 36), S(92, 17)};
         const EvalScore rook_mobility[15] = {S(-16, -16), S(-4, 0), S(0, 2), S(5, 5), S(5, 12), S(13, 14), S(17, 16), S(25, 18), S(29, 28), S(35, 31), S(41, 33), S(48, 35), S(48, 41), S(54, 47), S(57, 43)};

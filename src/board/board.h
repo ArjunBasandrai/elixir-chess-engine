@@ -112,7 +112,6 @@ namespace elixir {
         constexpr void set_castling_rights(Castling rights) noexcept { castling_rights = rights; }
         constexpr void set_fifty_move_counter(I8 counter) noexcept { fifty_move_counter = counter; }
         constexpr void set_fullmove_number(I16 number) noexcept { fullmove_number = number; }
-        constexpr void set_search_ply(I8 ply) noexcept { search_ply = ply; }
 
         inline void set_hash_key() noexcept { hash_key = get_board_hash(); }
 
@@ -121,7 +120,6 @@ namespace elixir {
         [[nodiscard]] inline Castling get_castling_rights() const noexcept { return castling_rights; }
         [[nodiscard]] inline I8 get_fifty_move_counter() const noexcept { return fifty_move_counter; }
         [[nodiscard]] inline I16 get_fullmove_number() const noexcept { return fullmove_number; }
-        [[nodiscard]] inline I8 get_search_ply() const noexcept { return search_ply; }
         [[nodiscard]] inline U64 get_hash_key() const noexcept { return hash_key; }
         [[nodiscard]] inline EvalScore get_eval() const noexcept { return eval; }
         [[nodiscard]] inline int get_phase_score() const noexcept { return phase_score;}
@@ -179,7 +177,6 @@ namespace elixir {
         Castling castling_rights;
         I8 fifty_move_counter;
         I16 fullmove_number;
-        I8 search_ply;
         U64 hash_key;
         EvalScore eval;
         int phase_score;
