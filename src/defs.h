@@ -85,6 +85,17 @@ namespace elixir
     constexpr Bitboard not_gh_file = 4557430888798830399ULL;
     constexpr Bitboard not_ab_file = 18229723555195321596ULL;
 
+    constexpr Bitboard FILE_A_BB = 0x0101010101010101ULL;
+    constexpr Bitboard FILE_B_BB = 0x0202020202020202ULL;
+    constexpr Bitboard FILE_C_BB = 0x0404040404040404ULL;
+    constexpr Bitboard FILE_D_BB = 0x0808080808080808ULL;
+    constexpr Bitboard FILE_E_BB = 0x1010101010101010ULL;
+    constexpr Bitboard FILE_F_BB = 0x2020202020202020ULL;
+    constexpr Bitboard FILE_G_BB = 0x4040404040404040ULL;
+    constexpr Bitboard FILE_H_BB = 0x8080808080808080ULL;
+
+    constexpr Bitboard Files[8] = {FILE_A_BB, FILE_B_BB, FILE_C_BB, FILE_D_BB, FILE_E_BB, FILE_F_BB, FILE_G_BB, FILE_H_BB};
+
     constexpr I8 MAX_DEPTH = 64;
 
     // TT size terms

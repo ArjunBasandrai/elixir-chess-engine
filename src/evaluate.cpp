@@ -12,6 +12,22 @@
 using namespace elixir::bits;
 
 namespace elixir::eval {
+    EvalScore evaluate_pawns(const Board& board, const Color side) {
+        Bitboard ours = board.color_occupancy(side);
+        Bitboard pawns = board.pawns() & ours;
+        EvalScore score = 0;
+        while (pawns) {
+            int sq_ = pop_bit(pawns);
+            int file = get_file(sq(sq_));
+
+            if (Files[file] & pawns) {
+                score -= stacked_pawn_penalty;
+            }            
+        }
+
+        return (side == Color::WHITE) ? score : -score;
+    }
+
     EvalScore evaluate_knights(const Board &board, const Color side) {
         Bitboard ours = board.color_occupancy(side);
         Bitboard knights = board.knights() & ours;
@@ -68,6 +84,9 @@ namespace elixir::eval {
         Score score = 0, score_opening = 0, score_endgame = 0;
         Color side = board.get_side_to_move();
         EvalInfo e_info = EvalInfo(board.get_eval());
+
+        e_info.add_score(evaluate_pawns(board, Color::WHITE));
+        e_info.add_score(evaluate_pawns(board, Color::BLACK));
 
         e_info.add_score(evaluate_knights(board, Color::WHITE));
         e_info.add_score(evaluate_knights(board, Color::BLACK));
