@@ -6,8 +6,9 @@
 #include "types.h"
 #include "defs.h"
 #include "board/board.h"
-#include "utils/eval_terms.h"
 #include "utils/bits.h"
+#include "utils/eval_terms.h"
+#include "utils/masks.h"
 
 using namespace elixir::bits;
 
@@ -22,7 +23,12 @@ namespace elixir::eval {
 
             if (Files[file] & pawns) {
                 score -= stacked_pawn_penalty;
-            }            
+            }
+
+            if (connected_pawn_masks[static_cast<I8>(side)][sq_] & pawns) {
+                int bonus_sq = (side == Color::WHITE) ? sq_ ^ 56 : sq_;
+                score += connected_pawn_bonus[bonus_sq];
+            }
         }
 
         return (side == Color::WHITE) ? score : -score;

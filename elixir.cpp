@@ -3,6 +3,7 @@
 #include "src/types.h"
 #include "src/defs.h"
 #include "src/utils/test_fens.h"
+#include "src/utils/masks.h"
 #include "src/board/board.h"
 #include "src/bench/bench.h"
 #include "src/hashing/hash.h"
@@ -18,6 +19,7 @@ void init() {
     attacks::init_attacks();
     // magic::init_magic_numbers();
     search::init_lmr();
+    init_masks();
 }
 
 int main(int argc, char *argv[]) {
