@@ -21,14 +21,15 @@ namespace elixir {
 
             value = 0;
 
-            // from Ethereal
             from = move.get_from();
             to = move.get_to();
 
-            // (~20 ELO)
+            // TT Move Ordering(~180 ELO)
             if (move == tt_move) { 
                 value = INT_MAX; 
-            } else if (move.is_promotion()) {
+            } 
+            // Move Ordering (~450 ELO)
+            else if (move.is_promotion()) {
                 switch (move.get_promotion()) {
                     case move::Promotion::QUEEN:
                         value = 2000000001;

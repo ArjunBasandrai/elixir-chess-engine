@@ -119,7 +119,6 @@ namespace elixir {
         castling_rights = 0;
         fifty_move_counter = 0;
         fullmove_number = 0;
-        search_ply = 0;
         hash_key = 0ULL;
         eval = 0;
         phase_score = 0;
@@ -217,7 +216,6 @@ namespace elixir {
         }
 
         en_passant_square = en_passant == "-" ? Square::NO_SQ : static_cast<Square>((en_passant[0] - 'a') + 8 * (en_passant[1] - '1'));
-        search_ply = 0;
 
         kings[static_cast<I8>(Color::WHITE)] = static_cast<Square>(bits::lsb_index(white_king()));
         kings[static_cast<I8>(Color::BLACK)] = static_cast<Square>(bits::lsb_index(black_king()));
