@@ -45,6 +45,9 @@ namespace elixir::eval {
         Bitboard ours = board.color_occupancy(side);
         Bitboard bishops = board.bishops() & ours;
         EvalScore score = 0;
+        if (count_bits(ours & board.bishops()) >= 2) {
+            score += bishop_pair_bonus;
+        }
         while (bishops) {
             int sq_ = pop_bit(bishops);
             int mobility_count = count_bits(attacks::get_bishop_attacks(sq(sq_), board.occupancy()) & ~ours);
