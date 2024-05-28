@@ -11,7 +11,6 @@
 #include "movegen.h"
 #include "tt.h"
 #include "utils/static_vector.h"
-#include "utils/timer.h"
 
 namespace elixir::search
 {

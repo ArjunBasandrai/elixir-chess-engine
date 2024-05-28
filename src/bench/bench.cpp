@@ -5,7 +5,6 @@
 #include "bench.h"
 
 #include "../board/board.h"
-#include "../utils/timer.h"
 #include "../utils/test_fens.h"
 #include "../search.h"
 #include "../tt.h"
