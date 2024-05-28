@@ -1,5 +1,6 @@
 #include <string>
 #include <array>
+#include <chrono>
 
 #include "bench.h"
 
@@ -68,7 +69,7 @@ namespace elixir::bench
             "2r2b2/5p2/5k2/p1r1pP2/P2pB3/1P3P2/K1P3R1/7R w - - 23 93"};
         search::SearchInfo info = search::SearchInfo(bench_depth);
         U64 nodes = 0;
-        F64 time = timer::m_timer.time();
+        auto start_time = std::chrono::high_resolution_clock::now();
         Board board;
         int c = 0;
         for (auto &fen: fens)
@@ -79,7 +80,8 @@ namespace elixir::bench
             search::search(board, info, false);
             nodes += info.nodes;
         }
-        time = (timer::m_timer.time() - time) / 1000;
+        auto end_time = std::chrono::high_resolution_clock::now();
+        auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() / 1000.0;
         std::cout << nodes << " nodes ";
         std::cout << (int)(nodes / time) << " nps" << std::endl;
     }
