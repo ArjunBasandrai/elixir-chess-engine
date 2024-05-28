@@ -9,6 +9,7 @@ SRC = src/utils/bits.cpp \
 	  src/evaluate.cpp \
 	  src/search.cpp \
 	  src/utils/timer.cpp \
+	  src/utils/masks.cpp \
 	  src/bench/bench.cpp \
 	  src/tt.cpp \
 	  src/movepicker.cpp

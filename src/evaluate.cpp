@@ -8,6 +8,7 @@
 #include "board/board.h"
 #include "utils/eval_terms.h"
 #include "utils/bits.h"
+#include "utils/masks.h"
 
 using namespace elixir::bits;
 
@@ -22,7 +23,11 @@ namespace elixir::eval {
 
             if (Files[file] & pawns) {
                 score -= stacked_pawn_penalty;
-            }            
+            } 
+
+            if (!(masks::isolated_pawn_masks[file] & pawns)) {
+                score -= isolated_pawn_penalty;
+            }
         }
 
         return (side == Color::WHITE) ? score : -score;
