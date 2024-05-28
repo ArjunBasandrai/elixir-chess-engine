@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <chrono>
 
 #include "uci.h"
 
@@ -51,7 +52,7 @@ namespace elixir::uci {
     void parse_go(std::string input, Board &board) {
         std::vector<std::string> tokens = str_utils::split(input, ' ');
         search::SearchInfo info;
-        const auto start_time = timer::m_timer.time();
+        const auto start_time = std::chrono::high_resolution_clock::now();
         int depth = 64, movestogo = 20;
         F64 time = 0, inc = 0;
         // If there are no tokens after "go" command, return
