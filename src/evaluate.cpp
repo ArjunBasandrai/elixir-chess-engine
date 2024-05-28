@@ -26,7 +26,7 @@ namespace elixir::eval {
             } 
 
             if (!(masks::isolated_pawn_masks[file] & pawns)) {
-                score -= isolated_pawn_penalty;
+                score -= isolated_pawn_penalty[file];
             }
         }
 
