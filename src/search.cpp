@@ -26,7 +26,7 @@ namespace elixir::search
 
     bool should_stop(SearchInfo &info) {
         if (info.timed && !(info.nodes & 2047) &&
-             timer::m_timer.time() - info.start_time > info.time_left) {
+             std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - info.start_time).count() > info.time_left) {
                 info.stopped = true;
                 return true;
         }
