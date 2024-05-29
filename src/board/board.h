@@ -7,6 +7,7 @@
 #include "../types.h"
 #include "../defs.h"
 #include "../move.h"
+#include "../history.h"
 #include "../attacks/attacks.h"
 #include "../utils/state.h"
 #include "../utils/bits.h"
@@ -156,17 +157,18 @@ namespace elixir {
         void make_null_move();
         void unmake_null_move();
 
-        inline void update_history(Square from, Square to, int depth) {
-            history[static_cast<int>(from)][static_cast<int>(to)] += depth * depth;
-            int hist_max = 1024;
-            history[static_cast<int>(from)][static_cast<int>(to)] = std::min(history[static_cast<int>(from)][static_cast<int>(to)], hist_max);
-        }
-
         bool parse_uci_move(std::string move);
 
         bool is_repetition() const;
 
-        int history[64][64]{};
+        inline void update_history(Square from, Square to, int depth) {
+            history.update_history(from, to, depth);
+        }
+
+        inline int get_history(Square from, Square to) const {
+            return history.get_history(from, to);
+        }
+
     private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
@@ -180,5 +182,6 @@ namespace elixir {
         U64 hash_key;
         EvalScore eval;
         int phase_score;
+        History history;
     };
 }
