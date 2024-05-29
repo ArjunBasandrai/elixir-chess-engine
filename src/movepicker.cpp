@@ -56,7 +56,7 @@ namespace elixir {
                 value = 700000000; 
             } else {
                 // Butterfly History Move Ordering (~45 ELO)
-                value = board.history[static_cast<int>(from)][static_cast<int>(to)];
+                value = board.get_history(from, to);
             }
 
             scores[i] = value;
