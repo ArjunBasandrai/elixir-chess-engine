@@ -3,6 +3,7 @@
 #include "src/types.h"
 #include "src/defs.h"
 #include "src/utils/test_fens.h"
+#include "src/utils/masks.h"
 #include "src/board/board.h"
 #include "src/bench/bench.h"
 #include "src/hashing/hash.h"

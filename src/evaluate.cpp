@@ -7,6 +7,7 @@
 #include "defs.h"
 #include "board/board.h"
 #include "utils/eval_terms.h"
+#include "utils/masks.h"
 #include "utils/bits.h"
 
 using namespace elixir::bits;
@@ -16,13 +17,19 @@ namespace elixir::eval {
         Bitboard ours = board.color_occupancy(side);
         Bitboard pawns = board.pawns() & ours;
         EvalScore score = 0;
+        I8 icolor = static_cast<I8>(side);
         while (pawns) {
             int sq_ = pop_bit(pawns);
             int file = get_file(sq(sq_));
+            int rank = get_rank(sq(sq_));
 
             if (Files[file] & pawns) {
                 score -= stacked_pawn_penalty;
-            }            
+            }
+
+            if (!(masks::passed_pawn_masks[icolor][sq_] & board.pawns())) {
+                score += passed_pawn_bonus[rank];
+            }
         }
 
         return (side == Color::WHITE) ? score : -score;
