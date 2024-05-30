@@ -2,6 +2,7 @@
 
 #include "types.h"
 #include "defs.h"
+#include "move.h"
 
 namespace elixir {
     class History {
@@ -10,7 +11,7 @@ namespace elixir {
         ~History() = default;
 
         void clear();
-        void update_history(Square from, Square to, int depth);
+        void update_history(Square from, Square to, int depth, MoveList &bad_quiets);
         int get_history(Square from, Square to) const;
 
     private:

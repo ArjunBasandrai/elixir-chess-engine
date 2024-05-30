@@ -161,8 +161,8 @@ namespace elixir {
 
         bool is_repetition() const;
 
-        inline void update_history(Square from, Square to, int depth) {
-            history.update_history(from, to, depth);
+        inline void update_history(Square from, Square to, int depth, MoveList &bad_quiets) {
+            history.update_history(from, to, depth, bad_quiets);
         }
 
         inline int get_history(Square from, Square to) const {
