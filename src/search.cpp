@@ -166,6 +166,8 @@ namespace elixir::search
                 int R = 4 + depth / 6;
                 R = std::min(R, depth);
 
+                ss->move = move::NO_MOVE;
+
                 board.make_null_move();
                 int score = -negamax(board, -beta, -beta + 1, depth - R, info, local_pv, ss + 1);
                 board.unmake_null_move();
@@ -199,7 +201,7 @@ namespace elixir::search
             } else {
                 int R = 1;
                 if (move.is_quiet() && depth >= 3 && legals > 1 + (pv_node ? 1 : 0)) {
-                    R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
+                    R += lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
                 }
                 score = -negamax(board, -alpha - 1, -alpha, depth - R, info, local_pv, ss + 1);
                 if (score > alpha && (score < beta || R > 1)) {
