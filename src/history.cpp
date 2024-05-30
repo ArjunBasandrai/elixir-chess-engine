@@ -16,7 +16,8 @@ namespace elixir {
     void History::update_history(Square from, Square to, int depth) {
         int ifrom = static_cast<int>(from);
         int ito = static_cast<int>(to);
-        history[ifrom][ito] += scale_bonus(history[ifrom][ito], depth * depth);
+        int &score = history[ifrom][ito];
+        score += scale_bonus(score, depth * depth);
     }
 
     int History::get_history(Square from, Square to) const {
