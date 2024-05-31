@@ -10,7 +10,6 @@
 #include "utils/test_fens.h"
 #include "utils/str_utils.h"
 #include "utils/perft.h"
-#include "utils/timer.h"
 #include "search.h"
 #include "tt.h"
 

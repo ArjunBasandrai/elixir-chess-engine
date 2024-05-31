@@ -6,15 +6,15 @@
 
 namespace elixir {
         
-    constexpr inline EvalScore S(Score o_score, Score e_score) {
+    constexpr EvalScore S(Score o_score, Score e_score) {
         return static_cast<EvalScore>(((I32) e_score << 16) + (I32) o_score);
     }
 
-    constexpr inline Score O(EvalScore score) {
+    constexpr Score O(EvalScore score) {
         return static_cast<Score>((I16) score);
     }
 
-    constexpr inline Score E(EvalScore score) {
+    constexpr Score E(EvalScore score) {
         return static_cast<Score>((I16) ((score + 0x8000) >> 16));
     }
     namespace eval {
