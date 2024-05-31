@@ -104,7 +104,7 @@ namespace elixir::uci {
         std::vector<std::string> tokens = str_utils::split(input, ' ');
 
         if (tokens.size() < 5 || tokens[3] != "value") return;
-        
+
         if (tokens[1] == "name") {
             std::string option_value = tokens[4];
             if (tokens[2] == "Hash") {
@@ -122,6 +122,47 @@ namespace elixir::uci {
                 int rfp_margin = std::stoi(option_value);
                 search::RFP_MARGIN = rfp_margin;
             }
+
+            else if (tokens[2] == "RAZOR_MARGIN") {
+                int razor_margin = std::stoi(option_value);
+                search::RAZOR_MARGIN = razor_margin;
+            }
+
+            else if (tokens[2] == "NMP_BASE_REDUCTION") {
+                int nmp_base_reduction = std::stoi(option_value);
+                search::NMP_BASE_REDUCTION = nmp_base_reduction;
+            }
+
+            else if (tokens[2] == "NMP_DEPTH") {
+                int nmp_depth = std::stoi(option_value);
+                search::NMP_DEPTH = nmp_depth;
+            }
+
+            else if (tokens[2] == "RFP_DEPTH") {
+                int rfp_depth = std::stoi(option_value);
+                search::RFP_DEPTH = rfp_depth;
+            }
+
+            else if (tokens[2] == "RAZOR_DEPTH") {
+                int razor_depth = std::stoi(option_value);
+                search::RAZOR_DEPTH = razor_depth;
+            }
+
+            else if (tokens[2] == "IIR_DEPTH") {
+                int iir_depth = std::stoi(option_value);
+                search::IIR_DEPTH = iir_depth;
+            }
+
+            else if (tokens[2] == "LMP_MULTIPLIER") {
+                int lmp_multiplier = std::stoi(option_value);
+                search::LMP_MULTIPLIER = lmp_multiplier;
+            }
+
+            else if (tokens[2] == "LMR_DEPTH") {
+                int lmr_depth = std::stoi(option_value);
+                search::LMR_DEPTH = lmr_depth;
+            }
+
         }
     }
 
@@ -139,6 +180,14 @@ namespace elixir::uci {
                 std::cout << "option name Threads type spin default 1 min 1 max 1" << std::endl;
                 std::cout << "option name LMP_BASE type spin default 8 min 2 max 14" << std::endl;
                 std::cout << "option name RFP_MARGIN type spin default 200 min 100 max 400" << std::endl;
+                std::cout << "option name RAZOR_MARGIN type spin default 256 min 100 max 400" << std::endl;
+                std::cout << "option name NMP_BASE_REDUCTION type spin default 4 min 2 max 10" << std::endl;
+                std::cout << "option name NMP_DEPTH type spin default 3 min 2 max 6" << std::endl;
+                std::cout << "option name RFP_DEPTH type spin default 6 min 2 max 10" << std::endl;
+                std::cout << "option name RAZOR_DEPTH type spin default 5 min 2 max 8" << std::endl;
+                std::cout << "option name IIR_DEPTH type spin default 4 min 1 max 8" << std::endl;
+                std::cout << "option name LMP_MULTIPLIER type spin default 3 min 1 max 8" << std::endl;
+                std::cout << "option name LMR_DEPTH type spin default 3 min 1 max 8" << std::endl;
                 std::cout << "uciok" << std::endl;
             }
             else if (input == "isready")
