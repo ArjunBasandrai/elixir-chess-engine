@@ -184,17 +184,27 @@ namespace elixir::search
         TTFlag flag = TT_ALPHA;
 
         MoveList bad_quiets;
+        bool skip_quiets = false;
 
         while ((move = mp.next_move()) != move::NO_MOVE) {
 
+            const bool is_quiet_move = move.is_quiet();
+
+            if (skip_quiets && is_quiet_move) continue;
+            
             if (!board.make_move(move)) continue;
 
             ss->move = move;
 
             legals++;
             info.nodes++;
-
-            const bool is_quiet_move = move.is_quiet();
+            
+            // Late Move Pruning [LMP]
+            if (!root_node && best_score > -MATE + MAX_DEPTH) {
+                if (is_quiet_move && legals >= 8 + 3 * depth * depth) {
+                    skip_quiets = true;
+                }
+            }
 
             // LMR + PVS (~40 ELO)
             int score = 0;
