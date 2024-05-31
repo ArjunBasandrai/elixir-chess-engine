@@ -63,7 +63,6 @@ namespace elixir {
         }
     }
 
-
     void MovePicker::init_mp(const Board& board, move::Move tt_move, search::SearchStack *ss, bool for_qs) {
         if (for_qs)
         moves = movegen::generate_moves<true>(board);

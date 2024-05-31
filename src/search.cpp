@@ -171,8 +171,6 @@ namespace elixir::search
                 int score = -negamax(board, -beta, -beta + 1, depth - R, info, local_pv, ss + 1);
                 board.unmake_null_move();
 
-                if (info.stopped) return 0;
-
                 if (score >= beta) {
                     return beta;
                 }
