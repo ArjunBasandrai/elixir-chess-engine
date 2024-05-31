@@ -275,7 +275,7 @@ namespace elixir::search
 
             // aspiration windows
             while (1) {
-                score = negamax(board, alpha, beta, asp_depth, info, pv, ss);
+                score = negamax(board, alpha, beta, std::max(1, asp_depth), info, pv, ss);
 
                 if (score > alpha && score < beta) break;
 
