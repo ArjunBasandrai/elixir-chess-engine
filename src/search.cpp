@@ -38,7 +38,7 @@ namespace elixir::search
 
         pv.length = 0;
 
-        if (should_stop(info)) return 0;
+        if (info.stopped || should_stop(info)) return 0;
 
         // Three-Fold Repetition Detection (~50 ELO)
         if (board.is_repetition()) return 0;
@@ -106,7 +106,7 @@ namespace elixir::search
         
         pv.length = 0;
         
-        if (should_stop(info)) return 0;
+        if (info.stopped|| should_stop(info)) return 0;
 
         bool root_node = ss->ply == 0;
         bool pv_node = ((beta - alpha > 1) || root_node);
@@ -171,6 +171,8 @@ namespace elixir::search
                 int score = -negamax(board, -beta, -beta + 1, depth - R, info, local_pv, ss + 1);
                 board.unmake_null_move();
 
+                if (info.stopped) return 0;
+
                 if (score >= beta) {
                     return beta;
                 }
@@ -209,14 +211,17 @@ namespace elixir::search
             int score = 0;
             if (legals == 1) {
                 score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
+                if (info.stopped) return 0;
             } else {
                 int R = 1;
                 if (is_quiet_move && depth >= 3 && legals > 1 + (pv_node ? 1 : 0)) {
                     R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
                 }
                 score = -negamax(board, -alpha - 1, -alpha, depth - R, info, local_pv, ss + 1);
+                if (info.stopped) return 0;
                 if (score > alpha && (score < beta || R > 1)) {
                     score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
+                    if (info.stopped) return 0;
                 }
             }
 
@@ -281,9 +286,13 @@ namespace elixir::search
                 beta = std::min(INF, score + delta);
             }
 
+            if (info.stopped) break;
+
             // aspiration windows
             while (1) {
                 score = negamax(board, alpha, beta, current_depth, info, pv, ss);
+
+                if (info.stopped) break;
 
                 if (score > alpha && score < beta) break;
 
