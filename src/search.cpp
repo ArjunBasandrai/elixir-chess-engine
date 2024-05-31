@@ -183,6 +183,8 @@ namespace elixir::search
         move::Move move;
         TTFlag flag = TT_ALPHA;
 
+        MoveList bad_quiets;
+
         while ((move = mp.next_move()) != move::NO_MOVE) {
 
             if (!board.make_move(move)) continue;
@@ -224,7 +226,7 @@ namespace elixir::search
                                 ss->killers[1] = ss->killers[0];
                                 ss->killers[0] = best_move;
                             }
-                            board.update_history(move.get_from(), move.get_to(), depth);
+                            board.update_history(move.get_from(), move.get_to(), depth, bad_quiets);
                         }
                         flag = TT_BETA;
                         break;
@@ -232,6 +234,10 @@ namespace elixir::search
                     flag = TT_EXACT;
                     alpha = score;
                 }
+            }
+
+            else if (is_quiet_move) {
+                bad_quiets.push(move);
             }
         }
 
