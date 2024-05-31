@@ -199,7 +199,7 @@ namespace elixir::search
             info.nodes++;
             
             // Late Move Pruning [LMP]
-            if (!root_node && best_score > -MATE + MAX_DEPTH) {
+            if (!root_node && best_score > -MATE_FOUND) {
                 if (is_quiet_move && legals >= 8 + 3 * depth * depth) {
                     skip_quiets = true;
                 }
@@ -305,7 +305,17 @@ namespace elixir::search
             if (info.stopped) break;
 
             if (print_info) {
-                std::cout << "info score cp " << score << " depth " << current_depth << " nodes " << info.nodes << " time " << duration.count() << " pv ";
+                if (score > -MATE && score < -MATE_FOUND) {
+                    std::cout << "info score mate " << -(score + MATE) / 2 << " depth " << current_depth << " nodes " << info.nodes << " time " << duration.count() << " pv ";
+                }
+
+                else if (score > MATE_FOUND && score < MATE) {
+                    std::cout << "info score mate " << (MATE - score) / 2 + 1 << " depth " << current_depth << " nodes " << info.nodes << " time " << duration.count() << " pv ";
+                } 
+
+                else {
+                    std::cout << "info score cp " << score << " depth " << current_depth << " nodes " << info.nodes << " time " << duration.count() << " pv ";
+                }
                 pv.print_pv();
                 std::cout << std::endl;
             }

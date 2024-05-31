@@ -97,12 +97,12 @@ namespace elixir
     constexpr Bitboard Files[8] = {FILE_A_BB, FILE_B_BB, FILE_C_BB, FILE_D_BB, FILE_E_BB, FILE_F_BB, FILE_G_BB, FILE_H_BB};
 
     constexpr I8 MAX_DEPTH = 64;
+    constexpr I8 MAX_PLY = 64;
 
     // TT size terms
     constexpr int MIN_HASH = 4;
     constexpr int DEFAULT_HASH_SIZE = 64;
     constexpr int MAX_HASH = 1024;
-
 
     static inline int get_rank(Square sq)
     {
@@ -120,6 +120,7 @@ namespace elixir
 
     constexpr I32 INF = 32001;
     constexpr I32 MATE = 32000;
+    constexpr I32 MATE_FOUND = MATE - MAX_PLY;
 
     // Eval Terms
     const int opening_phase_score = 6192;
