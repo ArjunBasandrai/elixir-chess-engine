@@ -113,15 +113,23 @@ namespace elixir::search
         bool in_check = board.is_in_check();
         int eval;
 
-        // Three-Fold Repetition Detection (~50 ELO)
+        /*
+        | 3-Fold Repetition Detection (~50 ELO) : If the position has been repeated 3 times, |
+        | then the position is a draw.                                                       |
+        */
         if (board.is_repetition()) return 0;
-
-        // Check extension (~25 ELO)
+        
+        /*
+        | Check Extension (~25 ELO) : If we are in check, extend the search depth and avoid dropping to qsearch. |
+        */
         if (in_check) depth++;
 
+        /*
+        | Quiescence Search : Perform a quiescence search at leaf nodes to avoid the horizon effect. |
+        */
         if (depth <= 0) return qsearch(board, alpha, beta, info, pv, ss);
         
-        if (ss->ply > MAX_DEPTH) return board.get_eval();
+        if (ss->ply > MAX_DEPTH) return eval::evaluate(board);
 
         int legals = 0;
 
@@ -132,88 +140,152 @@ namespace elixir::search
         TTFlag tt_flag = TT_NONE;
 
         const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta, tt_flag);
-        // TT Cutoff (~130 ELO)
+        /*
+        | TT Cutoff (~130 ELO) : If we have already seen this position before and the |
+        | stored score is useful, we can use the previously stored score to avoid     |
+        | searching the same position again.                                          |
+        */
         if (tt_hit && !pv_node && result.depth >= depth &&
             (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) || (tt_flag == TT_BETA && result.score >= beta))) {
             return result.score;
         }
 
+        /*
+        | TT Move : Use the stored move from the transposition table for move ordering. |
+        */
         const auto tt_move = result.best_move;
-
-        // Internal Iterative Reduction (~6 ELO)
+        
+        /*
+        | Internal Iterative Reduction (~6 ELO) : If no TT move is found for this position, |
+        | searching this node will likely take a lot of time, and this node is likely to be |
+        | not very good. So, we save time by reducing the depth of the search.              | 
+        */
         if (depth >= 4 && tt_move == move::NO_MOVE) depth--;
 
+        /*
+        | Initialize the evaluation score. If we are in check, we set the evaluation score to INF.   |
+        | Otherwise, if we have a TT hit, we use the stored score. If not, we evaluate the position. |
+        */
         if (in_check) eval = ss->eval = INF;
+
         else eval = ss->eval = (tt_hit) ? result.score : eval::evaluate(board);
 
         if (!pv_node && !in_check) {
-            // Razoring (~4 ELO)
+            /*
+            | Razoring (~4 ELO) : If out position is way below alpha, do a verification |
+            | quiescence search, if we still cant exceed alpha, then we cutoff.         |
+            */
             if (depth <= 5 && eval + 256 * depth < alpha) {
                 const int razor_score = qsearch(board, alpha, beta, info, local_pv, ss);
                 if (razor_score <= alpha) {
                     return razor_score;
                 }
             }
-
-            // Reverse Futility Pruning (~45 ELO)
+            /*
+            | Reverse Futility Pruning (~45 ELO) : If our position is so good, that we are |
+            | confident that we will not fall below beta anytime soon, then we cutoff.     |
+            */
             if (depth <= 6 && eval - 200 * depth >= beta) {
                 return eval;
             }
 
-            // Null Move Pruning (~60 ELO)
+            /*
+            | Null Move Pruning (~60 ELO) : If our position is so good, we give our |
+            | opponent an extra move to see if we are still better.                 |
+            */
             if (depth >= 3 && (ss-1)->move != move::NO_MOVE && eval >= beta) {
                 int R = 4 + depth / 6;
                 R = std::min(R, depth);
-
+                
+                /*
+                | Set current move to a null move in the search stack to avoid |
+                | multiple null move searching in a row.                       |
+                */
                 ss->move = move::NO_MOVE;
 
                 board.make_null_move();
                 int score = -negamax(board, -beta, -beta + 1, depth - R, info, local_pv, ss + 1);
                 board.unmake_null_move();
 
+                /*
+                | If our position is still better even after giving our opponent |
+                | an extra move, we can safely assume that we are winning.       |
+                */
                 if (score >= beta) {
                     return beta;
                 }
             }
         }
 
+        /*
+        | Initialize MovePicker, generate all moves and use TT Move for move ordering. |
+        */
         MovePicker mp;
         mp.init_mp(board, tt_move, ss, false); 
-        move::Move move;
-        TTFlag flag = TT_ALPHA;
 
-        MoveList bad_quiets;
+        TTFlag flag = TT_ALPHA;
+        move::Move move;
         bool skip_quiets = false;
+
+        /*
+        | Initialize a bad quiets array to be used by history maluses. |
+        */
+        MoveList bad_quiets;
 
         while ((move = mp.next_move()) != move::NO_MOVE) {
 
             const bool is_quiet_move = move.is_quiet();
 
+            /*
+            | If skip_quiets is enabled by Late Move Pruning, we skip quiet |
+            | moves that are likely to be bad.                              |
+            */
             if (skip_quiets && is_quiet_move) continue;
             
             if (!board.make_move(move)) continue;
 
+            /*
+            | Add the current move to search stack. |
+            */
             ss->move = move;
 
             legals++;
             info.nodes++;
             
-            // Late Move Pruning [LMP]
+            /*
+            | Late Move Pruning [LMP] (~30 ELO) : Skip late quiet moves if  |
+            | we've already searched the most promising moves because they  |
+            | are likely to be bad.                                         |  
+            */
             if (!root_node && best_score > -MATE_FOUND) {
                 if (is_quiet_move && legals >= 8 + 3 * depth * depth) {
                     skip_quiets = true;
                 }
             }
 
-            // LMR + PVS (~40 ELO)
+            /*
+            | Principal Variation Search and Late Move Reduction [PVS + LMR] (~40 ELO) |
+            */
             int score = 0;
+            /*
+            | Search with full depth if it's the first move |
+            */
             if (legals == 1) {
                 score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
             } else {
+                /*
+                | Late Move Reductions [LMR] : Moves that appear later in the move list |
+                | are likely to be bad, so we reduce their depth.                       |
+                */
                 int R = 1;
                 if (is_quiet_move && depth >= 3 && legals > 1 + (pv_node ? 1 : 0)) {
                     R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
                 }
+                /*
+                | Principal Variation Search [PVS] : Perform a null window search at reduced depth |
+                | to see if the move has potential to improve alpha. If it does, we perform a full |
+                | depth search.                                                                    |
+                */
                 score = -negamax(board, -alpha - 1, -alpha, depth - R, info, local_pv, ss + 1);
                 if (score > alpha && (score < beta || R > 1)) {
                     score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
