@@ -12,8 +12,12 @@
 #include "tt.h"
 #include "utils/static_vector.h"
 
-namespace elixir::search
-{
+namespace elixir::search {
+    int RFP_MARGIN = 200;
+    int LMP_BASE = 8;
+}
+
+namespace elixir::search {
     int lmr[MAX_DEPTH][64] = {0};
     void init_lmr() {
         for (int depth = 1; depth < MAX_DEPTH; depth++) {
@@ -185,7 +189,7 @@ namespace elixir::search
             | Reverse Futility Pruning (~45 ELO) : If our position is so good, that we are |
             | confident that we will not fall below beta anytime soon, then we cutoff.     |
             */
-            if (depth <= 6 && eval - 200 * depth >= beta) {
+            if (depth <= 6 && eval - RFP_MARGIN * depth >= beta) {
                 return eval;
             }
 
@@ -258,7 +262,7 @@ namespace elixir::search
             | are likely to be bad.                                         |  
             */
             if (!root_node && best_score > -MATE_FOUND) {
-                if (is_quiet_move && legals >= 8 + 3 * depth * depth) {
+                if (is_quiet_move && legals >= LMP_BASE + 3 * depth * depth) {
                     skip_quiets = true;
                 }
             }

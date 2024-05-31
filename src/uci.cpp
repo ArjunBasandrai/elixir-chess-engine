@@ -102,21 +102,25 @@ namespace elixir::uci {
     void parse_setoption(std::string input)
     {
         std::vector<std::string> tokens = str_utils::split(input, ' ');
-        if (tokens.size() < 3)
-        {
-            return;
-        }
-        if (tokens[1] == "name")
-        {
-            if (tokens[2] == "Hash")
-            {
-                if (tokens.size() < 5 || tokens[3] != "value")
-                {
-                    return;
-                }
-                int tt_size = std::stoi(tokens[4]);
+
+        if (tokens.size() < 5 || tokens[3] != "value") return;
+        
+        if (tokens[1] == "name") {
+            std::string option_value = tokens[4];
+            if (tokens[2] == "Hash") {
+                int tt_size = std::stoi(option_value);
                 tt_size = std::clamp<int>(tt_size, MIN_HASH, MAX_HASH);
                 tt->resize(tt_size);
+            }
+
+            else if (tokens[2] == "LMP_BASE") {
+                int lmp_base = std::stoi(option_value);
+                search::LMP_BASE = lmp_base;
+            }
+
+            else if (tokens[2] == "RFP_MARGIN") {
+                int rfp_margin = std::stoi(option_value);
+                search::RFP_MARGIN = rfp_margin;
             }
         }
     }
@@ -133,6 +137,8 @@ namespace elixir::uci {
                 std::cout << "id author Arjun Basandrai" << std::endl;
                 std::cout << "option name Hash type spin default " << DEFAULT_HASH_SIZE << " min " << MIN_HASH << " max " << MAX_HASH << std::endl;
                 std::cout << "option name Threads type spin default 1 min 1 max 1" << std::endl;
+                std::cout << "option name LMP_BASE type spin default 8 min 2 max 14" << std::endl;
+                std::cout << "option name RFP_MARGIN type spin default 200 min 100 max 400" << std::endl;
                 std::cout << "uciok" << std::endl;
             }
             else if (input == "isready")
