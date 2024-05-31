@@ -111,7 +111,6 @@ namespace elixir {
         [[nodiscard]] I16 get_fullmove_number() const noexcept { return fullmove_number; }
         [[nodiscard]] U64 get_hash_key() const noexcept { return hash_key; }
         [[nodiscard]] EvalScore get_eval() const noexcept { return eval; }
-        [[nodiscard]] int get_phase_score() const noexcept { return phase_score;}
         
         [[nodiscard]] Bitboard get_attackers(Square sq, Color c) const {
             Bitboard attackers = 0ULL;
@@ -169,7 +168,6 @@ namespace elixir {
         I16 fullmove_number;
         U64 hash_key;
         EvalScore eval;
-        int phase_score;
         History history;
     };
 }

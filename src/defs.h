@@ -121,8 +121,4 @@ namespace elixir
     constexpr I32 INF = 32001;
     constexpr I32 MATE = 32000;
     constexpr I32 MATE_FOUND = MATE - MAX_PLY;
-
-    // Eval Terms
-    const int opening_phase_score = 6192;
-    const int endgame_phase_score = 518;
 }

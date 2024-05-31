@@ -122,7 +122,6 @@ namespace elixir {
         fullmove_number = 0;
         hash_key = 0ULL;
         eval = 0;
-        phase_score = 0;
         history.clear();
     }
 
@@ -134,9 +133,6 @@ namespace elixir {
         pieces[square] = static_cast<Piece>(static_cast<I8>(piece) * 2 + static_cast<I8>(color));
         if (color == Color::WHITE) { square ^= 56; }
         eval += (eval::material_score[static_cast<I8>(piece)] + eval::psqt[static_cast<I8>(piece)][square]) * color_offset[static_cast<int>(color)];
-        if (piece != PieceType::PAWN && piece != PieceType::KING) {
-            phase_score += O(eval::material_score[static_cast<I8>(piece)]);
-        }
     }
 
     void Board::remove_piece(const Square sq, const PieceType piece, const Color color) {
@@ -148,9 +144,6 @@ namespace elixir {
         pieces[square] = Piece::NO_PIECE;
         if (color == Color::WHITE) { square ^= 56; }
         eval -= (eval::material_score[static_cast<I8>(piece)] + eval::psqt[static_cast<I8>(piece)][square]) * color_offset[static_cast<int>(color)];
-        if (piece != PieceType::PAWN && piece != PieceType::KING) {
-            phase_score -= O(eval::material_score[static_cast<I8>(piece)]);
-        }
     }
 
     void Board::from_fen(std::string fen) {
