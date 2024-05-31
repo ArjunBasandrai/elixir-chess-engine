@@ -255,6 +255,7 @@ namespace elixir::search
         PVariation pv;
         for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
             int score = 0, alpha = -INF, beta = INF, delta = 10;
+            int asp_depth = current_depth;
             SearchStack stack[MAX_DEPTH + 4], *ss = stack + 4;
             for (int i = -4; i < MAX_DEPTH; i++) {
                 (ss+i)->move = move::NO_MOVE;
@@ -274,17 +275,19 @@ namespace elixir::search
 
             // aspiration windows
             while (1) {
-                score = negamax(board, alpha, beta, current_depth, info, pv, ss);
+                score = negamax(board, alpha, beta, asp_depth, info, pv, ss);
 
                 if (score > alpha && score < beta) break;
 
                 if (score <= alpha) {
                     beta = (alpha + beta) / 2;
                     alpha = std::max(-INF, alpha - delta);
+                    asp_depth = current_depth;
                 }
 
                 else if (score >= beta) {
                     beta = std::min(INF, beta + delta);
+                    asp_depth--;
                 }
 
                 delta = delta + delta / 2;
