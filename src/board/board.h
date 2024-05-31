@@ -90,20 +90,8 @@ namespace elixir {
         void remove_piece(const Square sq, const PieceType piece, const Color color);
 
         [[nodiscard]] Piece piece_on(Square sq) const {
-            
             assert(sq != Square::NO_SQ);
-            
-            for (int piece = 0; piece < 12; piece+=2) {
-                U64 pieceMask = b_pieces[piece / 2];
-                for (int color = 0; color < 2; color++) {
-                    U64 occupancyMask = b_occupancies[color];
-                    U64 combinedMask = pieceMask & occupancyMask;
-                    if (bits::get_bit(combinedMask, sq)) {
-                        return static_cast<Piece>(piece + color);
-                    }
-                }
-            }
-            return Piece::NO_PIECE;
+            return pieces[static_cast<I8>(sq)];
         }
 
         [[nodiscard]] Color piece_color(Piece piece) const noexcept { return (static_cast<int>(piece) % 2 == 0) ? Color::WHITE : Color::BLACK; }
@@ -172,6 +160,7 @@ namespace elixir {
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
         std::array<Square, 2> kings{};
+        std::array<Piece, 64> pieces{};
         StaticVector<State, 1024> undo_stack;
         Square en_passant_square;
         Color side;

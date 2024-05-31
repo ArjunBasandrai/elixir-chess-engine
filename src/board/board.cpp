@@ -113,6 +113,7 @@ namespace elixir {
         b_occupancies.fill(0ULL);
         b_pieces.fill(0ULL);
         kings.fill(Square::NO_SQ);
+        pieces.fill(Piece::NO_PIECE);
         undo_stack.clear();
         en_passant_square = Square::NO_SQ;
         side = Color::WHITE;
@@ -129,13 +130,10 @@ namespace elixir {
         assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
         bits::set_bit(b_occupancies[static_cast<I8>(color)], sq);
         bits::set_bit(b_pieces[static_cast<I8>(piece)], sq);
-        int square = static_cast<int>(sq);
-        Score score_opening = O(eval);
-        Score score_endgame = E(eval);
+        int square = static_cast<I8>(sq);
+        pieces[square] = static_cast<Piece>(static_cast<I8>(piece) * 2 + static_cast<I8>(color));
         if (color == Color::WHITE) { square ^= 56; }
-        score_opening += (O(eval::material_score[static_cast<I8>(piece)]) + O(eval::psqt[static_cast<I8>(piece)][square])) * color_offset[static_cast<int>(color)];
-        score_endgame += (E(eval::material_score[static_cast<I8>(piece)]) + E(eval::psqt[static_cast<I8>(piece)][square])) * color_offset[static_cast<int>(color)];
-        eval = S(score_opening, score_endgame);
+        eval += (eval::material_score[static_cast<I8>(piece)] + eval::psqt[static_cast<I8>(piece)][square]) * color_offset[static_cast<int>(color)];
         if (piece != PieceType::PAWN && piece != PieceType::KING) {
             phase_score += O(eval::material_score[static_cast<I8>(piece)]);
         }
@@ -146,12 +144,10 @@ namespace elixir {
         bits::clear_bit(b_occupancies[static_cast<I8>(color)], sq);
         bits::clear_bit(b_pieces[static_cast<I8>(piece)], sq);
         int square = static_cast<int>(sq);
-        Score score_opening = O(eval);
-        Score score_endgame = E(eval);
+        assert(pieces[square] == static_cast<Piece>(static_cast<I8>(piece) * 2 + static_cast<I8>(color)));
+        pieces[square] = Piece::NO_PIECE;
         if (color == Color::WHITE) { square ^= 56; }
-        score_opening -= (O(eval::material_score[static_cast<I8>(piece)]) + O(eval::psqt[static_cast<I8>(piece)][square])) * color_offset[static_cast<int>(color)];
-        score_endgame -= (E(eval::material_score[static_cast<I8>(piece)]) + E(eval::psqt[static_cast<I8>(piece)][square])) * color_offset[static_cast<int>(color)];
-        eval = S(score_opening, score_endgame);
+        eval -= (eval::material_score[static_cast<I8>(piece)] + eval::psqt[static_cast<I8>(piece)][square]) * color_offset[static_cast<int>(color)];
         if (piece != PieceType::PAWN && piece != PieceType::KING) {
             phase_score -= O(eval::material_score[static_cast<I8>(piece)]);
         }
