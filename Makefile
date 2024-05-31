@@ -14,7 +14,6 @@ SRC = src/utils/bits.cpp \
 	  src/tt.cpp \
 	  src/movepicker.cpp
 
-
 CXX = clang++
 EXE = elixir
 

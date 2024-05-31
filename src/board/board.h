@@ -144,7 +144,6 @@ namespace elixir {
             return is_square_attacked(kings[static_cast<I8>(side)], static_cast<Color>(static_cast<I8>(side)^1));
         }
 
-
         void clear_board() noexcept;
         void from_fen(std::string fen);
         void to_startpos();
