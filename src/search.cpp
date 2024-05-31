@@ -286,7 +286,7 @@ namespace elixir::search
                 beta = std::min(INF, score + delta);
             }
 
-            if (info.stopped) break;
+            if (current_depth > 1 && info.stopped) break;
 
             // aspiration windows
             while (1) {
@@ -311,7 +311,7 @@ namespace elixir::search
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-            if (info.stopped) break;
+            if (current_depth > 1 && info.stopped) break;
 
             if (print_info) {
                 if (score > -MATE && score < -MATE_FOUND) {
