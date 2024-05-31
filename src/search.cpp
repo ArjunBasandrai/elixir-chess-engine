@@ -19,7 +19,7 @@ namespace elixir::search
     void init_lmr() {
         for (int depth = 1; depth < MAX_DEPTH; depth++) {
             for (int move = 1; move < 64; move++) {
-                lmr[depth][move] = 0.75 + log(depth) * log(move) / 2.31;
+                lmr[depth][move] = std::max(1.0, 0.75 + log(depth) * log(move) / 2.31);
             }
         }
     }
@@ -165,6 +165,8 @@ namespace elixir::search
             if (depth >= 3 && (ss-1)->move != move::NO_MOVE && eval >= beta) {
                 int R = 4 + depth / 6;
                 R = std::min(R, depth);
+
+                ss->move = move::NO_MOVE;
 
                 board.make_null_move();
                 int score = -negamax(board, -beta, -beta + 1, depth - R, info, local_pv, ss + 1);
