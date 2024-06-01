@@ -13,15 +13,15 @@
 #include "utils/static_vector.h"
 
 namespace elixir::search {
-    int RFP_MARGIN = 200;
-    int LMP_BASE = 8;
-    int RAZOR_MARGIN = 256;
-    int NMP_BASE_REDUCTION = 4;
-    int NMP_DEPTH = 3;
+    int LMP_BASE = 7;
+    int RFP_MARGIN = 100;
+    int RAZOR_MARGIN = 264;
+    int NMP_BASE_REDUCTION = 5;
+    int NMP_DEPTH = 2;
     int RFP_DEPTH = 6;
-    int RAZOR_DEPTH = 5;
+    int RAZOR_DEPTH = 6;
     int IIR_DEPTH = 4;
-    int LMP_MULTIPLIER = 3;
+    int LMP_MULTIPLIER = 1;
     int LMR_DEPTH = 3;
 }
 
