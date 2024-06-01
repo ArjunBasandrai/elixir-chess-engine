@@ -256,17 +256,7 @@ namespace elixir::search {
             | moves that are likely to be bad.                              |
             */
             if (skip_quiets && is_quiet_move) continue;
-            
-            if (!board.make_move(move)) continue;
 
-            /*
-            | Add the current move to search stack. |
-            */
-            ss->move = move;
-
-            legals++;
-            info.nodes++;
-            
             /*
             | Late Move Pruning [LMP] (~30 ELO) : Skip late quiet moves if  |
             | we've already searched the most promising moves because they  |
@@ -277,6 +267,16 @@ namespace elixir::search {
                     skip_quiets = true;
                 }
             }
+            
+            if (!board.make_move(move)) continue;
+
+            /*
+            | Add the current move to search stack. |
+            */
+            ss->move = move;
+
+            legals++;
+            info.nodes++;
 
             /*
             | Principal Variation Search and Late Move Reduction [PVS + LMR] (~40 ELO) |
