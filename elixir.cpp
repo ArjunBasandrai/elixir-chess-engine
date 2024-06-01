@@ -8,6 +8,7 @@
 #include "src/bench/bench.h"
 #include "src/hashing/hash.h"
 #include "src/attacks/attacks.h"
+#include "src/tests/see_test.h"
 #include "src/uci.h"
 #include "src/search.h"
 #include "src/tt.h"
@@ -34,6 +35,8 @@ int main(int argc, char *argv[]) {
     Board board;
     board.to_startpos();
 
-    uci::uci_loop(board);
+    tests::see_test();
+
+    // uci::uci_loop(board);
     return 0;
 }

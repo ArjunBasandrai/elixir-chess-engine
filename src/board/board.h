@@ -22,6 +22,11 @@ namespace elixir {
         Board() {
             clear_board();
         }
+
+        Board(std::string fen) {
+            from_fen(fen);
+        }
+
         ~Board() = default;
 
         [[nodiscard]] PieceType piece_to_piecetype(Piece piece) const { return static_cast<PieceType>(static_cast<int>(piece) / 2); }
