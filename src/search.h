@@ -87,6 +87,18 @@ namespace elixir::search
         }
     };
 
+    extern int RFP_MARGIN;
+    extern int LMP_BASE;
+    extern int RAZOR_MARGIN;
+    extern int NMP_BASE_REDUCTION;
+    extern int NMP_DEPTH;
+    extern int RFP_DEPTH;
+    extern int RAZOR_DEPTH;
+    extern int IIR_DEPTH;
+    extern int LMP_MULTIPLIER;
+    extern int LMR_DEPTH;
+
+
     extern int lmr[MAX_DEPTH][64];
     void init_lmr();
 

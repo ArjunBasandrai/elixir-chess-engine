@@ -12,8 +12,20 @@
 #include "tt.h"
 #include "utils/static_vector.h"
 
-namespace elixir::search
-{
+namespace elixir::search {
+    int RFP_MARGIN = 200;
+    int LMP_BASE = 8;
+    int RAZOR_MARGIN = 256;
+    int NMP_BASE_REDUCTION = 4;
+    int NMP_DEPTH = 3;
+    int RFP_DEPTH = 6;
+    int RAZOR_DEPTH = 5;
+    int IIR_DEPTH = 4;
+    int LMP_MULTIPLIER = 3;
+    int LMR_DEPTH = 3;
+}
+
+namespace elixir::search {
     int lmr[MAX_DEPTH][64] = {0};
     void init_lmr() {
         for (int depth = 1; depth < MAX_DEPTH; depth++) {
@@ -160,7 +172,7 @@ namespace elixir::search
         | searching this node will likely take a lot of time, and this node is likely to be |
         | not very good. So, we save time by reducing the depth of the search.              | 
         */
-        if (depth >= 4 && tt_move == move::NO_MOVE) depth--;
+        if (depth >= IIR_DEPTH && tt_move == move::NO_MOVE) depth--;
 
         /*
         | Initialize the evaluation score. If we are in check, we set the evaluation score to INF.   |
@@ -175,7 +187,7 @@ namespace elixir::search
             | Razoring (~4 ELO) : If out position is way below alpha, do a verification |
             | quiescence search, if we still cant exceed alpha, then we cutoff.         |
             */
-            if (depth <= 5 && eval + 256 * depth < alpha) {
+            if (depth <= RAZOR_DEPTH && eval + RAZOR_MARGIN * depth < alpha) {
                 const int razor_score = qsearch(board, alpha, beta, info, local_pv, ss);
                 if (razor_score <= alpha) {
                     return razor_score;
@@ -185,7 +197,7 @@ namespace elixir::search
             | Reverse Futility Pruning (~45 ELO) : If our position is so good, that we are |
             | confident that we will not fall below beta anytime soon, then we cutoff.     |
             */
-            if (depth <= 6 && eval - 200 * depth >= beta) {
+            if (depth <= RFP_DEPTH && eval - RFP_MARGIN * depth >= beta) {
                 return eval;
             }
 
@@ -193,8 +205,8 @@ namespace elixir::search
             | Null Move Pruning (~60 ELO) : If our position is so good, we give our |
             | opponent an extra move to see if we are still better.                 |
             */
-            if (depth >= 3 && (ss-1)->move != move::NO_MOVE && eval >= beta) {
-                int R = 4 + depth / 6;
+            if (depth >= NMP_DEPTH && (ss-1)->move != move::NO_MOVE && eval >= beta) {
+                int R = NMP_BASE_REDUCTION + depth / 6;
                 R = std::min(R, depth);
                 
                 /*
@@ -258,7 +270,7 @@ namespace elixir::search
             | are likely to be bad.                                         |  
             */
             if (!root_node && best_score > -MATE_FOUND) {
-                if (is_quiet_move && legals >= 8 + 3 * depth * depth) {
+                if (is_quiet_move && legals >= LMP_BASE + LMP_MULTIPLIER * depth * depth) {
                     skip_quiets = true;
                 }
             }
@@ -278,7 +290,7 @@ namespace elixir::search
                 | are likely to be bad, so we reduce their depth.                       |
                 */
                 int R = 1;
-                if (is_quiet_move && depth >= 3 && legals > 1 + (pv_node ? 1 : 0)) {
+                if (is_quiet_move && depth >= LMR_DEPTH && legals > 1 + (pv_node ? 1 : 0)) {
                     R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
                 }
                 /*
