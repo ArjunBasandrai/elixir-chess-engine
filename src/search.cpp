@@ -11,6 +11,9 @@
 #include "movegen.h"
 #include "tt.h"
 #include "utils/static_vector.h"
+#include "utils/bits.h"
+
+using namespace elixir::bits;
 
 namespace elixir::search {
     int LMP_BASE = 7;
@@ -341,6 +344,66 @@ namespace elixir::search {
         tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv);
 
         return best_score;
+    }
+
+    bool SEE(const Board& board, const move::Move move, int threshold) {
+
+        if (move.is_promotion()) return true;
+
+        Square from = move.get_from();
+        Square to = move.get_to();
+
+        int target_piece = move.is_en_passant() ? static_cast<int>(PieceType::PAWN) : static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
+
+        int value = see_values[target_piece] - threshold;
+        if (value < 0) return false;
+
+        int attacker_piece = move.is_en_passant() ? static_cast<int>(PieceType::PAWN) : static_cast<int>(board.piece_to_piecetype(board.piece_on(from)));
+
+        value -= see_values[attacker_piece];
+        if (value >= 0) return true;
+
+        Bitboard occupied = board.occupancy() ^ bit(from);
+        Bitboard attackers = board.get_attackers(to, Color::WHITE) | board.get_attackers(to, Color::BLACK);
+
+        Bitboard bishops = board.bishops() | board.queens();
+        Bitboard rooks = board.rooks() | board.queens();
+
+        Color side = board.piece_color(board.piece_on(from));
+
+        while (true) {
+            attackers &= occupied;
+
+            Bitboard my_attackers = attackers & board.color_occupancy(side);
+            if (!my_attackers) break;
+
+            // Pick least valuable attacker
+            int piece = 0;
+            for (piece = 0; piece < 6; piece++) {
+                if (my_attackers & board.piece_bitboard(static_cast<PieceType>(piece))) {
+                    break;
+                }
+            }
+
+            side = (side == Color::WHITE) ? Color::BLACK : Color::WHITE;
+
+            if ((value = -value - 1 - see_values[piece]) >= 0) {
+                if (piece == 6 && (attackers & board.color_occupancy(side))) {
+                    side = (side == Color::WHITE) ? Color::BLACK : Color::WHITE;
+                }
+                break;
+            }
+
+            occupied ^= bit(static_cast<Square>(lsb_index(my_attackers & board.piece_bitboard(static_cast<PieceType>(piece)))));
+
+            if (piece == 0 || piece == 2 || piece == 4) {
+                attackers |= attacks::get_bishop_attacks(to, occupied) & bishops;
+            } else if (piece == 3 || piece == 4) {
+                attackers |= attacks::get_rook_attacks(to, occupied) & rooks;
+            }        
+        }
+
+        return side != board.piece_color(board.piece_on(from));
     }
 
     void search(Board &board, SearchInfo &info, bool print_info) {

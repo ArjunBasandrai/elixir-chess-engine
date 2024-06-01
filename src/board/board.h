@@ -143,7 +143,8 @@ namespace elixir {
         void make_null_move();
         void unmake_null_move();
 
-        bool parse_uci_move(std::string move);
+        move::Move parse_uci_move(std::string move) const;
+        bool play_uci_move(std::string move);
 
         bool is_repetition() const;
 

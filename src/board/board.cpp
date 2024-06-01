@@ -492,7 +492,7 @@ namespace elixir {
         side = static_cast<Color>(static_cast<int>(side)^1);
     }
 
-    bool Board::parse_uci_move(std::string move) {
+    move::Move Board::parse_uci_move(std::string move) const {
         
         assert(move.length() == 4 || move.length() == 5);
         
@@ -554,6 +554,11 @@ namespace elixir {
 
         move::Move m;
         m.set_move(from, to, piece, flag, promotion);
+        return m;
+    }
+
+    bool Board::play_uci_move(std::string move) {
+        move::Move m = parse_uci_move(move);
         return make_move(m);
     }
 

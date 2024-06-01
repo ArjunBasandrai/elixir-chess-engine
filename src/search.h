@@ -98,10 +98,14 @@ namespace elixir::search
     extern int LMP_MULTIPLIER;
     extern int LMR_DEPTH;
 
-
     extern int lmr[MAX_DEPTH][64];
     void init_lmr();
 
+    static constexpr int see_values[7] = {
+        100, 450, 450, 650, 1250, 0, 0
+    };
+
     int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss);
+    bool SEE(const Board& board, const move::Move move, int threshold);
     void search(Board &board, SearchInfo &info, bool print_info = true);
 }
