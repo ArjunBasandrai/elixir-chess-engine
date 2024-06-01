@@ -11,6 +11,9 @@
 #include "movegen.h"
 #include "tt.h"
 #include "utils/static_vector.h"
+#include "utils/bits.h"
+
+using namespace elixir::bits;
 
 namespace elixir::search {
     int LMP_BASE = 7;
@@ -341,6 +344,90 @@ namespace elixir::search {
         tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv);
 
         return best_score;
+    }
+
+    int get_promo_piece(move::Move move) {
+        switch (move.get_promotion()) {
+            case move::Promotion::QUEEN:
+                return 4;
+            case move::Promotion::ROOK:
+                return 3;
+            case move::Promotion::BISHOP:
+                return 2;
+            case move::Promotion::KNIGHT:
+                return 1;
+            default:
+                assert(false);
+                exit(1);
+                return -1;
+        }
+    }
+
+    bool SEE(const Board& board, const move::Move move, int threshold) {
+
+        if (move.is_promotion()) return true;
+
+        Square from = move.get_from();
+        Square to = move.get_to();
+
+        int target_piece = move.is_en_passant() ? 0 : static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
+
+
+        int value = see_values[target_piece] - threshold;
+
+        if (value < 0) return false;
+
+        int attacker_piece = static_cast<int>(board.piece_to_piecetype(board.piece_on(from)));
+
+        value -= see_values[attacker_piece];
+        if (value >= 0) return true;
+        
+        Square sq = move.is_en_passant() ? static_cast<Square>(static_cast<int>(to) - 8 * color_offset[static_cast<int>(board.get_side_to_move())]) : to;
+        Bitboard occupied = board.occupancy() ^ bit(from) ^ bit(sq);
+        Bitboard attackers = board.get_attackers(to, Color::WHITE, occupied) | board.get_attackers(to, Color::BLACK, occupied);
+
+        Bitboard bishops = board.bishops() | board.queens();
+        Bitboard rooks = board.rooks() | board.queens();
+
+        Color side = board.piece_color(board.piece_on(from));
+        side = (side == Color::WHITE) ? Color::BLACK : Color::WHITE;
+
+        while (true) {
+            attackers &= occupied;
+
+            Bitboard my_attackers = attackers & board.color_occupancy(side);
+            if (!my_attackers) break;
+
+            // Pick least valuable attacker
+            int piece;
+            for (piece = 0; piece < 6; piece++) {
+                if (my_attackers & board.piece_bitboard(static_cast<PieceType>(piece))) {
+                    break;
+                }
+            }
+
+            side = (side == Color::WHITE) ? Color::BLACK : Color::WHITE;
+
+            value = -value - 1 - see_values[piece];
+            if (value >= 0) {
+                if (piece == 5 && (attackers & board.color_occupancy(side))) {
+                    side = (side == Color::WHITE) ? Color::BLACK : Color::WHITE;
+                }
+                break;
+            }
+            
+            Color enemy_side = (side == Color::WHITE) ? Color::BLACK : Color::WHITE;
+            occupied ^= bit(static_cast<Square>(lsb_index(my_attackers & board.piece_bitboard(static_cast<PieceType>(piece)))));
+
+            if (piece == 0 || piece == 2 || piece == 4) {
+                attackers |= attacks::get_bishop_attacks(to, occupied) & bishops;
+            }
+            if (piece == 3 || piece == 4) {
+                attackers |= attacks::get_rook_attacks(to, occupied) & rooks;
+            }        
+        }
+
+        return side != board.piece_color(board.piece_on(from));
     }
 
     void search(Board &board, SearchInfo &info, bool print_info) {

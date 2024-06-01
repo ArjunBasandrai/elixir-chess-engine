@@ -22,6 +22,11 @@ namespace elixir {
         Board() {
             clear_board();
         }
+
+        Board(std::string fen) {
+            from_fen(fen);
+        }
+
         ~Board() = default;
 
         [[nodiscard]] PieceType piece_to_piecetype(Piece piece) const { return static_cast<PieceType>(static_cast<int>(piece) / 2); }
@@ -112,15 +117,19 @@ namespace elixir {
         [[nodiscard]] U64 get_hash_key() const noexcept { return hash_key; }
         [[nodiscard]] EvalScore get_eval() const noexcept { return eval; }
         
-        [[nodiscard]] Bitboard get_attackers(Square sq, Color c) const {
+        [[nodiscard]] Bitboard get_attackers(Square sq, Color c, Bitboard occupancy) const {
             Bitboard attackers = 0ULL;
             attackers |= (attacks::get_pawn_attacks(Color::WHITE, sq) & black_pawns());
             attackers |= (attacks::get_pawn_attacks(Color::BLACK, sq) & white_pawns());
             attackers |= (attacks::get_knight_attacks(sq) & knights());
-            attackers |= (attacks::get_bishop_attacks(sq, occupancy()) & (bishops() | queens()));
-            attackers |= (attacks::get_rook_attacks(sq, occupancy()) & (rooks() | queens()));
+            attackers |= (attacks::get_bishop_attacks(sq, occupancy) & (bishops() | queens()));
+            attackers |= (attacks::get_rook_attacks(sq, occupancy) & (rooks() | queens()));
             attackers |= (attacks::get_king_attacks(sq) & king());
             return attackers & color_occupancy(c);
+        }
+
+        [[nodiscard]] Bitboard get_attackers(Square sq, Color c) const {
+            return get_attackers(sq, c, occupancy());
         }
 
         [[nodiscard]] bool is_square_attacked(Square sq, Color c) const {
@@ -143,7 +152,8 @@ namespace elixir {
         void make_null_move();
         void unmake_null_move();
 
-        bool parse_uci_move(std::string move);
+        move::Move parse_uci_move(std::string move) const;
+        bool play_uci_move(std::string move);
 
         bool is_repetition() const;
 

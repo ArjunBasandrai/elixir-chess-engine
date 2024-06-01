@@ -14,4 +14,15 @@ namespace elixir::str_utils {
         }
         return tokens;
     }
+
+    inline std::string remove_whitespaces(std::string_view input) {
+        std::string output;
+        for (char c : input) {
+            if (!std::isspace(static_cast<unsigned char>(c))) {
+                output.push_back(c);
+            }
+        }
+        return output;
+    }
+
 }

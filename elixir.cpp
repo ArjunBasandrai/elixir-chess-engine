@@ -8,6 +8,7 @@
 #include "src/bench/bench.h"
 #include "src/hashing/hash.h"
 #include "src/attacks/attacks.h"
+#include "src/tests/see_test.h"
 #include "src/uci.h"
 #include "src/search.h"
 #include "src/tt.h"
@@ -27,6 +28,10 @@ int main(int argc, char *argv[]) {
     if (argc > 1) {
         if (std::string(argv[1]) == "bench") {
             bench::bench();
+            return 0;
+        }
+        if (std::string(argv[1]) == "see") {
+            tests::see_test();
             return 0;
         }
     }

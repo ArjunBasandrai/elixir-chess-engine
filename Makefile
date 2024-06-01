@@ -11,6 +11,7 @@ SRC = src/utils/bits.cpp \
 	  src/search.cpp \
 	  src/utils/masks.cpp \
 	  src/bench/bench.cpp \
+	  src/tests/see_test.cpp \
 	  src/tt.cpp \
 	  src/movepicker.cpp
 

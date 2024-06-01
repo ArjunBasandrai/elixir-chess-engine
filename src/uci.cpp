@@ -10,6 +10,7 @@
 #include "utils/test_fens.h"
 #include "utils/str_utils.h"
 #include "utils/perft.h"
+#include "tests/see_test.h"
 #include "search.h"
 #include "tt.h"
 
@@ -24,7 +25,7 @@ namespace elixir::uci {
                     std::string moves = input.substr(24);
                     std::vector<std::string> move_list = str_utils::split(moves, ' ');
                     for (auto move : move_list) {
-                        board.parse_uci_move(move);
+                        board.play_uci_move(move);
                     }
                 }
             }
@@ -38,7 +39,7 @@ namespace elixir::uci {
                     std::string moves = input.substr(moves_pos + 6);
                     std::vector<std::string> move_list = str_utils::split(moves, ' ');
                     for (auto move : move_list) {
-                        board.parse_uci_move(move);
+                        board.play_uci_move(move);
                     }
                 } else {
                     std::string fen = input.substr(fen_pos + 4);
@@ -206,6 +207,10 @@ namespace elixir::uci {
             else if (input == "bench")
             {
                 bench::bench();
+                break;
+            }
+            else if (input == "see") {
+                tests::see_test();
                 break;
             }
             else if (input == "print")
