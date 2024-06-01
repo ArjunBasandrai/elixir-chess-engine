@@ -109,13 +109,15 @@ namespace elixir {
                 if ((search::SEE(board, move, threshold) && !search::SEE(board, move, threshold + 1)) || is_promotion) {
                     std::cout << "SEE test [" << counter << "] [" << entry << "] passed!" << std::endl;
                 } else {
-                    std::cout << "SEE test [" << entry << "] failed!" << std::endl;
+                    std::cout << std::endl;
+                    std::cout << "------------------------------------------------------------------------------------------------------------------------------\n";
+                    std::cerr << "ELIXIR_SEE_FAILED: SEE test [" << entry << "] failed!" << std::endl;
+                    std::cout << "------------------------------------------------------------------------------------------------------------------------------\n";
                     return;
                 }
                 std::cout << std::endl;
             }
 
-            std::cout << std::endl;
             std::cout << "------------------------------------------------------------------------------------------------------------------------------\n";
             std::cout << "SEE test passed!" << std::endl;
             std::cout << "------------------------------------------------------------------------------------------------------------------------------\n";

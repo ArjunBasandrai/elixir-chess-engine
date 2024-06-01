@@ -10,6 +10,7 @@
 #include "utils/test_fens.h"
 #include "utils/str_utils.h"
 #include "utils/perft.h"
+#include "tests/see_test.h"
 #include "search.h"
 #include "tt.h"
 
@@ -206,6 +207,10 @@ namespace elixir::uci {
             else if (input == "bench")
             {
                 bench::bench();
+                break;
+            }
+            else if (input == "see") {
+                tests::see_test();
                 break;
             }
             else if (input == "print")

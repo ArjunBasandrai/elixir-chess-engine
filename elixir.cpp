@@ -30,6 +30,10 @@ int main(int argc, char *argv[]) {
             bench::bench();
             return 0;
         }
+        if (std::string(argv[1]) == "see") {
+            tests::see_test();
+            return 0;
+        }
     }
 
     Board board;
