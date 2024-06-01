@@ -266,6 +266,9 @@ namespace elixir::search {
                 if (is_quiet_move && legals >= LMP_BASE + LMP_MULTIPLIER * depth * depth) {
                     skip_quiets = true;
                 }
+
+                const int see_threshold = is_quiet_move ? -80 * depth : -30 * depth * depth;
+                if (depth <= 8 && legals > 0 && !SEE(board, move, see_threshold)) continue;
             }
             
             if (!board.make_move(move)) continue;
