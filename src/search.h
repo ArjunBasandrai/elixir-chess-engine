@@ -22,15 +22,15 @@ namespace elixir::search
     public:
         SearchInfo() = default;
         SearchInfo(int depth)
-        : depth(depth),
-          nodes(0),
+        : nodes(0),
           stopped(false),
           timed(false),
           start_time(std::chrono::high_resolution_clock::now()),
+          depth(depth),
           time_left(0) {}
         SearchInfo(int depth, std::chrono::high_resolution_clock::time_point start_time, double time_left)
-        : depth(depth),
-          nodes(0),
+        : nodes(0),
+          depth(depth),
           stopped(false),
           timed(true),
           start_time(start_time),
