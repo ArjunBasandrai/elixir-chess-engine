@@ -179,7 +179,7 @@ namespace elixir::movegen {
 
     template <bool noisy>
     void generate_knight_moves(const Board& board, MoveList& moves) {
-        Bitboard knights;
+        Bitboard knights = 0ULL;
         Color enemy_side;
         Piece piece;
         Color side = board.get_side_to_move();

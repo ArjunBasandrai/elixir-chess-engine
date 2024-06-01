@@ -71,10 +71,10 @@ namespace elixir::uci {
             } else {
                 if (tokens[i] == "infinite") {
                     search::SearchInfo info(MAX_DEPTH);
-                } else if ((tokens[i] == "wtime" || tokens[i] == "btime") && ++i < tokens.size() && tokens[i - 1] == (board.get_side_to_move() == Color::WHITE ? "wtime" : "btime")) {
+                } else if ((tokens[i] == "wtime" || tokens[i] == "btime") && ++i < (int)tokens.size() && tokens[i - 1] == (board.get_side_to_move() == Color::WHITE ? "wtime" : "btime")) {
                     time = std::stoi(tokens[i]);
                     time = std::max<F64>(time, 1.0);
-                } else if ((tokens[i] == "winc" || tokens[i] == "binc") && ++i < tokens.size() && tokens[i - 1] == (board.get_side_to_move() == Color::WHITE ? "winc" : "binc")) {
+                } else if ((tokens[i] == "winc" || tokens[i] == "binc") && ++i < (int)tokens.size() && tokens[i - 1] == (board.get_side_to_move() == Color::WHITE ? "winc" : "binc")) {
                     inc = std::stoi(tokens[i]);
                     inc = std::max<F64>(inc, 1.0);
                 } else if (tokens[i] == "movestogo" && ++i < tokens.size()) {
