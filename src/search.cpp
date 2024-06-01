@@ -346,6 +346,23 @@ namespace elixir::search {
         return best_score;
     }
 
+    int get_promo_piece(move::Move move) {
+        switch (move.get_promotion()) {
+            case move::Promotion::QUEEN:
+                return 4;
+            case move::Promotion::ROOK:
+                return 3;
+            case move::Promotion::BISHOP:
+                return 2;
+            case move::Promotion::KNIGHT:
+                return 1;
+            default:
+                assert(false);
+                exit(1);
+                return -1;
+        }
+    }
+
     bool SEE(const Board& board, const move::Move move, int threshold) {
 
         if (move.is_promotion()) return true;
@@ -353,23 +370,27 @@ namespace elixir::search {
         Square from = move.get_from();
         Square to = move.get_to();
 
-        int target_piece = static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
+        int target_piece = move.is_en_passant() ? 0 : static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
+
 
         int value = see_values[target_piece] - threshold;
+
         if (value < 0) return false;
 
         int attacker_piece = static_cast<int>(board.piece_to_piecetype(board.piece_on(from)));
 
         value -= see_values[attacker_piece];
         if (value >= 0) return true;
-
-        Bitboard occupied = board.occupancy() ^ bit(from) ^ bit(to);
-        Bitboard attackers = board.get_attackers(to, Color::WHITE) | board.get_attackers(to, Color::BLACK);
+        
+        Square sq = move.is_en_passant() ? static_cast<Square>(static_cast<int>(to) - 8 * color_offset[static_cast<int>(board.get_side_to_move())]) : to;
+        Bitboard occupied = board.occupancy() ^ bit(from) ^ bit(sq);
+        Bitboard attackers = board.get_attackers(to, Color::WHITE, occupied) | board.get_attackers(to, Color::BLACK, occupied);
 
         Bitboard bishops = board.bishops() | board.queens();
         Bitboard rooks = board.rooks() | board.queens();
 
         Color side = board.piece_color(board.piece_on(from));
+        side = (side == Color::WHITE) ? Color::BLACK : Color::WHITE;
 
         while (true) {
             attackers &= occupied;
@@ -379,7 +400,7 @@ namespace elixir::search {
 
             // Pick least valuable attacker
             int piece;
-            for (piece = 0; piece < 5; piece++) {
+            for (piece = 0; piece < 6; piece++) {
                 if (my_attackers & board.piece_bitboard(static_cast<PieceType>(piece))) {
                     break;
                 }
@@ -400,7 +421,8 @@ namespace elixir::search {
 
             if (piece == 0 || piece == 2 || piece == 4) {
                 attackers |= attacks::get_bishop_attacks(to, occupied) & bishops;
-            } else if (piece == 3 || piece == 4) {
+            }
+            if (piece == 3 || piece == 4) {
                 attackers |= attacks::get_rook_attacks(to, occupied) & rooks;
             }        
         }

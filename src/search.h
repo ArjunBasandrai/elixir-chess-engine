@@ -102,7 +102,7 @@ namespace elixir::search
     void init_lmr();
 
     static constexpr int see_values[7] = {
-        100, 450, 450, 650, 1250, 0, 0
+        100, 300, 300, 500, 900, 0, 0
     };
 
     int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss);

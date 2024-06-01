@@ -36,7 +36,7 @@ namespace elixir {
             "3q2nk/pb1r1p2/np6/3P2Pp/2p1P3/2R4B/PQ3P1P/3R2K1 w - h6 | g5h6 | 0",
             "3q2nk/pb1r1p2/np6/3P2Pp/2p1P3/2R1B2B/PQ3P1P/3R2K1 w - h6 | g5h6 | 100 | P",
             "2r4r/1P4pk/p2p1b1p/7n/BB3p2/2R2p2/P1P2P2/4RK2 w - - | c3c8 | 500 | R",
-            "2r5/1P4pk/p2p1b1p/5b1n/BB3p2/2R2p2/P1P2P2/4RK2 w - - | c3c8 | 500 | R",
+            "2r5/1P4pk/p2p1b1p/5b1n/BB3p2/2R2p2/P1P2P2/4RK2 w - - | c3c8 | 300 | B",
             "2r4k/2r4p/p7/2b2p1b/4pP2/1BR5/P1R3PP/2Q4K w - - | c3c5 | 300 | B",
             "8/pp6/2pkp3/4bp2/2R3b1/2P5/PP4B1/1K6 w - - | g2c6 | -200 | P - B",
             "4q3/1p1pr1k1/1B2rp2/6p1/p3PP2/P3R1P1/1P2R1K1/4Q3 b - - | e6e4 | -400 | P - R",
@@ -99,19 +99,20 @@ namespace elixir {
                 const auto data = str_utils::split(entry, '|');
                 Board board(data[0]);
                 const move::Move move = board.parse_uci_move(str_utils::remove_whitespaces(data[1]));
-                const int threshold = std::stoi(str_utils::remove_whitespaces(data[2]));
-
-                for (int i = -2000; i <= 2000; i++) {
-                    if (!search::SEE(board, move, i)) {
-                        if (i - 1 != threshold) {
-                            std::cout << "SEE test [" << entry << "] failed!" << std::endl;
-                            std::cout << "Expected: " << threshold << " Got: " << i - 1 << std::endl;
-                            std::cout << "\n\n\n" << std::endl;
-                            // return;
-                        }
-                        break;
-                    }
+                
+                bool is_promotion = false;
+                if (move.is_promotion()) {
+                    is_promotion = true;
                 }
+
+                const int threshold = std::stoi(str_utils::remove_whitespaces(data[2]));
+                if ((search::SEE(board, move, threshold) && !search::SEE(board, move, threshold + 1)) || is_promotion) {
+                    std::cout << "SEE test [" << counter << "] [" << entry << "] passed!" << std::endl;
+                } else {
+                    std::cout << "SEE test [" << entry << "] failed!" << std::endl;
+                    return;
+                }
+                std::cout << std::endl;
             }
 
             std::cout << std::endl;

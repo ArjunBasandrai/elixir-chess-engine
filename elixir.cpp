@@ -35,8 +35,6 @@ int main(int argc, char *argv[]) {
     Board board;
     board.to_startpos();
 
-    tests::see_test();
-
-    // uci::uci_loop(board);
+    uci::uci_loop(board);
     return 0;
 }
