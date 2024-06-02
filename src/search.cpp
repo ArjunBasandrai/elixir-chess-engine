@@ -267,6 +267,13 @@ namespace elixir::search {
                 */
                 if (is_quiet_move && legals >= LMP_BASE + LMP_MULTIPLIER * depth * depth) {
                     skip_quiets = true;
+                    continue;
+                }
+
+                const int futility_margin = 150 + 100 * depth;
+                if (depth <= 8 && !in_check && is_quiet_move && eval + futility_margin < alpha) {
+                    skip_quiets = true;
+                    continue;
                 }
 
                 const int see_threshold = is_quiet_move ? -80 * depth : -30 * depth * depth;
