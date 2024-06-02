@@ -12,6 +12,10 @@ namespace elixir {
         }
     }
 
+    int History::history_bonus(int depth) {
+        return std::min(130 * depth, 1159);
+    }
+
     int History::scale_bonus(int score, int bonus) {
         return bonus - score * std::abs(bonus) / HISTORY_GRAVITY;
     }
@@ -20,9 +24,10 @@ namespace elixir {
         int ifrom = static_cast<int>(from);
         int ito = static_cast<int>(to);
         int &score = history[ifrom][ito];
-        score += scale_bonus(score, depth * depth);
+        const int bonus = history_bonus(depth);
+        score += scale_bonus(score, bonus);
 
-        const int penalty = -depth * depth;
+        const int penalty = -bonus;
         for (const auto &move : bad_quiets) {
             const int bfrom = static_cast<int>(move.get_from());
             const int bto = static_cast<int>(move.get_to());

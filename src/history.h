@@ -15,6 +15,7 @@ namespace elixir {
         int get_history(Square from, Square to) const;
 
     private:
+        int history_bonus(int depth);
         int scale_bonus(int score, int bonus);
         const int HISTORY_GRAVITY = 8192;
         int history[64][64] = {0};
