@@ -2,8 +2,11 @@
 #include "defs.h"
 #include "history.h"
 #include "move.h"
+#include "board/board.h"
 
 namespace elixir {
+    class Board;
+
     void History::clear() {
         for (int i = 0; i < 64; i++) {
             for (int j = 0; j < 64; j++) {
@@ -34,5 +37,28 @@ namespace elixir {
 
     int History::get_history(Square from, Square to) const {
         return history[static_cast<int>(from)][static_cast<int>(to)];
+    }
+
+    void History::update_cont_history(const Board& board, int color, int piece_type, int to, int depth, MoveList &bad_quiets, search::SearchStack *ss) {
+        if ((ss - 1)->move != move::NO_MOVE) {
+            int &score = (ss - 1)->cont_hist[color][piece_type][to];
+            score += scale_bonus(score, depth * depth);
+        }
+
+        const int penalty = -depth * depth;
+        for (const auto &bmove: bad_quiets) {
+            const int bto = static_cast<int>(bmove.get_to());
+            const int bpiece_type = static_cast<int>(board.piece_to_piecetype(board.piece_on(bmove.get_from())));
+            int &bad_quiet_score = (ss - 1)->cont_hist[color][bpiece_type][bto];
+            bad_quiet_score += scale_bonus(bad_quiet_score, penalty);
+        }
+    }
+
+    int History::get_cont_history(int color, int piece_type, int to, const search::SearchStack *ss) const {
+        int score = 0;
+        if ((ss - 1)->move != move::NO_MOVE) {
+            score += (ss - 1)->cont_hist[color][piece_type][to];
+        }
+        return score;
     }
 }

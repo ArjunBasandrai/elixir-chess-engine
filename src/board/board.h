@@ -99,6 +99,11 @@ namespace elixir {
             return pieces[static_cast<I8>(sq)];
         }
 
+        [[nodiscard]] PieceType piecetype_on(Square sq) const {
+            assert(sq != Square::NO_SQ);
+            return piece_to_piecetype(pieces[static_cast<I8>(sq)]);
+        }
+
         [[nodiscard]] Color piece_color(Piece piece) const noexcept { return (static_cast<int>(piece) % 2 == 0) ? Color::WHITE : Color::BLACK; }
 
         constexpr void set_en_passant_square(Square sq) noexcept { en_passant_square = sq; }
@@ -165,6 +170,7 @@ namespace elixir {
             return history.get_history(from, to);
         }
 
+        History history;
     private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
@@ -178,6 +184,5 @@ namespace elixir {
         I16 fullmove_number;
         U64 hash_key;
         EvalScore eval;
-        History history;
     };
 }

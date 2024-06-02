@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "search.h"
+#include "search_stack.h"
 
 #include "board/board.h"
 #include "evaluate.h"
@@ -132,6 +133,7 @@ namespace elixir::search {
         bool root_node = ss->ply == 0;
         bool pv_node = ((beta - alpha > 1) || root_node);
         bool in_check = board.is_in_check();
+        int turn = static_cast<int>(board.get_side_to_move());
         int eval;
 
         /*
@@ -223,6 +225,7 @@ namespace elixir::search {
                 | multiple null move searching in a row.                       |
                 */
                 ss->move = move::NO_MOVE;
+                ss->cont_hist = {};
 
                 board.make_null_move();
                 int score = -negamax(board, -beta, -beta + 1, depth - R, info, local_pv, ss + 1);
@@ -346,7 +349,8 @@ namespace elixir::search {
                                 ss->killers[1] = ss->killers[0];
                                 ss->killers[0] = best_move;
                             }
-                            board.update_history(move.get_from(), move.get_to(), depth, bad_quiets);
+                            board.history.update_history(move.get_from(), move.get_to(), depth, bad_quiets);
+                            board.history.update_cont_history(board, turn, static_cast<int>(board.piecetype_on(move.get_from())), static_cast<int>(move.get_to()), depth, bad_quiets, ss);
                         }
                         flag = TT_BETA;
                         break;
@@ -465,6 +469,7 @@ namespace elixir::search {
                 (ss+i)->killers[0] = move::NO_MOVE;
                 (ss+i)->killers[1] = move::NO_MOVE;
                 (ss+i)->eval = INF;
+                (ss+i)->cont_hist = {};
             }
 
             for (int i = 0; i < MAX_DEPTH; i++) {

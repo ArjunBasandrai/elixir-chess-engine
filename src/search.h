@@ -6,19 +6,10 @@
 
 #include "board/board.h"
 #include "move.h"
+#include "search_stack.h"
 
-namespace elixir::search
-{
-    struct SearchStack
-    {
-        move::Move move = move::NO_MOVE;
-        move::Move killers[2] = {};
-        int eval;
-        int ply;
-    };
-
-    class SearchInfo
-    {
+namespace elixir::search {
+    class SearchInfo {
     public:
         SearchInfo() = default;
         SearchInfo(int depth)

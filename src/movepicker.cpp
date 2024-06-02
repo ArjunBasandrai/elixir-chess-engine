@@ -55,8 +55,11 @@ namespace elixir {
             } else if (move == ss->killers[1]) { 
                 value = 700000000; 
             } else {
+                const int turn = static_cast<int>(board.get_side_to_move());
+                const int piece = static_cast<int>(board.piecetype_on(from));
+                const int ito = static_cast<int>(to);
                 // Butterfly History Move Ordering (~45 ELO)
-                value = board.get_history(from, to);
+                value = board.history.get_history(from, to) + board.history.get_cont_history(turn, piece, ito, ss);
             }
 
             scores[i] = value;
