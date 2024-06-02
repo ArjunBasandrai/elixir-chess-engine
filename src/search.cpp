@@ -87,6 +87,8 @@ namespace elixir::search {
 
         while ((move = mp.next_move()) != move::NO_MOVE) {
 
+            if (!SEE(board, move, -7)) continue;
+
             if (!board.make_move(move)) continue; 
 
             legals++;
@@ -257,12 +259,12 @@ namespace elixir::search {
             */
             if (skip_quiets && is_quiet_move) continue;
 
-            /*
-            | Late Move Pruning [LMP] (~30 ELO) : Skip late quiet moves if  |
-            | we've already searched the most promising moves because they  |
-            | are likely to be bad.                                         |  
-            */
             if (!root_node && best_score > -MATE_FOUND) {
+                /*
+                | Late Move Pruning [LMP] (~30 ELO) : Skip late quiet moves if  |
+                | we've already searched the most promising moves because they  |
+                | are likely to be bad.                                         |  
+                */
                 if (is_quiet_move && legals >= LMP_BASE + LMP_MULTIPLIER * depth * depth) {
                     skip_quiets = true;
                 }
