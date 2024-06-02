@@ -40,17 +40,26 @@ namespace elixir {
     }
 
     void History::update_cont_history(const Board& board, int color, int piece_type, int to, int depth, MoveList &bad_quiets, search::SearchStack *ss) {
-        if ((ss - 1)->move != move::NO_MOVE) {
-            int &score = (ss - 1)->cont_hist[color][piece_type][to];
-            score += scale_bonus(score, depth * depth);
-        }
+        const auto update_entry = [this, color, &ss](
+            int piece_type, int to, int plies, int bonus
+        ) {
+            if ((ss - plies)->move != move::NO_MOVE) {
+                int &score = (ss - plies)->cont_hist[color][piece_type][to];
+                score += scale_bonus(score, bonus);
+            }
+        };
+
+        int bonus = depth * depth;
+
+        update_entry(piece_type, to, 1, bonus);
+        update_entry(piece_type, to, 2, bonus);
 
         const int penalty = -depth * depth;
         for (const auto &bmove: bad_quiets) {
             const int bto = static_cast<int>(bmove.get_to());
             const int bpiece_type = static_cast<int>(board.piece_to_piecetype(board.piece_on(bmove.get_from())));
-            int &bad_quiet_score = (ss - 1)->cont_hist[color][bpiece_type][bto];
-            bad_quiet_score += scale_bonus(bad_quiet_score, penalty);
+            update_entry(bpiece_type, bto, 1, penalty);
+            update_entry(bpiece_type, bto, 2, penalty);
         }
     }
 
@@ -58,6 +67,9 @@ namespace elixir {
         int score = 0;
         if ((ss - 1)->move != move::NO_MOVE) {
             score += (ss - 1)->cont_hist[color][piece_type][to];
+        }
+        if ((ss - 2)->move != move::NO_MOVE) {
+            score += (ss - 2)->cont_hist[color][piece_type][to];
         }
         return score;
     }
