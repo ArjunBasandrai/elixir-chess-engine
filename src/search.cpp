@@ -86,7 +86,11 @@ namespace elixir::search {
         TTFlag flag = TT_ALPHA;
 
         while ((move = mp.next_move()) != move::NO_MOVE) {
-
+            
+            /*
+            | Q-Search Static Exchange Evaluation [SEE] Pruning (~55 ELO) : Skip moves that |
+            | lose a lot of material.                                                       |
+            */
             if (!SEE(board, move, -7)) continue;
 
             if (!board.make_move(move)) continue; 
@@ -270,12 +274,20 @@ namespace elixir::search {
                     continue;
                 }
 
+                /*
+                | Futility Pruning (~5 ELO) : Skip futile quiet moves at near-leaf nodes |
+                | when there's a little chance of improving alpha.                       |
+                */
                 const int futility_margin = 150 + 100 * depth;
                 if (depth <= 8 && !in_check && is_quiet_move && eval + futility_margin < alpha) {
                     skip_quiets = true;
                     continue;
                 }
 
+                /*
+                | Static Exchange Evaluation [SEE] Pruning (~20 ELO) : Skip moves that |
+                | lose a lot a material.                                               |
+                */
                 const int see_threshold = is_quiet_move ? -80 * depth : -30 * depth * depth;
                 if (depth <= 8 && legals > 0 && !SEE(board, move, see_threshold)) continue;
             }
