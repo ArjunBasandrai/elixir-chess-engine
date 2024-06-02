@@ -59,7 +59,7 @@ namespace elixir {
                 const int piece = static_cast<int>(board.piecetype_on(from));
                 const int ito = static_cast<int>(to);
                 // Butterfly History Move Ordering (~45 ELO)
-                value = board.history.get_history(from, to) + board.history.get_cont_history(turn, piece, ito, ss);
+                value = board.history.get_history(from, to) + 2 * board.history.get_cont_history(turn, piece, ito, ss);
             }
 
             scores[i] = value;
