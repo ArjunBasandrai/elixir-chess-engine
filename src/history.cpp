@@ -44,7 +44,7 @@ namespace elixir {
             int piece_type, int to, int plies, int bonus
         ) {
             if ((ss - plies)->move != move::NO_MOVE) {
-                int &score = (ss - plies)->cont_hist[color][piece_type][to];
+                int &score = (*(ss - plies)->cont_hist)[color][piece_type][to];
                 score += scale_bonus(score, bonus);
             }
         };
@@ -66,10 +66,10 @@ namespace elixir {
     int History::get_cont_history(int color, int piece_type, int to, const search::SearchStack *ss) const {
         int score = 0;
         if ((ss - 1)->move != move::NO_MOVE) {
-            score += (ss - 1)->cont_hist[color][piece_type][to];
+            score += (*(ss - 1)->cont_hist)[color][piece_type][to];
         }
         if ((ss - 2)->move != move::NO_MOVE) {
-            score += (ss - 2)->cont_hist[color][piece_type][to];
+            score += (*(ss - 2)->cont_hist)[color][piece_type][to];
         }
         return score;
     }

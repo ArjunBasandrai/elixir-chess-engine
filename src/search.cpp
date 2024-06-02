@@ -225,7 +225,7 @@ namespace elixir::search {
                 | multiple null move searching in a row.                       |
                 */
                 ss->move = move::NO_MOVE;
-                ss->cont_hist = {};
+                ss->cont_hist = nullptr;
 
                 board.make_null_move();
                 int score = -negamax(board, -beta, -beta + 1, depth - R, info, local_pv, ss + 1);
@@ -294,13 +294,14 @@ namespace elixir::search {
                 const int see_threshold = is_quiet_move ? -80 * depth : -30 * depth * depth;
                 if (depth <= 8 && legals > 0 && !SEE(board, move, see_threshold)) continue;
             }
-            
-            if (!board.make_move(move)) continue;
 
             /*
             | Add the current move to search stack. |
             */
             ss->move = move;
+            ss->cont_hist = board.history.get_conthist_entry(turn, static_cast<int>(board.piecetype_on(move.get_from())), static_cast<int>(move.get_to()));
+            
+            if (!board.make_move(move)) continue;
 
             legals++;
             info.nodes++;
@@ -400,7 +401,6 @@ namespace elixir::search {
 
         int target_piece = move.is_en_passant() ? 0 : static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
 
-
         int value = see_values[target_piece] - threshold;
 
         if (value < 0) return false;
@@ -469,7 +469,7 @@ namespace elixir::search {
                 (ss+i)->killers[0] = move::NO_MOVE;
                 (ss+i)->killers[1] = move::NO_MOVE;
                 (ss+i)->eval = INF;
-                (ss+i)->cont_hist = {};
+                (ss+i)->cont_hist = nullptr;
             }
 
             for (int i = 0; i < MAX_DEPTH; i++) {
