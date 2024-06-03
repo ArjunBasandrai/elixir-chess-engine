@@ -17,12 +17,13 @@ namespace elixir {
     }
 
     void History::update_history(Square from, Square to, int depth, MoveList &bad_quiets) {
+        int bonus = 4 * (depth + 1) * (depth + 1);
         int ifrom = static_cast<int>(from);
         int ito = static_cast<int>(to);
         int &score = history[ifrom][ito];
-        score += scale_bonus(score, depth * depth);
+        score += scale_bonus(score, bonus);
 
-        const int penalty = -depth * depth;
+        const int penalty = -bonus;
         for (const auto &move : bad_quiets) {
             const int bfrom = static_cast<int>(move.get_from());
             const int bto = static_cast<int>(move.get_to());
