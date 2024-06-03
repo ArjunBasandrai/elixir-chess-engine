@@ -319,7 +319,7 @@ namespace elixir::search {
                 */
                 int R = 1;
                 if (is_quiet_move && depth >= LMR_DEPTH && legals > 1 + (pv_node ? 1 : 0)) {
-                    R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
+                    R = lmr[std::min(63, depth)][std::min(63, legals)];
 
                     if (ttpv) R--;
                 }
