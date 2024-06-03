@@ -252,6 +252,7 @@ namespace elixir::search {
         | Initialize a bad quiets array to be used by history maluses. |
         */
         MoveList bad_quiets;
+        BadCapturesList bad_captures;
 
         while ((move = mp.next_move()) != move::NO_MOVE) {
 
@@ -349,7 +350,7 @@ namespace elixir::search {
                             board.update_history(move.get_from(), move.get_to(), depth, bad_quiets);
                         } else {
                             PieceType captured = move.is_en_passant() ? PieceType::PAWN : board.piece_to_piecetype(board.piece_on(move.get_to()));
-                            board.history.update_capt_hist(move, captured, depth);
+                            board.history.update_capt_hist(move, captured, depth, bad_captures);
                         }
                         flag = TT_BETA;
                         break;
@@ -357,10 +358,11 @@ namespace elixir::search {
                     flag = TT_EXACT;
                     alpha = score;
                 }
-            }
-
-            else if (is_quiet_move) {
+            } else if (is_quiet_move) {
                 bad_quiets.push(move);
+            } else {
+                PieceType captured = move.is_en_passant() ? PieceType::PAWN : board.piece_to_piecetype(board.piece_on(move.get_to()));
+                bad_captures.push({move, captured});
             }
         }
 

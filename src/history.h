@@ -15,7 +15,7 @@ namespace elixir {
         void update_history(Square from, Square to, int depth, MoveList &bad_quiets);
         int get_history(Square from, Square to) const;
 
-        void update_capt_hist(Move move, PieceType captured, int depth);
+        void update_capt_hist(Move move, PieceType captured, int depth, BadCapturesList &bad_captures);
         int get_capt_hist(Move move, PieceType captured) const;
 
     private:

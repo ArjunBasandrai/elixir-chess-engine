@@ -58,4 +58,10 @@ namespace elixir::move {
 
 namespace elixir {
     using MoveList = StaticVector<move::Move, 256>;
+    struct Move_Piece_Pair {
+        move::Move move;
+        PieceType piece;
+    };
+
+    using BadCapturesList = StaticVector<Move_Piece_Pair, 256>;
 }

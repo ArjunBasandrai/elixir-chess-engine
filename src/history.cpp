@@ -36,12 +36,21 @@ namespace elixir {
         return history[static_cast<int>(from)][static_cast<int>(to)];
     }
 
-    void History::update_capt_hist(Move move, PieceType captured, int depth) {
+    void History::update_capt_hist(Move move, PieceType captured, int depth, BadCapturesList &bad_captures) {
         int ito = static_cast<int>(move.get_to());
         int piece = static_cast<int>(move.get_piece());
         int icapt = static_cast<int>(captured);
         int &score = capt_hist[piece][ito][icapt];
         score += scale_bonus(score, depth * depth);
+
+        const int penalty = -depth * depth;
+        for (const auto &bad_pair : bad_captures) {
+            const int ito = static_cast<int>(bad_pair.move.get_to());
+            const int piece = static_cast<int>(bad_pair.move.get_piece());
+            const int icapt = static_cast<int>(bad_pair.piece);
+            int &bad_capt_score = capt_hist[piece][ito][icapt];
+            bad_capt_score += scale_bonus(bad_capt_score, penalty);
+        }
     }
 
     int History::get_capt_hist(Move move, PieceType captured) const {
