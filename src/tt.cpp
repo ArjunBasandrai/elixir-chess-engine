@@ -8,30 +8,25 @@
 
 #include "tt.h"
 
-namespace elixir
-{
+namespace elixir {
     TranspositionTable tt[1];
 
-    void TranspositionTable::clear_tt()
-    {
+    void TranspositionTable::clear_tt() {
         entries = 0;
         std::fill(table.begin(), table.end(), TTEntry());
     }
 
-    void TranspositionTable::resize(U16 size)
-    {
+    void TranspositionTable::resize(U16 size) {
         U32 num_entries = (size * 0x100000 / sizeof(TTEntry)) - 2;
         table.resize(num_entries);
         clear_tt();
     }
 
-    TranspositionTable::TranspositionTable(U16 size)
-    {
+    TranspositionTable::TranspositionTable(U16 size) {
         resize(size);
     }
 
-    bool TranspositionTable::probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta, TTFlag &flag)
-    {
+    bool TranspositionTable::probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta, TTFlag &flag) {
 
         if (table.empty())
             return false;
@@ -50,8 +45,7 @@ namespace elixir
         return false;
     }
 
-    void TranspositionTable::store_tt(U64 key, int score, move::Move move, U8 depth, int ply, TTFlag flag, search::PVariation pv)
-    {
+    void TranspositionTable::store_tt(U64 key, int score, move::Move move, U8 depth, int ply, TTFlag flag, search::PVariation pv, bool ttpv) {
         U32 index = get_index(key);
         TTEntry entry = table[index];
 
@@ -62,16 +56,19 @@ namespace elixir
 
         if (entry.key != key)
             entries++;
-
+            
+        // adjust mate scores
         if (score > MATE)
             score += ply;
         else if (score < -MATE)
             score -= ply;
+        
         entry.key = key;
         entry.score = score;
         entry.move = move;
         entry.depth = depth;
         entry.flag = flag;
+        entry.ttpv = ttpv;
 
         table[index] = entry;
     }

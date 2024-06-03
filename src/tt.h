@@ -18,39 +18,37 @@ namespace elixir
         TT_BETA
     };
 
-    struct TTEntry
-    {
+    struct TTEntry {
         U64 key = 0ULL;
         I16 score = 0;
         move::Move move = move::NO_MOVE;
         U8 depth = 0;
         TTFlag flag = TT_NONE;
+        bool ttpv = false;
 
-        bool operator==(const TTEntry &other) const
-        {
+        bool operator==(const TTEntry &other) const {
             return key == other.key && score == other.score && depth == other.depth && flag == other.flag;
         }
-        bool operator==(const U64 &other) const
-        {
+        bool operator==(const U64 &other) const {
             return key == other;
         }
     };
 
-    struct ProbedEntry
-    {
+    struct ProbedEntry {
         int score;
         move::Move best_move;
         U8 depth;
         TTFlag flag;
+        bool ttpv;
 
-        ProbedEntry() : score(0), best_move(move::NO_MOVE), depth(0), flag(TT_NONE) {}
+        ProbedEntry() : score(0), best_move(move::NO_MOVE), depth(0), flag(TT_NONE), ttpv(false) {}
 
-        ProbedEntry operator=(const TTEntry &entry)
-        {
+        ProbedEntry operator=(const TTEntry &entry) {
             score = entry.score;
             best_move = entry.move;
             depth = entry.depth;
             flag = entry.flag;
+            ttpv = entry.ttpv;
             return *this;
         }
     };
@@ -62,7 +60,7 @@ namespace elixir
         ~TranspositionTable() = default;
         void clear_tt();
         void resize(U16 size);
-        void store_tt(U64 key, int score, move::Move move, U8 depth, int ply, TTFlag flag, search::PVariation pv);
+        void store_tt(U64 key, int score, move::Move move, U8 depth, int ply, TTFlag flag, search::PVariation pv, bool ttpv = false);
         bool probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta, TTFlag &flag);
         U32 get_hashfull() { return static_cast<U32>(static_cast<F64>(entries) / static_cast<F64>(table.capacity()) * 1000.0); }
 
