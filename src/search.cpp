@@ -347,6 +347,9 @@ namespace elixir::search {
                                 ss->killers[0] = best_move;
                             }
                             board.update_history(move.get_from(), move.get_to(), depth, bad_quiets);
+                        } else {
+                            PieceType captured = move.is_en_passant() ? PieceType::PAWN : board.piece_to_piecetype(board.piece_on(move.get_to()));
+                            board.history.update_capt_hist(move, captured, depth);
                         }
                         flag = TT_BETA;
                         break;

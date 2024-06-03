@@ -47,8 +47,9 @@ namespace elixir {
                         break;
                 }
             } else if (move.is_capture() || move.is_en_passant()) {
-                auto captured_piece = move.is_en_passant() ? static_cast<int>(PieceType::PAWN) : static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
-                value = eval::piece_values[captured_piece];
+                auto captured_piece = move.is_en_passant() ? PieceType::PAWN : board.piece_to_piecetype(board.piece_on(to));
+                int i_captured_piece = static_cast<int>(captured_piece);
+                value = eval::piece_values[i_captured_piece] + 32 * board.history.get_capt_hist(move, captured_piece);
                 value += search::SEE(board, move, -107) ? 1000000000 : -1000000;
             } else if (move == ss->killers[0]) { 
                 value = 800000000; 

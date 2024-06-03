@@ -35,4 +35,19 @@ namespace elixir {
     int History::get_history(Square from, Square to) const {
         return history[static_cast<int>(from)][static_cast<int>(to)];
     }
+
+    void History::update_capt_hist(Move move, PieceType captured, int depth) {
+        int ito = static_cast<int>(move.get_to());
+        int piece = static_cast<int>(move.get_piece());
+        int icapt = static_cast<int>(captured);
+        int &score = capt_hist[piece][ito][icapt];
+        score += scale_bonus(score, depth * depth);
+    }
+
+    int History::get_capt_hist(Move move, PieceType captured) const {
+        int ito = static_cast<int>(move.get_to());
+        int piece = static_cast<int>(move.get_piece());
+        int icapt = static_cast<int>(captured);
+        return capt_hist[piece][ito][icapt];
+    }
 }

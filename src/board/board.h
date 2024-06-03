@@ -165,6 +165,7 @@ namespace elixir {
             return history.get_history(from, to);
         }
 
+        History history;
     private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
@@ -178,6 +179,5 @@ namespace elixir {
         I16 fullmove_number;
         U64 hash_key;
         EvalScore eval;
-        History history;
     };
 }
