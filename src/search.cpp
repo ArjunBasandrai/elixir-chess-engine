@@ -16,33 +16,33 @@
 using namespace elixir::bits;
 
 namespace elixir::search {
-    int LMP_BASE = 7;
-    int RFP_MARGIN = 100;
-    int RAZOR_MARGIN = 264;
+    int LMP_BASE = 4;
+    int RFP_MARGIN = 82;
+    int RAZOR_MARGIN = 286;
     int NMP_BASE_REDUCTION = 5;
-    int NMP_DEPTH = 2;
+    int NMP_DEPTH = 1;
     int RFP_DEPTH = 6;
-    int RAZOR_DEPTH = 6;
-    int IIR_DEPTH = 4;
+    int RAZOR_DEPTH = 7;
+    int IIR_DEPTH = 3;
     int LMP_MULTIPLIER = 1;
-    int LMR_DEPTH = 3;
-    int FP_BASE = 150;
-    int FP_MULTIPLIER = 100;
+    int LMR_DEPTH = 4;
+    int FP_BASE = 130;
+    int FP_MULTIPLIER = 116;
     int FP_DEPTH = 8;
-    int SEE_QUIET = 80;
-    int SEE_CAPTURE = 30;
-    int SEE_DEPTH = 8;
-    int QS_SEE_THRESHOLD = 7;
-    int SEE_PAWN = 100;
-    int SEE_KNIGHT = 300;
-    int SEE_BISHOP = 300;
-    int SEE_ROOK = 500;
-    int SEE_QUEEN = 900;
+    int SEE_QUIET = 70;
+    int SEE_CAPTURE = 28;
+    int SEE_DEPTH = 10;
+    int QS_SEE_THRESHOLD = 8;
+    int SEE_PAWN = 76;
+    int SEE_KNIGHT = 324;
+    int SEE_BISHOP = 308;
+    int SEE_ROOK = 519;
+    int SEE_QUEEN = 905;
     int INITIAL_ASP_DELTA = 10;
-    int NMP_DIVISOR = 6;
-    float LMR_OFFSET = 0.75;
-    float LMR_DIVISOR = 2.31;
-    int MIN_ASP_DEPTH = 4;
+    int NMP_DIVISOR = 10;
+    float LMR_OFFSET = 0.6001;
+    float LMR_DIVISOR = 1.9209;
+    int MIN_ASP_DEPTH = 5;
 }
 
 namespace elixir::search {

@@ -19,9 +19,9 @@
 #define version "0.1"
 
 namespace elixir::uci {
-    int DEFAULT_MOVESTOGO = 20;
-    int DEFAULT_MOVE_OVERHEAD = 50;
-    int INCREMENT_SCALE = 2;
+    int DEFAULT_MOVESTOGO = 21;
+    int DEFAULT_MOVE_OVERHEAD = 49;
+    int INCREMENT_SCALE = 1;
 
     void parse_position(std::string input, Board &board) {
         if (input.substr(9, 8) == "startpos") {
