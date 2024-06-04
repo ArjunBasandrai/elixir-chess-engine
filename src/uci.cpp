@@ -292,7 +292,7 @@ namespace elixir::uci {
                 std::cout << "option name NMP_BASE_REDUCTION type spin default 5 min 2 max 10" << std::endl;
                 std::cout << "option name NMP_DEPTH type spin default 2 min 1 max 6" << std::endl;
                 std::cout << "option name RFP_DEPTH type spin default 6 min 2 max 10" << std::endl;
-                std::cout << "option name RAZOR_DEPTH type spin default 6 min 2 max 8" << std::endl;
+                std::cout << "option name RAZOR_DEPTH type spin default 6 min 2 max 10" << std::endl;
                 std::cout << "option name IIR_DEPTH type spin default 4 min 1 max 8" << std::endl;
                 std::cout << "option name LMP_MULTIPLIER type spin default 1 min 1 max 8" << std::endl;
                 std::cout << "option name LMR_DEPTH type spin default 3 min 1 max 8" << std::endl;
