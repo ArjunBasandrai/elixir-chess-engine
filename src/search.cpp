@@ -43,6 +43,7 @@ namespace elixir::search {
     float LMR_OFFSET = 0.6001;
     float LMR_DIVISOR = 1.9209;
     int MIN_ASP_DEPTH = 5;
+    float ASP_MULTIPLIER = 1.5;
 }
 
 namespace elixir::search {
@@ -514,7 +515,7 @@ namespace elixir::search {
                     beta = std::min(INF, beta + delta);
                 }
 
-                delta = delta + delta / 2;
+                delta *= ASP_MULTIPLIER;
             }
 
             auto end = std::chrono::high_resolution_clock::now();
