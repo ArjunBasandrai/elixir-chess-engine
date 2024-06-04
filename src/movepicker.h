@@ -6,6 +6,7 @@
 #include "search.h"
 
 namespace elixir {
+    extern int MP_SEE;
     class MovePicker {
     public:
         MovePicker() = default;

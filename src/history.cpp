@@ -4,6 +4,8 @@
 #include "move.h"
 
 namespace elixir {
+    int HISTORY_GRAVITY = 8195;
+
     void History::clear() {
         for (int i = 0; i < 64; i++) {
             for (int j = 0; j < 64; j++) {

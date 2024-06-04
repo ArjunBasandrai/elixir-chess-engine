@@ -5,6 +5,7 @@
 #include "move.h"
 
 namespace elixir {
+    extern int HISTORY_GRAVITY;
     class History {
     public:
         History() = default;
@@ -16,7 +17,6 @@ namespace elixir {
 
     private:
         int scale_bonus(int score, int bonus);
-        const int HISTORY_GRAVITY = 8192;
         int history[64][64] = {0};
     };
 }

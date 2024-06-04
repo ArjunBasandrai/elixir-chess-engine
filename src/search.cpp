@@ -16,24 +16,47 @@
 using namespace elixir::bits;
 
 namespace elixir::search {
-    int LMP_BASE = 7;
-    int RFP_MARGIN = 100;
-    int RAZOR_MARGIN = 264;
+    int LMP_BASE = 4;
+    int RFP_MARGIN = 82;
+    int RAZOR_MARGIN = 286;
     int NMP_BASE_REDUCTION = 5;
-    int NMP_DEPTH = 2;
+    int NMP_DEPTH = 1;
     int RFP_DEPTH = 6;
-    int RAZOR_DEPTH = 6;
-    int IIR_DEPTH = 4;
+    int RAZOR_DEPTH = 7;
+    int IIR_DEPTH = 3;
     int LMP_MULTIPLIER = 1;
-    int LMR_DEPTH = 3;
+    int LMR_DEPTH = 4;
+    int FP_BASE = 130;
+    int FP_MULTIPLIER = 116;
+    int FP_DEPTH = 8;
+    int SEE_QUIET = 70;
+    int SEE_CAPTURE = 28;
+    int SEE_DEPTH = 10;
+    int QS_SEE_THRESHOLD = 8;
+    int SEE_PAWN = 76;
+    int SEE_KNIGHT = 324;
+    int SEE_BISHOP = 308;
+    int SEE_ROOK = 519;
+    int SEE_QUEEN = 905;
+    int INITIAL_ASP_DELTA = 10;
+    int NMP_DIVISOR = 10;
+    float LMR_OFFSET = 0.6001;
+    float LMR_DIVISOR = 1.9209;
+    int MIN_ASP_DEPTH = 5;
 }
 
 namespace elixir::search {
+
+    int see_values[7] = {
+        SEE_PAWN, SEE_KNIGHT, SEE_BISHOP, SEE_ROOK, SEE_QUEEN, 0, 0
+    };
+
     int lmr[MAX_DEPTH][64] = {0};
     void init_lmr() {
-        for (int depth = 1; depth < MAX_DEPTH; depth++) {
-            for (int move = 1; move < 64; move++) {
-                lmr[depth][move] = std::max(1.0, 0.75 + log(depth) * log(move) / 2.31);
+        for (int depth = 0; depth < MAX_DEPTH; depth++) {
+            for (int move = 0; move < 64; move++) {
+                if (move == 0 || depth == 0) { lmr[depth][move] = 0; continue; }
+                lmr[depth][move] = std::max(1.0, LMR_OFFSET + log(depth) * log(move) / LMR_DIVISOR);
             }
         }
     }
@@ -91,7 +114,7 @@ namespace elixir::search {
             | Q-Search Static Exchange Evaluation [SEE] Pruning (~55 ELO) : Skip moves that |
             | lose a lot of material.                                                       |
             */
-            if (!SEE(board, move, -7)) continue;
+            if (!SEE(board, move, -QS_SEE_THRESHOLD)) continue;
 
             if (!board.make_move(move)) continue; 
 
@@ -215,7 +238,7 @@ namespace elixir::search {
             | opponent an extra move to see if we are still better.                 |
             */
             if (depth >= NMP_DEPTH && (ss-1)->move != move::NO_MOVE && eval >= beta) {
-                int R = NMP_BASE_REDUCTION + depth / 6;
+                int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR;
                 R = std::min(R, depth);
                 
                 /*
@@ -278,8 +301,8 @@ namespace elixir::search {
                 | Futility Pruning (~5 ELO) : Skip futile quiet moves at near-leaf nodes |
                 | when there's a little chance of improving alpha.                       |
                 */
-                const int futility_margin = 150 + 100 * depth;
-                if (depth <= 8 && !in_check && is_quiet_move && eval + futility_margin < alpha) {
+                const int futility_margin = FP_BASE + FP_MULTIPLIER * depth;
+                if (depth <= FP_DEPTH && !in_check && is_quiet_move && eval + futility_margin < alpha) {
                     skip_quiets = true;
                     continue;
                 }
@@ -288,8 +311,8 @@ namespace elixir::search {
                 | Static Exchange Evaluation [SEE] Pruning (~20 ELO) : Skip moves that |
                 | lose a lot a material.                                               |
                 */
-                const int see_threshold = is_quiet_move ? -80 * depth : -30 * depth * depth;
-                if (depth <= 8 && legals > 0 && !SEE(board, move, see_threshold)) continue;
+                const int see_threshold = is_quiet_move ? -SEE_QUIET * depth : -SEE_CAPTURE * depth * depth;
+                if (depth <= SEE_DEPTH && legals > 0 && !SEE(board, move, see_threshold)) continue;
             }
             
             if (!board.make_move(move)) continue;
@@ -458,7 +481,7 @@ namespace elixir::search {
         auto start = std::chrono::high_resolution_clock::now();
         PVariation pv;
         for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
-            int score = 0, alpha = -INF, beta = INF, delta = 10;
+            int score = 0, alpha = -INF, beta = INF, delta = INITIAL_ASP_DELTA;
             SearchStack stack[MAX_DEPTH + 4], *ss = stack + 4;
             for (int i = -4; i < MAX_DEPTH; i++) {
                 (ss+i)->move = move::NO_MOVE;
@@ -471,7 +494,7 @@ namespace elixir::search {
                 (ss+i)->ply = i;
             }
 
-            if (info.depth >= 4) {
+            if (info.depth >= MIN_ASP_DEPTH) {
                 alpha = std::max(-INF, score - delta);
                 beta = std::min(INF, score + delta);
             }

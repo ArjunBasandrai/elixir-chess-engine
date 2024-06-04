@@ -114,10 +114,6 @@ namespace elixir
         return static_cast<int>(sq) & 7;
     }
 
-    // Search Terms
-    constexpr I8 MoveOverhead = 50;
-    constexpr I8 IncrementScale = 2;
-
     constexpr I32 INF = 32001;
     constexpr I32 MATE = 32000;
     constexpr I32 MATE_FOUND = MATE - MAX_PLY;

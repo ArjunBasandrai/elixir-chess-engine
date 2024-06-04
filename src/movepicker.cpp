@@ -8,6 +8,8 @@
 #include "search.h"
 
 namespace elixir {
+
+    int MP_SEE = 103;
  
     void MovePicker::score_moves(const Board &board, const move::Move& tt_move, const search::SearchStack *ss) {
         scores.resize(moves.size());
@@ -49,7 +51,7 @@ namespace elixir {
             } else if (move.is_capture() || move.is_en_passant()) {
                 auto captured_piece = move.is_en_passant() ? static_cast<int>(PieceType::PAWN) : static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
                 value = eval::piece_values[captured_piece];
-                value += search::SEE(board, move, -107) ? 1000000000 : -1000000;
+                value += search::SEE(board, move, -MP_SEE) ? 1000000000 : -1000000;
             } else if (move == ss->killers[0]) { 
                 value = 800000000; 
             } else if (move == ss->killers[1]) { 
