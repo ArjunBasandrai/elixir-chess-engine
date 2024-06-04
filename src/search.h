@@ -97,13 +97,28 @@ namespace elixir::search
     extern int IIR_DEPTH;
     extern int LMP_MULTIPLIER;
     extern int LMR_DEPTH;
+    extern int FP_BASE;
+    extern int FP_MULTIPLIER;
+    extern int FP_DEPTH;
+    extern int SEE_QUIET;
+    extern int SEE_CAPTURE;
+    extern int SEE_DEPTH;
+    extern int QS_SEE_THRESHOLD;
+    extern int SEE_PAWN;
+    extern int SEE_KNIGHT;
+    extern int SEE_BISHOP;
+    extern int SEE_ROOK;
+    extern int SEE_QUEEN;
+    extern int INITIAL_ASP_DELTA;
+    extern int NMP_DIVISOR;
+    extern float LMR_OFFSET;
+    extern float LMR_DIVISOR;
+    extern int MIN_ASP_DEPTH;
+
+    extern int see_values[7];
 
     extern int lmr[MAX_DEPTH][64];
     void init_lmr();
-
-    static constexpr int see_values[7] = {
-        100, 300, 300, 500, 900, 0, 0
-    };
 
     int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss);
     bool SEE(const Board& board, const move::Move move, int threshold);
