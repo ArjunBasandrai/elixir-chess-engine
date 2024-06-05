@@ -39,7 +39,7 @@ namespace elixir {
         "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
     };
 
-    void print_square(Square sq) {
+    void print_square(const Square sq) {
         if (sq == Square::NO_SQ) {
             std::cout << "-";
             return;
@@ -146,7 +146,7 @@ namespace elixir {
         eval -= (eval::material_score[static_cast<I8>(piece)] + eval::psqt[static_cast<I8>(piece)][square]) * color_offset[static_cast<int>(color)];
     }
 
-    void Board::from_fen(std::string fen) {
+    void Board::from_fen(const std::string fen) {
         clear_board();
         std::vector<std::string> params = str_utils::split(fen, ' ');
         
@@ -168,7 +168,7 @@ namespace elixir {
                 if (isdigit(c)) {
                     file += c - '0';
                 } else {
-                    PieceType piece = static_cast<PieceType>(piece_str.find(c)/2);
+                    const PieceType piece = static_cast<PieceType>(piece_str.find(c)/2);
                     
                     assert(piece != PieceType::NO_PIECE_TYPE);
                     
@@ -212,7 +212,7 @@ namespace elixir {
         from_fen(start_position);
     }
 
-    void Board::unmake_move(const move::Move move, bool from_make_move) {
+    void Board::unmake_move(const move::Move move, const bool from_make_move) {
         const Square from = move.get_from();
         const Square to = move.get_to();
         const Piece piece = move.get_piece();
@@ -470,7 +470,7 @@ namespace elixir {
     }
 
     void Board::make_null_move() {
-        State s = State(hash_key, castling_rights, en_passant_square, fifty_move_counter, Piece::NO_PIECE, eval);
+        const State s = State(hash_key, castling_rights, en_passant_square, fifty_move_counter, Piece::NO_PIECE, eval);
         undo_stack.push(s);
         fifty_move_counter++;
         if (en_passant_square != Square::NO_SQ) {
@@ -482,7 +482,7 @@ namespace elixir {
     }
 
     void Board::unmake_null_move() {
-        State s = undo_stack[undo_stack.size()-1];
+        const State s = undo_stack[undo_stack.size()-1];
         undo_stack.pop_back();
         hash_key = s.hash_key;
         fifty_move_counter = s.fifty_move_counter;
@@ -492,7 +492,7 @@ namespace elixir {
         side = static_cast<Color>(static_cast<int>(side)^1);
     }
 
-    move::Move Board::parse_uci_move(std::string move) const {
+    move::Move Board::parse_uci_move(const std::string move) const {
         
         assert(move.length() == 4 || move.length() == 5);
         
@@ -557,7 +557,7 @@ namespace elixir {
         return m;
     }
 
-    bool Board::play_uci_move(std::string move) {
+    bool Board::play_uci_move(const std::string move) {
         move::Move m = parse_uci_move(move);
         return make_move(m);
     }

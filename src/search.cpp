@@ -374,7 +374,7 @@ namespace elixir::search {
                                 ss->killers[1] = ss->killers[0];
                                 ss->killers[0] = best_move;
                             }
-                            board.update_history(move.get_from(), move.get_to(), depth, bad_quiets);
+                            board.history.update_history(move.get_from(), move.get_to(), depth, bad_quiets);
                         }
                         flag = TT_BETA;
                         break;
