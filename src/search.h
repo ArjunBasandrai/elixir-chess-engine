@@ -27,10 +27,12 @@ namespace elixir::search
           timed(false),
           start_time(std::chrono::high_resolution_clock::now()),
           depth(depth),
+          seldepth(0),
           time_left(0) {}
         SearchInfo(int depth, std::chrono::high_resolution_clock::time_point start_time, double time_left)
         : nodes(0),
           depth(depth),
+          seldepth(0),
           stopped(false),
           timed(true),
           start_time(start_time),
@@ -39,6 +41,7 @@ namespace elixir::search
         ~SearchInfo() = default;
         unsigned long long nodes;
         int depth;
+        int seldepth;
         bool stopped;
         bool timed;
         std::chrono::time_point<std::chrono::high_resolution_clock> start_time;

@@ -86,6 +86,8 @@ namespace elixir::search {
 
         if (ss->ply >= MAX_DEPTH - 1) return eval;
 
+        if (ss->ply > info.seldepth) info.seldepth = ss->ply;
+
         int legals = 0;
         auto local_pv = PVariation();
         auto best_move = move::Move();
@@ -175,6 +177,8 @@ namespace elixir::search {
         if (depth <= 0) return qsearch(board, alpha, beta, info, pv, ss);
         
         if (ss->ply >= MAX_DEPTH - 1) return eval::evaluate(board);
+
+        if (ss->ply > info.seldepth) info.seldepth = ss->ply;
 
         int legals = 0;
 
@@ -482,6 +486,7 @@ namespace elixir::search {
         auto start = std::chrono::high_resolution_clock::now();
         PVariation pv;
         for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
+            info.seldepth = 0;
             int score = 0, alpha = -INF, beta = INF, delta = INITIAL_ASP_DELTA;
             SearchStack stack[MAX_DEPTH + 4], *ss = stack + 4;
             for (int i = -4; i < MAX_DEPTH; i++) {
@@ -524,16 +529,18 @@ namespace elixir::search {
             if (info.stopped) break;
 
             if (print_info) {
+                int time_ms = duration.count();
+                int nps = info.nodes * 1000 / (time_ms + 1);
                 if (score > -MATE && score < -MATE_FOUND) {
-                    std::cout << "info score mate " << -(score + MATE) / 2 << " depth " << current_depth << " nodes " << info.nodes << " time " << duration.count() << " pv ";
+                    std::cout << "info score mate " << -(score + MATE) / 2 << " depth " << current_depth << " seldepth " << info.seldepth << " nodes " << info.nodes << " time " << time_ms << " nps " << nps << " pv ";
                 }
 
                 else if (score > MATE_FOUND && score < MATE) {
-                    std::cout << "info score mate " << (MATE - score) / 2 + 1 << " depth " << current_depth << " nodes " << info.nodes << " time " << duration.count() << " pv ";
+                    std::cout << "info score mate " << (MATE - score) / 2 + 1 << " depth " << current_depth << " seldepth " << info.seldepth << " nodes " << info.nodes << " time " << time_ms << " nps " << nps << " pv ";
                 } 
 
                 else {
-                    std::cout << "info score cp " << score << " depth " << current_depth << " nodes " << info.nodes << " time " << duration.count() << " pv ";
+                    std::cout << "info score cp " << score << " depth " << current_depth << " seldepth " << info.seldepth << " nodes " << info.nodes << " time " << time_ms << " nps " << nps << " pv ";
                 }
                 pv.print_pv();
                 std::cout << std::endl;
