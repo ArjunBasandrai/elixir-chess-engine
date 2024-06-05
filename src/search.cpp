@@ -16,34 +16,34 @@
 using namespace elixir::bits;
 
 namespace elixir::search {
-    int LMP_BASE = 4;
-    int RFP_MARGIN = 82;
-    int RAZOR_MARGIN = 286;
+    int LMP_BASE = 2;
+    int RFP_MARGIN = 72;
+    int RAZOR_MARGIN = 298;
     int NMP_BASE_REDUCTION = 5;
     int NMP_DEPTH = 1;
     int RFP_DEPTH = 6;
     int RAZOR_DEPTH = 7;
-    int IIR_DEPTH = 3;
+    int IIR_DEPTH = 4;
     int LMP_MULTIPLIER = 1;
     int LMR_DEPTH = 4;
-    int FP_BASE = 130;
-    int FP_MULTIPLIER = 116;
-    int FP_DEPTH = 8;
-    int SEE_QUIET = 70;
-    int SEE_CAPTURE = 28;
+    int FP_BASE = 146;
+    int FP_MULTIPLIER = 118;
+    int FP_DEPTH = 5;
+    int SEE_QUIET = 67;
+    int SEE_CAPTURE = 32;
     int SEE_DEPTH = 10;
-    int QS_SEE_THRESHOLD = 8;
-    int SEE_PAWN = 76;
-    int SEE_KNIGHT = 324;
-    int SEE_BISHOP = 308;
-    int SEE_ROOK = 519;
-    int SEE_QUEEN = 905;
-    int INITIAL_ASP_DELTA = 10;
-    int NMP_DIVISOR = 10;
-    float LMR_OFFSET = 0.6001;
-    float LMR_DIVISOR = 1.9209;
-    int MIN_ASP_DEPTH = 5;
-    float ASP_MULTIPLIER = 1.5;
+    int QS_SEE_THRESHOLD = 9;
+    int SEE_PAWN = 77;
+    int SEE_KNIGHT = 299;
+    int SEE_BISHOP = 303;
+    int SEE_ROOK = 504;
+    int SEE_QUEEN = 903;
+    int INITIAL_ASP_DELTA = 12;
+    int NMP_DIVISOR = 9;
+    float LMR_OFFSET = 0.5137;
+    float LMR_DIVISOR = 1.711;
+    int MIN_ASP_DEPTH = 4;
+    float ASP_MULTIPLIER = 1.3111;
 }
 
 namespace elixir::search {

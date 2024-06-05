@@ -13,13 +13,13 @@
 using namespace elixir::bits;
 
 namespace elixir::eval {
-    int TEMPO = 10;
-    int MP_PAWN = 100;
-    int MP_KNIGHT = 300;
-    int MP_BISHOP = 350;
-    int MP_ROOK = 500;
-    int MP_QUEEN = 900;
-    int MP_KING = 20000;
+    int TEMPO = 7;
+    int MP_PAWN = 86;
+    int MP_KNIGHT = 304;
+    int MP_BISHOP = 360;
+    int MP_ROOK = 466;
+    int MP_QUEEN = 905;
+    int MP_KING = 20903;
 
     EvalScore evaluate_pawns(const Board& board, const Color side) {
         Bitboard ours = board.color_occupancy(side);
