@@ -19,6 +19,13 @@ namespace elixir {
     }
     namespace eval {
         constexpr int piece_values[7] = {100, 300, 350, 500, 900, 20000, 0};
+        extern int TEMPO;
+        extern int MP_PAWN;
+        extern int MP_KNIGHT;
+        extern int MP_BISHOP;
+        extern int MP_ROOK;
+        extern int MP_QUEEN;
+        extern int MP_KING;
         struct EvalInfo {
             EvalInfo(EvalScore score) : score(score) {}
             EvalScore score = 0;

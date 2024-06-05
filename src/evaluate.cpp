@@ -13,6 +13,14 @@
 using namespace elixir::bits;
 
 namespace elixir::eval {
+    int TEMPO = 7;
+    int MP_PAWN = 86;
+    int MP_KNIGHT = 304;
+    int MP_BISHOP = 360;
+    int MP_ROOK = 466;
+    int MP_QUEEN = 905;
+    int MP_KING = 20903;
+
     EvalScore evaluate_pawns(const Board& board, const Color side) {
         Bitboard ours = board.color_occupancy(side);
         Bitboard pawns = board.pawns() & ours;
@@ -115,6 +123,6 @@ namespace elixir::eval {
         int phase = count_bits(board.minors()) + 2 * count_bits(board.rooks()) + 4 * count_bits(board.queens());
         phase = std::clamp(phase, 0, 24);
         score = (score_opening * phase + score_endgame * (24 - phase)) / 24;
-        return ((side == Color::WHITE) ? score : -score) + 10;
+        return ((side == Color::WHITE) ? score : -score) + TEMPO;
     }
 }

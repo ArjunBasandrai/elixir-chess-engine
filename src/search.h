@@ -114,6 +114,7 @@ namespace elixir::search
     extern float LMR_OFFSET;
     extern float LMR_DIVISOR;
     extern int MIN_ASP_DEPTH;
+    extern float ASP_MULTIPLIER;
 
     extern int see_values[7];
 
