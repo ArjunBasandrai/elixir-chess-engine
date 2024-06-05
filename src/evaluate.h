@@ -18,7 +18,6 @@ namespace elixir {
         return static_cast<Score>((I16) ((score + 0x8000) >> 16));
     }
     namespace eval {
-        constexpr int piece_values[7] = {100, 300, 350, 500, 900, 20000, 0};
         extern int TEMPO;
         extern int MP_PAWN;
         extern int MP_KNIGHT;
@@ -26,6 +25,7 @@ namespace elixir {
         extern int MP_ROOK;
         extern int MP_QUEEN;
         extern int MP_KING;
+        extern int piece_values[7];
         struct EvalInfo {
             EvalInfo(EvalScore score) : score(score) {}
             EvalScore score = 0;

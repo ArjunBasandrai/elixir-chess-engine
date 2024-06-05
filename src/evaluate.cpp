@@ -20,6 +20,7 @@ namespace elixir::eval {
     int MP_ROOK = 466;
     int MP_QUEEN = 905;
     int MP_KING = 20903;
+    int piece_values[7] = {MP_PAWN, MP_KNIGHT, MP_BISHOP, MP_ROOK, MP_QUEEN, MP_KING, 0};
 
     EvalScore evaluate_pawns(const Board& board, const Color side) {
         const Bitboard ours = board.color_occupancy(side);
