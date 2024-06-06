@@ -180,6 +180,11 @@ namespace elixir::search {
         
         if (ss->ply >= MAX_DEPTH - 1) return eval::evaluate(board);
 
+        if (!root_node) {
+            alpha = std::max(alpha, -MATE + ss->ply);
+            beta = std::min(beta, MATE - ss->ply - 1);
+            if (alpha >= beta) return alpha;
+        }
 
         int legals = 0;
 
