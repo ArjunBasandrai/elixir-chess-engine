@@ -161,12 +161,6 @@ namespace elixir::search {
         int eval;
 
         if (ss->ply > info.seldepth) info.seldepth = ss->ply;
-
-        /*
-        | 3-Fold Repetition Detection (~50 ELO) : If the position has been repeated 3 times, |
-        | then the position is a draw.                                                       |
-        */
-        if (board.is_repetition()) return 0;
         
         /*
         | Check Extension (~25 ELO) : If we are in check, extend the search depth and avoid dropping to qsearch. |
@@ -177,10 +171,16 @@ namespace elixir::search {
         | Quiescence Search : Perform a quiescence search at leaf nodes to avoid the horizon effect. |
         */
         if (depth <= 0) return qsearch(board, alpha, beta, info, pv, ss);
-        
-        if (ss->ply >= MAX_DEPTH - 1) return eval::evaluate(board);
 
         if (!root_node) {
+            /*
+            | 3-Fold Repetition Detection (~50 ELO) : If the position has been repeated 3 times, |
+            | then the position is a draw.                                                       |
+            */
+            if (board.is_repetition()) return 0;
+            
+            if (ss->ply >= MAX_DEPTH - 1) return eval::evaluate(board);
+
             alpha = std::max(alpha, -MATE + ss->ply);
             beta = std::min(beta, MATE - ss->ply - 1);
             if (alpha >= beta) return alpha;
