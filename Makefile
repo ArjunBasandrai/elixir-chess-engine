@@ -26,7 +26,7 @@ endif
 
 EXE_NAME = $(EXE)$(SUFFIX)
 
-all: __tune_compile
+all: __compile
 
 debug: __debug_compile __run
 
