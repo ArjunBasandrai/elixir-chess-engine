@@ -14,15 +14,13 @@
 #include "search.h"
 #include "evaluate.h"
 #include "tt.h"
+#include "tune.h"
 #include "movepicker.h"
 #include "history.h"
 
 #define version "0.1"
 
 namespace elixir::uci {
-    int DEFAULT_MOVESTOGO = 19;
-    int DEFAULT_MOVE_OVERHEAD = 48;
-    int INCREMENT_SCALE = 1;
 
     void parse_position(std::string input, Board &board) {
         if (input.substr(9, 8) == "startpos") {
@@ -331,46 +329,9 @@ namespace elixir::uci {
                 std::cout << "id author Arjun Basandrai" << std::endl;
                 std::cout << "option name Hash type spin default " << DEFAULT_HASH_SIZE << " min " << MIN_HASH << " max " << MAX_HASH << std::endl;
                 std::cout << "option name Threads type spin default 1 min 1 max 1" << std::endl;
-                std::cout << "option name LMP_BASE type spin default 4 min 2 max 14" << std::endl;
-                std::cout << "option name RFP_MARGIN type spin default 82 min 20 max 350" << std::endl;
-                std::cout << "option name RAZOR_MARGIN type spin default 286 min 100 max 400" << std::endl;
-                std::cout << "option name NMP_BASE_REDUCTION type spin default 5 min 2 max 10" << std::endl;
-                std::cout << "option name NMP_DEPTH type spin default 1 min 1 max 6" << std::endl;
-                std::cout << "option name RFP_DEPTH type spin default 6 min 2 max 10" << std::endl;
-                std::cout << "option name RAZOR_DEPTH type spin default 7 min 2 max 10" << std::endl;
-                std::cout << "option name IIR_DEPTH type spin default 3 min 1 max 8" << std::endl;
-                std::cout << "option name LMP_MULTIPLIER type spin default 1 min 1 max 8" << std::endl;
-                std::cout << "option name LMR_DEPTH type spin default 4 min 1 max 8" << std::endl;
-                std::cout << "option name FP_BASE type spin default 130 min 20 max 500" << std::endl;
-                std::cout << "option name FP_MULTIPLIER type spin default 116 min 20 max 400" << std::endl;
-                std::cout << "option name FP_DEPTH type spin default 8 min 1 max 15" << std::endl;
-                std::cout << "option name SEE_QUIET type spin default 70 min 5 max 200" << std::endl;
-                std::cout << "option name SEE_CAPTURE type spin default 28 min 5 max 200" << std::endl;
-                std::cout << "option name SEE_DEPTH type spin default 10 min 1 max 15" << std::endl;
-                std::cout << "option name QS_SEE_THRESHOLD type spin default 8 min 1 max 100" << std::endl;
-                std::cout << "option name SEE_PAWN type spin default 76 min 20 max 300" << std::endl;
-                std::cout << "option name SEE_KNIGHT type spin default 324 min 120 max 500" << std::endl;
-                std::cout << "option name SEE_BISHOP type spin default 308 min 120 max 500" << std::endl;
-                std::cout << "option name SEE_ROOK type spin default 519 min 300 max 700" << std::endl;
-                std::cout << "option name SEE_QUEEN type spin default 905 min 500 max 1300" << std::endl;
-                std::cout << "option name MP_SEE type spin default 103 min 20 max 500" << std::endl;
-                std::cout << "option name DEFAULT_MOVESTOGO type spin default 21 min 5 max 50" << std::endl;
-                std::cout << "option name DEFAULT_MOVE_OVERHEAD type spin default 49 min 5 max 150" << std::endl;
-                std::cout << "option name INCREMENT_SCALE type spin default 1 min 1 max 10" << std::endl;
-                std::cout << "option name HISTORY_GRAVITY type spin default 8195 min 1024 max 16384" << std::endl;
-                std::cout << "option name NMP_DIVISOR type spin default 10 min 4 max 17" << std::endl;
-                std::cout << "option name MIN_ASP_DEPTH type spin default 5 min 1 max 10" << std::endl;
-                std::cout << "option name LMR_OFFSET type string default 0.6001 min 0.0 max 4.0" << std::endl;
-                std::cout << "option name LMR_DIVISOR type string default 1.9209 min 0.5 max 10.0" << std::endl;
-                std::cout << "option name INITIAL_ASP_DELTA type spin default 10 min 1 max 50" << std::endl;
-                std::cout << "option name TEMPO type spin default 10 min 1 max 100" << std::endl;
-                std::cout << "option name ASP_MULTIPLIER type string default 1.5 min 1.0 max 5.0" << std::endl;
-                std::cout << "option name MP_PAWN type spin default 100 min 50 max 300" << std::endl;
-                std::cout << "option name MP_KNIGHT type spin default 300 min 150 max 500" << std::endl;
-                std::cout << "option name MP_BISHOP type spin default 350 min 200 max 600" << std::endl;
-                std::cout << "option name MP_ROOK type spin default 500 min 300 max 800" << std::endl;
-                std::cout << "option name MP_QUEEN type spin default 900 min 500 max 1300" << std::endl;
-                std::cout << "option name MP_KING type spin default 20000 min 10000 max 30000" << std::endl;
+                #ifdef USE_TUNE
+                    tune::tuner.print_info();
+                #endif
                 std::cout << "uciok" << std::endl;
             }
             else if (input == "isready") {

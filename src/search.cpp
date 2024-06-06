@@ -40,10 +40,10 @@ namespace elixir::search {
     int SEE_QUEEN = 903;
     int INITIAL_ASP_DELTA = 12;
     int NMP_DIVISOR = 9;
-    float LMR_OFFSET = 0.5137;
-    float LMR_DIVISOR = 1.711;
+    double LMR_OFFSET = 0.5137;
+    double LMR_DIVISOR = 1.711;
     int MIN_ASP_DEPTH = 4;
-    float ASP_MULTIPLIER = 1.3111;
+    double ASP_MULTIPLIER = 1.3111;
 }
 
 namespace elixir::search {

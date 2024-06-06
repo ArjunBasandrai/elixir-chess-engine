@@ -13,6 +13,7 @@ SRC = src/utils/bits.cpp \
 	  src/bench/bench.cpp \
 	  src/tests/see_test.cpp \
 	  src/tt.cpp \
+	  src/tune.cpp \
 	  src/movepicker.cpp
 
 CXX = clang++
@@ -25,17 +26,17 @@ endif
 
 EXE_NAME = $(EXE)$(SUFFIX)
 
-all: __compile
+all: __tune_compile
 
 debug: __debug_compile __run
 
-test: __test_compile
+tune: __tune_compile
 
 __compile:
 	$(CXX) -Ofast -march=native -DNDEBUG -std=c++20 -o $(EXE_NAME) elixir.cpp $(SRC)
 
-__test_compile:
-	$(CXX) -Ofast -march=native -DNDEBUG -std=c++20 -o elixir_test.exe elixir.cpp $(SRC)
+__tune_compile:
+	$(CXX) -Ofast -march=native -DNDEBUG -DUSE_TUNE -std=c++20 -o $(EXE_NAME) elixir.cpp $(SRC)
 
 __debug_compile:
 	$(CXX) -Og -g -std=c++20 -o $(EXE_NAME) elixir.cpp $(SRC)

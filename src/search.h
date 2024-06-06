@@ -114,10 +114,10 @@ namespace elixir::search
     extern int SEE_QUEEN;
     extern int INITIAL_ASP_DELTA;
     extern int NMP_DIVISOR;
-    extern float LMR_OFFSET;
-    extern float LMR_DIVISOR;
+    extern double LMR_OFFSET;
+    extern double LMR_DIVISOR;
     extern int MIN_ASP_DEPTH;
-    extern float ASP_MULTIPLIER;
+    extern double ASP_MULTIPLIER;
 
     extern int see_values[7];
 
