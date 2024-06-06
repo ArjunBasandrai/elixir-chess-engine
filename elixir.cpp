@@ -12,6 +12,8 @@
 #include "src/uci.h"
 #include "src/search.h"
 #include "src/tt.h"
+#include "src/tune.h"
+#include "src/tune.h"
 
 using namespace elixir;
 
@@ -20,6 +22,9 @@ void init() {
     attacks::init_attacks();
     // magic::init_magic_numbers();
     search::init_lmr();
+    #ifdef USE_TUNE
+        tune::init_tune();
+    #endif
 }
 
 int main(int argc, char *argv[]) {
@@ -32,6 +37,12 @@ int main(int argc, char *argv[]) {
         }
         if (std::string(argv[1]) == "see") {
             tests::see_test();
+            return 0;
+        }
+        if (std::string(argv[1]) == "spsa") {
+            #ifdef USE_TUNE
+                tune::tuner.print_spsa_inputs();
+            #endif
             return 0;
         }
     }

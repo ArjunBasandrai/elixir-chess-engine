@@ -15,7 +15,7 @@
 
 namespace elixir {
     extern const std::string square_str[64];
-    void print_square(Square sq);
+    void print_square(const Square sq);
     
     class Board {
     public:
@@ -141,30 +141,23 @@ namespace elixir {
         }
 
         void clear_board() noexcept;
-        void from_fen(std::string fen);
+        void from_fen(const std::string fen);
         void to_startpos();
 
         void print_castling_rights() const noexcept;
         void print_board() const;
 
         bool make_move(move::Move move);
-        void unmake_move(move::Move move, bool from_make_move);
+        void unmake_move(const move::Move move, const bool from_make_move);
         void make_null_move();
         void unmake_null_move();
 
-        move::Move parse_uci_move(std::string move) const;
-        bool play_uci_move(std::string move);
+        move::Move parse_uci_move(const std::string move) const;
+        bool play_uci_move(const std::string move);
 
         bool is_repetition() const;
 
-        void update_history(Square from, Square to, int depth, MoveList &bad_quiets) {
-            history.update_history(from, to, depth, bad_quiets);
-        }
-
-        int get_history(Square from, Square to) const {
-            return history.get_history(from, to);
-        }
-
+        History history;
     private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
@@ -178,6 +171,5 @@ namespace elixir {
         I16 fullmove_number;
         U64 hash_key;
         EvalScore eval;
-        History history;
     };
 }

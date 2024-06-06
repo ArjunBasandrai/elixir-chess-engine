@@ -20,16 +20,17 @@ namespace elixir::eval {
     int MP_ROOK = 466;
     int MP_QUEEN = 905;
     int MP_KING = 20903;
+    int piece_values[7] = {MP_PAWN, MP_KNIGHT, MP_BISHOP, MP_ROOK, MP_QUEEN, MP_KING, 0};
 
     EvalScore evaluate_pawns(const Board& board, const Color side) {
-        Bitboard ours = board.color_occupancy(side);
+        const Bitboard ours = board.color_occupancy(side);
         Bitboard pawns = board.pawns() & ours;
         EvalScore score = 0;
         I8 icolor = static_cast<I8>(side);
         while (pawns) {
-            int sq_ = pop_bit(pawns);
-            int file = get_file(sq(sq_));
-            int rank = get_rank(sq(sq_));
+            const int sq_ = pop_bit(pawns);
+            const int file = get_file(sq(sq_));
+            const int rank = get_rank(sq(sq_));
 
             if (Files[file] & pawns) {
                 score -= stacked_pawn_penalty;
@@ -44,12 +45,12 @@ namespace elixir::eval {
     }
 
     EvalScore evaluate_knights(const Board &board, const Color side) {
-        Bitboard ours = board.color_occupancy(side);
+        const Bitboard ours = board.color_occupancy(side);
         Bitboard knights = board.knights() & ours;
         EvalScore score = 0;
         while (knights) {
-            int sq_ = pop_bit(knights);
-            int mobility_count = count_bits(attacks::get_knight_attacks(sq(sq_)) & ~ours);
+            const int sq_ = pop_bit(knights);
+            const int mobility_count = count_bits(attacks::get_knight_attacks(sq(sq_)) & ~ours);
             score += knight_mobility[mobility_count];
         }
 
@@ -57,7 +58,7 @@ namespace elixir::eval {
     }
 
     EvalScore evaluate_bishops(const Board &board, const Color side) {
-        Bitboard ours = board.color_occupancy(side);
+        const Bitboard ours = board.color_occupancy(side);
         Bitboard bishops = board.bishops() & ours;
         EvalScore score = 0;
         if (count_bits(ours & board.bishops()) >= 2) {
@@ -73,7 +74,7 @@ namespace elixir::eval {
     }
 
     EvalScore evaluate_rooks(const Board &board, const Color side) {
-        Bitboard ours = board.color_occupancy(side);
+        const Bitboard ours = board.color_occupancy(side);
         Bitboard rooks = board.rooks() & ours;
         EvalScore score = 0;
         while (rooks) {
@@ -86,7 +87,7 @@ namespace elixir::eval {
     }
 
     EvalScore evaluate_queens(const Board &board, const Color side) {
-        Bitboard ours = board.color_occupancy(side);
+        const Bitboard ours = board.color_occupancy(side);
         Bitboard queens = board.queens() & ours;
         EvalScore score = 0;
         while (queens) {
