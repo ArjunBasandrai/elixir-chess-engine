@@ -40,15 +40,15 @@ namespace elixir::search {
     int SEE_QUEEN = 903;
     int INITIAL_ASP_DELTA = 12;
     int NMP_DIVISOR = 9;
-    float LMR_OFFSET = 0.5137;
-    float LMR_DIVISOR = 1.711;
+    double LMR_OFFSET = 0.5137;
+    double LMR_DIVISOR = 1.711;
     int MIN_ASP_DEPTH = 4;
-    float ASP_MULTIPLIER = 1.3111;
+    double ASP_MULTIPLIER = 1.3111;
 }
 
 namespace elixir::search {
 
-    int see_values[7] = {
+    int see_pieces[7] = {
         SEE_PAWN, SEE_KNIGHT, SEE_BISHOP, SEE_ROOK, SEE_QUEEN, 0, 0
     };
 
@@ -374,7 +374,7 @@ namespace elixir::search {
                                 ss->killers[1] = ss->killers[0];
                                 ss->killers[0] = best_move;
                             }
-                            board.update_history(move.get_from(), move.get_to(), depth, bad_quiets);
+                            board.history.update_history(move.get_from(), move.get_to(), depth, bad_quiets);
                         }
                         flag = TT_BETA;
                         break;
@@ -415,7 +415,7 @@ namespace elixir::search {
         }
     }
 
-    bool SEE(const Board& board, const move::Move move, int threshold) {
+    bool SEE(const Board& board, const move::Move move, int threshold, const int see_values[7]) {
 
         if (move.is_promotion()) return true;
 

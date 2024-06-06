@@ -93,6 +93,8 @@ namespace elixir {
             std::cout << "Running SEE test..." << std::endl;
             std::cout << "------------------------------------------------------------------------------------------------------------------------------\n" << std::endl;
 
+            const int see_values[7] = {100, 300, 300, 500, 900, 0, 0};
+
             int counter = 1;
             for (const auto& entry: see_suite) {
                 std::cout << "Running test [" << counter++ << "] [" << entry << "]..." << std::endl;
@@ -106,7 +108,7 @@ namespace elixir {
                 }
 
                 const int threshold = std::stoi(str_utils::remove_whitespaces(data[2]));
-                if ((search::SEE(board, move, threshold) && !search::SEE(board, move, threshold + 1)) || is_promotion) {
+                if ((search::SEE(board, move, threshold, see_values) && !search::SEE(board, move, threshold + 1, see_values)) || is_promotion) {
                     std::cout << "SEE test [" << counter << "] [" << entry << "] passed!" << std::endl;
                 } else {
                     std::cout << std::endl;
