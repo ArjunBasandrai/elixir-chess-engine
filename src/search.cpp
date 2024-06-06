@@ -48,7 +48,7 @@ namespace elixir::search {
 
 namespace elixir::search {
 
-    int see_values[7] = {
+    int see_pieces[7] = {
         SEE_PAWN, SEE_KNIGHT, SEE_BISHOP, SEE_ROOK, SEE_QUEEN, 0, 0
     };
 
@@ -415,7 +415,7 @@ namespace elixir::search {
         }
     }
 
-    bool SEE(const Board& board, const move::Move move, int threshold) {
+    bool SEE(const Board& board, const move::Move move, int threshold, const int see_values[7]) {
 
         if (move.is_promotion()) return true;
 

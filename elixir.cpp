@@ -39,6 +39,12 @@ int main(int argc, char *argv[]) {
             tests::see_test();
             return 0;
         }
+        if (std::string(argv[1]) == "spsa") {
+            #ifdef USE_TUNE
+                tune::tuner.print_spsa_inputs();
+            #endif
+            return 0;
+        }
     }
 
     Board board;

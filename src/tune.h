@@ -34,6 +34,8 @@ namespace elixir::tune {
             void add_field(TunerField field) ;
             void print_info();
             void print_current();
+            void print_spsa_inputs();
+            void update_parameter(const std::string& name, const std::string& option_value);
         private:
             std::vector<TunerField> fields;
     };

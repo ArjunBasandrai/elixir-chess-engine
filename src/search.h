@@ -119,12 +119,12 @@ namespace elixir::search
     extern int MIN_ASP_DEPTH;
     extern double ASP_MULTIPLIER;
 
-    extern int see_values[7];
+    extern int see_pieces[7];
 
     extern int lmr[MAX_DEPTH][64];
     void init_lmr();
 
     int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss);
-    bool SEE(const Board& board, const move::Move move, int threshold);
+    bool SEE(const Board& board, const move::Move move, int threshold, const int see_values[7] = see_pieces);
     void search(Board &board, SearchInfo &info, bool print_info = true);
 }
