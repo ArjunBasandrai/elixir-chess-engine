@@ -79,14 +79,14 @@ namespace elixir::search {
 
         if (should_stop(info)) return 0;
 
+        if (ss->ply > info.seldepth) info.seldepth = ss->ply;
+
         // Three-Fold Repetition Detection (~50 ELO)
         if (board.is_repetition()) return 0;
 
         int best_score, eval = eval::evaluate(board);
 
         if (ss->ply >= MAX_DEPTH - 1) return eval;
-
-        if (ss->ply > info.seldepth) info.seldepth = ss->ply;
 
         int legals = 0;
         auto local_pv = PVariation();
@@ -152,13 +152,15 @@ namespace elixir::search {
     int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss) {
         
         pv.length = 0;
-        
+
         if (should_stop(info)) return 0;
 
         bool root_node = ss->ply == 0;
         bool pv_node = ((beta - alpha > 1) || root_node);
         bool in_check = board.is_in_check();
         int eval;
+
+        if (ss->ply > info.seldepth) info.seldepth = ss->ply;
 
         /*
         | 3-Fold Repetition Detection (~50 ELO) : If the position has been repeated 3 times, |
@@ -178,7 +180,6 @@ namespace elixir::search {
         
         if (ss->ply >= MAX_DEPTH - 1) return eval::evaluate(board);
 
-        if (ss->ply > info.seldepth) info.seldepth = ss->ply;
 
         int legals = 0;
 
