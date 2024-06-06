@@ -1,20 +1,4 @@
-SRC = src/utils/bits.cpp \
-	  src/board/board.cpp \
-	  src/hashing/hash.cpp \
-	  src/move.cpp \
-	  src/history.cpp \
-	  src/attacks/lookup.cpp \
-	  src/movegen.cpp \
-	  src/utils/perft.cpp \
-	  src/uci.cpp \
-	  src/evaluate.cpp \
-	  src/search.cpp \
-	  src/utils/masks.cpp \
-	  src/bench/bench.cpp \
-	  src/tests/see_test.cpp \
-	  src/tt.cpp \
-	  src/tune.cpp \
-	  src/movepicker.cpp
+SRC := $(wildcard src/*.cpp) $(wildcard src/**/*.cpp)
 
 CXX = clang++
 EXE = elixir
