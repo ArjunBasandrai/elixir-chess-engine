@@ -526,9 +526,6 @@ namespace elixir::search {
             while (1) {
                 score = negamax(board, alpha, beta, current_depth, info, pv, ss);
 
-                if (should_stop(info)) break;
-                if (info.stopped) break;
-
                 if (score > alpha && score < beta) break;
 
                 if (score <= alpha) {
@@ -541,13 +538,13 @@ namespace elixir::search {
                 }
 
                 delta *= ASP_MULTIPLIER;
+
+                if (should_stop(info)) break;
+                if (info.stopped) break;
             }
 
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-            if (should_stop_early(info)) break;
-            if (info.stopped) break;
 
             if (print_info) {
                 int time_ms = duration.count();
@@ -566,6 +563,9 @@ namespace elixir::search {
                 pv.print_pv();
                 std::cout << std::endl;
             }
+
+            if (should_stop_early(info)) break;
+            if (info.stopped) break;
         }
 
         if (print_info) {
