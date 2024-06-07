@@ -191,7 +191,11 @@ namespace elixir::search {
             if (board.is_repetition()) return 0;
             
             if (ss->ply >= MAX_DEPTH - 1) return eval::evaluate(board);
-
+            
+            /*
+            | Mate Distance Pruning : If a forced mate is already found, cut the search and adjust |
+            | the bounds if no shorter mate is possible.                                           |
+            */
             alpha = std::max(alpha, -MATE + ss->ply);
             beta = std::min(beta, MATE - ss->ply - 1);
             if (alpha >= beta) return alpha;

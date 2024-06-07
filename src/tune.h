@@ -14,7 +14,6 @@
 namespace elixir {
     extern int DEFAULT_MOVESTOGO;
     extern int DEFAULT_MOVE_OVERHEAD;
-    extern int INCREMENT_SCALE;
 }
 
 #ifdef USE_TUNE
