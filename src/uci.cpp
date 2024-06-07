@@ -18,7 +18,7 @@
 #include "movepicker.h"
 #include "history.h"
 
-#define version "0.1"
+#define version "1.0"
 
 namespace elixir::uci {
 
