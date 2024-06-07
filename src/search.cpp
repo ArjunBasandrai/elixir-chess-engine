@@ -63,8 +63,17 @@ namespace elixir::search {
     }
 
     bool should_stop(SearchInfo &info) {
-        if (info.timed && !(info.nodes & 2047) &&
-             std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - info.start_time).count() > info.time_left) {
+        if (info.timed && !(info.nodes & 1023) &&
+             std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - info.start_time).count() > info.hard_limit) {
+                info.stopped = true;
+                return true;
+        }
+        return false;
+    }
+
+    bool should_stop_early(SearchInfo &info) {
+        if (info.timed &&
+             std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - info.start_time).count() > info.soft_limit) {
                 info.stopped = true;
                 return true;
         }
@@ -72,8 +81,7 @@ namespace elixir::search {
     }
 
     // (~20 ELO)
-    int qsearch(Board &board, int alpha, int beta, SearchInfo &info, PVariation &pv, SearchStack *ss)
-    {
+    int qsearch(Board &board, int alpha, int beta, SearchInfo &info, PVariation &pv, SearchStack *ss) {
 
         pv.length = 0;
 
@@ -153,8 +161,6 @@ namespace elixir::search {
         
         pv.length = 0;
 
-        if (should_stop(info)) return 0;
-
         bool root_node = ss->ply == 0;
         bool pv_node = ((beta - alpha > 1) || root_node);
         bool in_check = board.is_in_check();
@@ -171,6 +177,8 @@ namespace elixir::search {
         | Quiescence Search : Perform a quiescence search at leaf nodes to avoid the horizon effect. |
         */
         if (depth <= 0) return qsearch(board, alpha, beta, info, pv, ss);
+
+        if (should_stop(info)) return 0;
 
         if (!root_node) {
             /*
@@ -515,6 +523,8 @@ namespace elixir::search {
             while (1) {
                 score = negamax(board, alpha, beta, current_depth, info, pv, ss);
 
+                if (should_stop(info) || info.stopped) break;
+
                 if (score > alpha && score < beta) break;
 
                 if (score <= alpha) {
@@ -531,6 +541,8 @@ namespace elixir::search {
 
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+            if (should_stop_early(info)) break;
 
             if (info.stopped) break;
 

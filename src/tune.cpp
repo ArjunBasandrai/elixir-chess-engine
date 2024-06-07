@@ -8,7 +8,7 @@
 #endif
 
 namespace elixir {
-    int DEFAULT_MOVESTOGO = 19;
+    int DEFAULT_MOVESTOGO = -1;
     int DEFAULT_MOVE_OVERHEAD = 48;
     int INCREMENT_SCALE = 1;
 }
