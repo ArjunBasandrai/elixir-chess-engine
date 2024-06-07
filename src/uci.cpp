@@ -25,7 +25,6 @@ namespace elixir::uci {
     void optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo, std::chrono::high_resolution_clock::time_point start_time) {
         if (time < 0) time = 1000;
 
-        const int overhead = std::min<int>(DEFAULT_MOVE_OVERHEAD, time / 2);
         time -= DEFAULT_MOVE_OVERHEAD;
 
         double base_time;

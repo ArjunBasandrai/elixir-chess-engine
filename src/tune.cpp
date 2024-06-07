@@ -10,7 +10,6 @@
 namespace elixir {
     int DEFAULT_MOVESTOGO = -1;
     int DEFAULT_MOVE_OVERHEAD = 100;
-    int INCREMENT_SCALE = 1;
 }
 
 #ifdef USE_TUNE
@@ -64,7 +63,6 @@ namespace elixir::tune {
         // time management terms
         tuner.add_field({"DEFAULT_MOVESTOGO", &DEFAULT_MOVESTOGO, 19, 5, 50, 1, 0.002});
         tuner.add_field({"DEFAULT_MOVE_OVERHEAD", &DEFAULT_MOVE_OVERHEAD, 48, 5, 150, 5, 0.002});
-        tuner.add_field({"INCREMENT_SCALE", &INCREMENT_SCALE, 1, 1, 10, 1, 0.002});
 
         // see terms
         tuner.add_field({"SEE_PAWN", &SEE_PAWN, 77, 20, 300, 5, 0.002});
@@ -259,11 +257,6 @@ namespace elixir::tune {
         else if (name == "DEFAULT_MOVE_OVERHEAD") {
             int default_move_overhead = std::stoi(option_value);
             DEFAULT_MOVE_OVERHEAD = default_move_overhead;
-        }
-
-        else if (name == "INCREMENT_SCALE") {
-            int increment_scale = std::stoi(option_value);
-            INCREMENT_SCALE = increment_scale;
         }
 
         else if (name == "HISTORY_GRAVITY") {
