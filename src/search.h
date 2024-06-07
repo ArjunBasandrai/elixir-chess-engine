@@ -28,15 +28,17 @@ namespace elixir::search
           start_time(std::chrono::high_resolution_clock::now()),
           depth(depth),
           seldepth(0),
-          time_left(0) {}
-        SearchInfo(int depth, std::chrono::high_resolution_clock::time_point start_time, double time_left)
+          soft_limit(0),
+          hard_limit(0) {}
+        SearchInfo(int depth, std::chrono::high_resolution_clock::time_point start_time, F64 soft_limit, F64 hard_limit)
         : nodes(0),
           depth(depth),
           seldepth(0),
           stopped(false),
           timed(true),
           start_time(start_time),
-          time_left(time_left) {}
+          soft_limit(soft_limit),
+          hard_limit(hard_limit) {}
 
         ~SearchInfo() = default;
         unsigned long long nodes;
@@ -45,7 +47,8 @@ namespace elixir::search
         bool stopped;
         bool timed;
         std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
-        F64 time_left;
+        F64 soft_limit;
+        F64 hard_limit;
     };
 
     struct PVariation

@@ -22,6 +22,27 @@
 
 namespace elixir::uci {
 
+    void optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo, std::chrono::high_resolution_clock::time_point start_time) {
+        if (time < 0) time = 1000;
+
+        const int overhead = std::min<int>(DEFAULT_MOVE_OVERHEAD, time / 2);
+        time -= DEFAULT_MOVE_OVERHEAD;
+
+        double base_time;
+
+        if (movestogo != -1) {
+            base_time = time / movestogo;
+        } else {
+            base_time = time * 0.054 + inc * 0.6;            
+        }
+        const auto max_bound = 0.76 * time;
+
+        const auto soft_bound = std::min(0.76 * base_time, max_bound);
+        const auto hard_bound = std::min(2.50 * base_time, max_bound);
+
+        info = search::SearchInfo(MAX_DEPTH, start_time, soft_bound, hard_bound);
+    }
+
     void parse_position(std::string input, Board &board) {
         if (input.substr(9, 8) == "startpos") {
             board.from_fen(start_position);
@@ -58,7 +79,7 @@ namespace elixir::uci {
         std::vector<std::string> tokens = str_utils::split(input, ' ');
         search::SearchInfo info;
         const auto start_time = std::chrono::high_resolution_clock::now();
-        int depth = MAX_DEPTH, movestogo = DEFAULT_MOVESTOGO;
+        int depth = MAX_DEPTH, movestogo = -1;
         F64 time = 0, inc = 0;
         // If there are no tokens after "go" command, return
         if (tokens.size() <= 1) return;
@@ -92,9 +113,7 @@ namespace elixir::uci {
         }
 
         if (time != 0) {
-            const F64 limit = std::max(0.001, time - DEFAULT_MOVE_OVERHEAD);
-            const F64 search_time = (limit / static_cast<F64>(movestogo) + inc / INCREMENT_SCALE);
-            info = search::SearchInfo(depth, start_time, search_time);
+            optimum_time(info, time, inc, movestogo, start_time);
         }
         else {
             info = search::SearchInfo(depth);
