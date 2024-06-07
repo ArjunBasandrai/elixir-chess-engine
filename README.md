@@ -11,7 +11,7 @@
 
 #
 
-Elixir is a [UCI-compliant](https://en.wikipedia.org/wiki/Universal_Chess_Interface) chess engine developed in C++. It is the successor of my previous engine, [Shuffle](https://github.com/ArjunBasandrai/shuffle-chess-engine/), and is under developement with the goal of achieving an ELO rating of 3500+
+Elixir is a [UCI-compliant](https://en.wikipedia.org/wiki/Universal_Chess_Interface) chess engine developed in C++. It is the successor of my previous engine, [Shuffle](https://github.com/ArjunBasandrai/shuffle-chess-engine/), and is under development with the goal of achieving an ELO rating of 3500+
 
 
 ## Instructions to build
