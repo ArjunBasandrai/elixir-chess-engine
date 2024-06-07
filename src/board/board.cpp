@@ -564,7 +564,7 @@ namespace elixir {
 
     bool Board::is_repetition() const {
         const auto limit = std::max<int>(0, undo_stack.size() - fifty_move_counter - 2);
-        int counter = 2;
+        int counter = 1;
         for (int i = undo_stack.size() - 4; i >= limit; i -= 2) {
             if (undo_stack[i].hash_key == hash_key) {
                 if (--counter == 0) {
