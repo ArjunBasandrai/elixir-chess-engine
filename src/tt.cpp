@@ -60,13 +60,14 @@ namespace elixir
         if (!replace)
             return;
 
-        if (entry.key != key)
+        if (entry.depth == -1)
             entries++;
 
         if (score > MATE)
             score += ply;
         else if (score < -MATE)
             score -= ply;
+        
         entry.key = key;
         entry.score = score;
         entry.move = move;

@@ -23,7 +23,7 @@ namespace elixir
         U64 key = 0ULL;
         I16 score = 0;
         move::Move move = move::NO_MOVE;
-        U8 depth = 0;
+        I8 depth = -1;
         TTFlag flag = TT_NONE;
 
         bool operator==(const TTEntry &other) const

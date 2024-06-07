@@ -550,15 +550,15 @@ namespace elixir::search {
                 int time_ms = duration.count();
                 int nps = info.nodes * 1000 / (time_ms + 1);
                 if (score > -MATE && score < -MATE_FOUND) {
-                    std::cout << "info score mate " << -(score + MATE) / 2 << " depth " << current_depth << " seldepth " << info.seldepth << " nodes " << info.nodes << " time " << time_ms << " nps " << nps << " pv ";
+                    std::cout << "info score mate " << -(score + MATE) / 2 << " depth " << current_depth << " seldepth " << info.seldepth << " nodes " << info.nodes << " time " << time_ms << " nps " << nps << " hashfull " << tt->get_hashfull() << " pv ";
                 }
 
                 else if (score > MATE_FOUND && score < MATE) {
-                    std::cout << "info score mate " << (MATE - score) / 2 + 1 << " depth " << current_depth << " seldepth " << info.seldepth << " nodes " << info.nodes << " time " << time_ms << " nps " << nps << " pv ";
+                    std::cout << "info score mate " << (MATE - score) / 2 + 1 << " depth " << current_depth << " seldepth " << info.seldepth << " nodes " << info.nodes << " time " << time_ms << " nps " << nps << " hashfull " << tt->get_hashfull() << " pv ";
                 } 
 
                 else {
-                    std::cout << "info score cp " << score << " depth " << current_depth << " seldepth " << info.seldepth << " nodes " << info.nodes << " time " << time_ms << " nps " << nps << " pv ";
+                    std::cout << "info score cp " << score << " depth " << current_depth << " seldepth " << info.seldepth << " nodes " << info.nodes << " time " << time_ms << " nps " << nps << " hashfull " << tt->get_hashfull() << " pv ";
                 }
                 pv.print_pv();
                 std::cout << std::endl;
