@@ -86,6 +86,7 @@ namespace elixir::search {
         pv.length = 0;
 
         if (should_stop(info)) return 0;
+        if (info.stopped) return 0;
 
         if (ss->ply > info.seldepth) info.seldepth = ss->ply;
 
@@ -166,6 +167,9 @@ namespace elixir::search {
         bool in_check = board.is_in_check();
         int eval;
 
+        if (should_stop(info)) return 0;
+        if (info.stopped) return 0;
+
         if (ss->ply > info.seldepth) info.seldepth = ss->ply;
         
         /*
@@ -178,7 +182,6 @@ namespace elixir::search {
         */
         if (depth <= 0) return qsearch(board, alpha, beta, info, pv, ss);
 
-        if (should_stop(info)) return 0;
 
         if (!root_node) {
             /*
@@ -523,7 +526,8 @@ namespace elixir::search {
             while (1) {
                 score = negamax(board, alpha, beta, current_depth, info, pv, ss);
 
-                if (should_stop(info) || info.stopped) break;
+                if (should_stop(info)) break;
+                if (info.stopped) break;
 
                 if (score > alpha && score < beta) break;
 
@@ -543,7 +547,6 @@ namespace elixir::search {
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
             if (should_stop_early(info)) break;
-
             if (info.stopped) break;
 
             if (print_info) {
