@@ -1,0 +1,24 @@
+---
+BasedOnStyle: LLVM
+AlignConsecutiveAssignments: true
+AlignAfterOpenBracket: Align
+ColumnLimit: 100
+IndentWidth: 4
+IndentCaseLabels: true
+MaxEmptyLinesToKeep: 2
+AllowShortFunctionsOnASingleLine: Inline
+SortIncludes: true
+BreakBeforeBraces: Attach
+PenaltyBreakBeforeFirstCallParameter: 100
+SpaceAfterLogicalNot: true
+ContinuationIndentWidth: 4
+Language: Cpp
+AllowShortIfStatementsOnASingleLine: false
+NamespaceIndentation: All
+FixNamespaceComments: false
+IncludeCategories:
+  - Regex: '^<.*\.h>'
+    Priority: 1
+  - Regex: '^".*\.h"'
+    Priority: 2
+  - Regex: '.*'

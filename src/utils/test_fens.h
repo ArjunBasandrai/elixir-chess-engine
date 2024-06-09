@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 // from shuffle, ultimately from BBC
 #define empty_board "8/8/8/8/8/8/8/8 w - - "

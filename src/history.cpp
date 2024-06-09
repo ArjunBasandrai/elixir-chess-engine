@@ -1,7 +1,7 @@
-#include "types.h"
-#include "defs.h"
 #include "history.h"
+#include "defs.h"
 #include "move.h"
+#include "types.h"
 
 namespace elixir {
     int HISTORY_GRAVITY = 8289;
@@ -19,15 +19,15 @@ namespace elixir {
     }
 
     void History::update_history(Square from, Square to, int depth, MoveList &bad_quiets) {
-        int ifrom = static_cast<int>(from);
-        int ito = static_cast<int>(to);
+        int ifrom  = static_cast<int>(from);
+        int ito    = static_cast<int>(to);
         int &score = history[ifrom][ito];
         score += scale_bonus(score, depth * depth);
 
         const int penalty = -depth * depth;
         for (const auto &move : bad_quiets) {
             const int bfrom = static_cast<int>(move.get_from());
-            const int bto = static_cast<int>(move.get_to());
+            const int bto   = static_cast<int>(move.get_to());
 
             int &bad_quiet_score = history[bfrom][bto];
             bad_quiet_score += scale_bonus(bad_quiet_score, penalty);

@@ -10,9 +10,15 @@ namespace elixir::attacks {
         magic::init_bishop_attacks();
         magic::init_rook_attacks();
     }
-    inline Bitboard get_pawn_attacks(Color c, Square sq) noexcept { return pawn_attacks[static_cast<int>(c)][static_cast<int>(sq)]; }
-    inline Bitboard get_knight_attacks(Square sq) noexcept { return knight_attacks[static_cast<int>(sq)]; }
-    inline Bitboard get_king_attacks(Square sq) noexcept { return king_attacks[static_cast<int>(sq)]; }
+    inline Bitboard get_pawn_attacks(Color c, Square sq) noexcept {
+        return pawn_attacks[static_cast<int>(c)][static_cast<int>(sq)];
+    }
+    inline Bitboard get_knight_attacks(Square sq) noexcept {
+        return knight_attacks[static_cast<int>(sq)];
+    }
+    inline Bitboard get_king_attacks(Square sq) noexcept {
+        return king_attacks[static_cast<int>(sq)];
+    }
     [[nodiscard]] inline Bitboard get_bishop_attacks(Square sq, U64 occupancy) noexcept {
         int square = static_cast<int>(sq);
         occupancy &= magic::bishop_masks[square];

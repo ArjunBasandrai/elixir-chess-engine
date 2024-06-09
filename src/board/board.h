@@ -1,93 +1,148 @@
 #pragma once
 
 #include <array>
-#include <vector>
 #include <string>
+#include <vector>
 
-#include "../types.h"
-#include "../defs.h"
-#include "../move.h"
-#include "../history.h"
 #include "../attacks/attacks.h"
-#include "../utils/state.h"
+#include "../defs.h"
+#include "../history.h"
+#include "../move.h"
+#include "../types.h"
 #include "../utils/bits.h"
+#include "../utils/state.h"
 #include "../utils/static_vector.h"
 
 namespace elixir {
     extern const std::string square_str[64];
     void print_square(const Square sq);
-    
-    class Board {
-    public:
-        Board() {
-            clear_board();
-        }
 
-        Board(std::string fen) {
-            from_fen(fen);
-        }
+    class Board {
+      public:
+        Board() { clear_board(); }
+
+        Board(std::string fen) { from_fen(fen); }
 
         ~Board() = default;
 
-        [[nodiscard]] PieceType piece_to_piecetype(Piece piece) const { return static_cast<PieceType>(static_cast<int>(piece) / 2); }
+        [[nodiscard]] PieceType piece_to_piecetype(Piece piece) const {
+            return static_cast<PieceType>(static_cast<int>(piece) / 2);
+        }
 
-        [[nodiscard]] Bitboard color_occupancy(Color color) const noexcept { return b_occupancies[static_cast<I8>(color)]; }
-        [[nodiscard]] Bitboard color_occupancy(int color) const noexcept { return b_occupancies[color]; }
+        [[nodiscard]] Bitboard color_occupancy(Color color) const noexcept {
+            return b_occupancies[static_cast<I8>(color)];
+        }
+        [[nodiscard]] Bitboard color_occupancy(int color) const noexcept {
+            return b_occupancies[color];
+        }
 
-        [[nodiscard]] Bitboard piece_bitboard(PieceType piece) const noexcept { return b_pieces[static_cast<I8>(piece)]; }
+        [[nodiscard]] Bitboard piece_bitboard(PieceType piece) const noexcept {
+            return b_pieces[static_cast<I8>(piece)];
+        }
 
-        [[nodiscard]] Bitboard occupancy() const noexcept { return b_occupancies[static_cast<I8>(Color::WHITE)] | b_occupancies[static_cast<I8>(Color::BLACK)]; }
-        [[nodiscard]] Bitboard black_occupancy() const noexcept { return b_occupancies[static_cast<I8>(Color::BLACK)]; }
-        [[nodiscard]] Bitboard white_occupancy() const noexcept { return b_occupancies[static_cast<I8>(Color::WHITE)]; }
+        [[nodiscard]] Bitboard occupancy() const noexcept {
+            return b_occupancies[static_cast<I8>(Color::WHITE)] |
+                   b_occupancies[static_cast<I8>(Color::BLACK)];
+        }
+        [[nodiscard]] Bitboard black_occupancy() const noexcept {
+            return b_occupancies[static_cast<I8>(Color::BLACK)];
+        }
+        [[nodiscard]] Bitboard white_occupancy() const noexcept {
+            return b_occupancies[static_cast<I8>(Color::WHITE)];
+        }
 
-        [[nodiscard]] Bitboard pawns() const noexcept { return b_pieces[static_cast<I8>(PieceType::PAWN)]; }
-        [[nodiscard]] Bitboard knights() const noexcept { return b_pieces[static_cast<I8>(PieceType::KNIGHT)]; }
-        [[nodiscard]] Bitboard bishops() const noexcept { return b_pieces[static_cast<I8>(PieceType::BISHOP)]; }
-        [[nodiscard]] Bitboard rooks() const noexcept { return b_pieces[static_cast<I8>(PieceType::ROOK)]; }
-        [[nodiscard]] Bitboard queens() const noexcept { return b_pieces[static_cast<I8>(PieceType::QUEEN)]; }
-        [[nodiscard]] Bitboard king() const noexcept { return b_pieces[static_cast<I8>(PieceType::KING)]; }
+        [[nodiscard]] Bitboard pawns() const noexcept {
+            return b_pieces[static_cast<I8>(PieceType::PAWN)];
+        }
+        [[nodiscard]] Bitboard knights() const noexcept {
+            return b_pieces[static_cast<I8>(PieceType::KNIGHT)];
+        }
+        [[nodiscard]] Bitboard bishops() const noexcept {
+            return b_pieces[static_cast<I8>(PieceType::BISHOP)];
+        }
+        [[nodiscard]] Bitboard rooks() const noexcept {
+            return b_pieces[static_cast<I8>(PieceType::ROOK)];
+        }
+        [[nodiscard]] Bitboard queens() const noexcept {
+            return b_pieces[static_cast<I8>(PieceType::QUEEN)];
+        }
+        [[nodiscard]] Bitboard king() const noexcept {
+            return b_pieces[static_cast<I8>(PieceType::KING)];
+        }
 
-        template <Color C>
-        [[nodiscard]] Bitboard pawns() const noexcept { return pawns() & color_occupancy(C); }
-        template <Color C>
-        [[nodiscard]] Bitboard knights() const noexcept { return knights() & color_occupancy(C); }
-        template <Color C>
-        [[nodiscard]] Bitboard bishops() const noexcept { return bishops() & color_occupancy(C); }
-        template <Color C>
-        [[nodiscard]] Bitboard rooks() const noexcept { return rooks() & color_occupancy(C); }
-        template <Color C>
-        [[nodiscard]] Bitboard queens() const noexcept { return queens() & color_occupancy(C); }
-        template <Color C>
-        [[nodiscard]] Bitboard king() const noexcept { return king() & color_occupancy(C); }
+        template <Color C> [[nodiscard]] Bitboard pawns() const noexcept {
+            return pawns() & color_occupancy(C);
+        }
+        template <Color C> [[nodiscard]] Bitboard knights() const noexcept {
+            return knights() & color_occupancy(C);
+        }
+        template <Color C> [[nodiscard]] Bitboard bishops() const noexcept {
+            return bishops() & color_occupancy(C);
+        }
+        template <Color C> [[nodiscard]] Bitboard rooks() const noexcept {
+            return rooks() & color_occupancy(C);
+        }
+        template <Color C> [[nodiscard]] Bitboard queens() const noexcept {
+            return queens() & color_occupancy(C);
+        }
+        template <Color C> [[nodiscard]] Bitboard king() const noexcept {
+            return king() & color_occupancy(C);
+        }
 
         [[nodiscard]] Bitboard black_pawns() const noexcept { return pawns() & black_occupancy(); }
-        [[nodiscard]] Bitboard black_knights() const noexcept { return knights() & black_occupancy(); }
-        [[nodiscard]] Bitboard black_bishops() const noexcept { return bishops() & black_occupancy(); }
+        [[nodiscard]] Bitboard black_knights() const noexcept {
+            return knights() & black_occupancy();
+        }
+        [[nodiscard]] Bitboard black_bishops() const noexcept {
+            return bishops() & black_occupancy();
+        }
         [[nodiscard]] Bitboard black_rooks() const noexcept { return rooks() & black_occupancy(); }
-        [[nodiscard]] Bitboard black_queens() const noexcept { return queens() & black_occupancy(); }
+        [[nodiscard]] Bitboard black_queens() const noexcept {
+            return queens() & black_occupancy();
+        }
         [[nodiscard]] Bitboard black_king() const noexcept { return king() & black_occupancy(); }
 
         [[nodiscard]] Bitboard white_pawns() const noexcept { return pawns() & white_occupancy(); }
-        [[nodiscard]] Bitboard white_knights() const noexcept { return knights() & white_occupancy(); }
-        [[nodiscard]] Bitboard white_bishops() const noexcept { return bishops() & white_occupancy(); }
+        [[nodiscard]] Bitboard white_knights() const noexcept {
+            return knights() & white_occupancy();
+        }
+        [[nodiscard]] Bitboard white_bishops() const noexcept {
+            return bishops() & white_occupancy();
+        }
         [[nodiscard]] Bitboard white_rooks() const noexcept { return rooks() & white_occupancy(); }
-        [[nodiscard]] Bitboard white_queens() const noexcept { return queens() & white_occupancy(); }
+        [[nodiscard]] Bitboard white_queens() const noexcept {
+            return queens() & white_occupancy();
+        }
         [[nodiscard]] Bitboard white_king() const noexcept { return king() & white_occupancy(); }
 
         [[nodiscard]] Bitboard minors() const noexcept { return knights() | bishops(); }
 
-        [[nodiscard]] Bitboard black_minors() const noexcept { return minors() & black_occupancy(); }
-        [[nodiscard]] Bitboard white_minors() const noexcept { return minors() & white_occupancy(); }
+        [[nodiscard]] Bitboard black_minors() const noexcept {
+            return minors() & black_occupancy();
+        }
+        [[nodiscard]] Bitboard white_minors() const noexcept {
+            return minors() & white_occupancy();
+        }
 
         [[nodiscard]] Bitboard majors() const noexcept { return rooks() | queens(); }
 
-        [[nodiscard]] Bitboard black_majors() const noexcept { return majors() & black_occupancy(); }
-        [[nodiscard]] Bitboard white_majors() const noexcept { return majors() & white_occupancy(); }
+        [[nodiscard]] Bitboard black_majors() const noexcept {
+            return majors() & black_occupancy();
+        }
+        [[nodiscard]] Bitboard white_majors() const noexcept {
+            return majors() & white_occupancy();
+        }
 
-        [[nodiscard]] Bitboard all_pieces() const noexcept { return pawns() | knights() | bishops() | rooks() | queens() | king(); }
-        [[nodiscard]] Bitboard all_pieces(Color color) const noexcept { return all_pieces() & color_occupancy(color); }
+        [[nodiscard]] Bitboard all_pieces() const noexcept {
+            return pawns() | knights() | bishops() | rooks() | queens() | king();
+        }
+        [[nodiscard]] Bitboard all_pieces(Color color) const noexcept {
+            return all_pieces() & color_occupancy(color);
+        }
 
-        [[nodiscard]] bool has_castling_rights(Color color) const noexcept { return castling_rights & (3 << 2*(static_cast<int>(color))); }
+        [[nodiscard]] bool has_castling_rights(Color color) const noexcept {
+            return castling_rights & (3 << 2 * (static_cast<int>(color)));
+        }
 
         [[nodiscard]] U64 get_board_hash();
 
@@ -99,7 +154,9 @@ namespace elixir {
             return pieces[static_cast<I8>(sq)];
         }
 
-        [[nodiscard]] Color piece_color(Piece piece) const noexcept { return (static_cast<int>(piece) % 2 == 0) ? Color::WHITE : Color::BLACK; }
+        [[nodiscard]] Color piece_color(Piece piece) const noexcept {
+            return (static_cast<int>(piece) % 2 == 0) ? Color::WHITE : Color::BLACK;
+        }
 
         constexpr void set_en_passant_square(Square sq) noexcept { en_passant_square = sq; }
         constexpr void set_side_to_move(Color color) noexcept { side = color; }
@@ -116,7 +173,7 @@ namespace elixir {
         [[nodiscard]] I16 get_fullmove_number() const noexcept { return fullmove_number; }
         [[nodiscard]] U64 get_hash_key() const noexcept { return hash_key; }
         [[nodiscard]] EvalScore get_eval() const noexcept { return eval; }
-        
+
         [[nodiscard]] Bitboard get_attackers(Square sq, Color c, Bitboard occupancy) const {
             Bitboard attackers = 0ULL;
             attackers |= (attacks::get_pawn_attacks(Color::WHITE, sq) & black_pawns());
@@ -137,7 +194,8 @@ namespace elixir {
         }
 
         [[nodiscard]] bool is_in_check() const {
-            return is_square_attacked(kings[static_cast<I8>(side)], static_cast<Color>(static_cast<I8>(side)^1));
+            return is_square_attacked(kings[static_cast<I8>(side)],
+                                      static_cast<Color>(static_cast<I8>(side) ^ 1));
         }
 
         void clear_board() noexcept;
@@ -158,7 +216,8 @@ namespace elixir {
         bool is_repetition() const;
 
         History history;
-    private:
+
+      private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
         std::array<Square, 2> kings{};

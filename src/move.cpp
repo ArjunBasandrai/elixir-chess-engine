@@ -1,27 +1,28 @@
 #include <iostream>
 
-#include "types.h"
+#include "board/board.h"
 #include "defs.h"
 #include "move.h"
-#include "board/board.h"
+#include "types.h"
 
 namespace elixir::move {
     Move::Move(Move_T move) {
-        set_move(move);    
+        set_move(move);
     }
 
     Move::Move(Square from, Square to, Piece piece, Flag flag, Promotion promotion) {
         set_move(from, to, piece, flag, promotion);
     }
 
-    [[nodiscard]] Move_T Move::encode_move(Square from, Square to, Piece piece, Flag flag, Promotion promotion) const noexcept {
+    [[nodiscard]] Move_T Move::encode_move(Square from, Square to, Piece piece, Flag flag,
+                                           Promotion promotion) const noexcept {
         Move_T move = 0;
         move |= static_cast<Move_T>(from);
         move |= static_cast<Move_T>(to) << 6;
         move |= static_cast<Move_T>(piece) << 12;
         move |= static_cast<Move_T>(flag) << 16;
         move |= static_cast<Move_T>(promotion) << 19;
-        return move;        
+        return move;
     }
 
     void Move::print_uci() const {

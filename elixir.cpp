@@ -1,19 +1,18 @@
 #include <string>
 
-#include "src/types.h"
-#include "src/defs.h"
-#include "src/utils/test_fens.h"
-#include "src/utils/masks.h"
-#include "src/board/board.h"
-#include "src/bench/bench.h"
-#include "src/hashing/hash.h"
 #include "src/attacks/attacks.h"
-#include "src/tests/see_test.h"
-#include "src/uci.h"
+#include "src/bench/bench.h"
+#include "src/board/board.h"
+#include "src/defs.h"
+#include "src/hashing/hash.h"
 #include "src/search.h"
+#include "src/tests/see_test.h"
 #include "src/tt.h"
 #include "src/tune.h"
-#include "src/tune.h"
+#include "src/types.h"
+#include "src/uci.h"
+#include "src/utils/masks.h"
+#include "src/utils/test_fens.h"
 
 using namespace elixir;
 
@@ -22,9 +21,9 @@ void init() {
     attacks::init_attacks();
     // magic::init_magic_numbers();
     search::init_lmr();
-    #ifdef USE_TUNE
-        tune::init_tune();
-    #endif
+#ifdef USE_TUNE
+    tune::init_tune();
+#endif
 }
 
 int main(int argc, char *argv[]) {
@@ -40,9 +39,9 @@ int main(int argc, char *argv[]) {
             return 0;
         }
         if (std::string(argv[1]) == "spsa") {
-            #ifdef USE_TUNE
-                tune::tuner.print_spsa_inputs();
-            #endif
+#ifdef USE_TUNE
+            tune::tuner.print_spsa_inputs();
+#endif
             return 0;
         }
     }

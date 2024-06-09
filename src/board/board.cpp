@@ -1,43 +1,35 @@
-#include <iostream>
 #include <cassert>
+#include <iostream>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "board.h"
 
-#include "../types.h"
 #include "../defs.h"
+#include "../evaluate.h"
+#include "../hashing/hash.h"
+#include "../types.h"
 #include "../utils/bits.h"
+#include "../utils/eval_terms.h"
+#include "../utils/state.h"
 #include "../utils/str_utils.h"
 #include "../utils/test_fens.h"
-#include "../utils/state.h"
-#include "../hashing/hash.h"
-#include "../utils/eval_terms.h"
-#include "../evaluate.h"
 
 namespace elixir {
-    const int castling_update[64] = {
-        13, 15, 15, 15, 12, 15, 15, 14,
-        15, 15, 15, 15, 15, 15, 15, 15,
-        15, 15, 15, 15, 15, 15, 15, 15,
-        15, 15, 15, 15, 15, 15, 15, 15,
-        15, 15, 15, 15, 15, 15, 15, 15,
-        15, 15, 15, 15, 15, 15, 15, 15,
-        15, 15, 15, 15, 15, 15, 15, 15,
-        7, 15, 15, 15,  3, 15, 15, 11
-    };
+    const int castling_update[64] = {13, 15, 15, 15, 12, 15, 15, 14, 15, 15, 15, 15, 15,
+                                     15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+                                     15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+                                     15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+                                     15, 15, 15, 15, 7,  15, 15, 15, 3,  15, 15, 11};
 
-    const std::string square_str[64] = {
-        "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
-        "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
-        "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
-        "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
-        "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
-        "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
-        "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
-        "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
-    };
+    const std::string square_str[64] = {"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1", "a2", "b2",
+                                        "c2", "d2", "e2", "f2", "g2", "h2", "a3", "b3", "c3", "d3",
+                                        "e3", "f3", "g3", "h3", "a4", "b4", "c4", "d4", "e4", "f4",
+                                        "g4", "h4", "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+                                        "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6", "a7", "b7",
+                                        "c7", "d7", "e7", "f7", "g7", "h7", "a8", "b8", "c8", "d8",
+                                        "e8", "f8", "g8", "h8"};
 
     void print_square(const Square sq) {
         if (sq == Square::NO_SQ) {
@@ -65,13 +57,13 @@ namespace elixir {
             }
         }
     }
-    
+
     void Board::print_board() const {
         std::cout << "  +---+----+----+---+" << std::endl;
         for (int rank = RANK_8; rank >= RANK_1; rank--) {
             std::cout << rank + 1 << " | ";
             for (int file = FILE_A; file <= FILE_H; file++) {
-                Square sq = static_cast<Square>(8 * rank + file);
+                Square sq   = static_cast<Square>(8 * rank + file);
                 Piece piece = piece_on(sq);
                 if (piece == Piece::NO_PIECE) {
                     std::cout << ". ";
@@ -86,13 +78,14 @@ namespace elixir {
 
         std::cout << std::endl;
 
-        std::cout << "  Side to move: " << ((static_cast<int>(side)==0) ? "White" : "Black") << std::endl;
+        std::cout << "  Side to move: " << ((static_cast<int>(side) == 0) ? "White" : "Black")
+                  << std::endl;
 
-        std::cout << "  En passant square: "; 
-        print_square(en_passant_square); 
+        std::cout << "  En passant square: ";
+        print_square(en_passant_square);
         std::cout << std::endl;
-        
-        std::cout << "  Castling rights: " ;
+
+        std::cout << "  Castling rights: ";
         print_castling_rights();
         std::cout << std::endl;
 
@@ -115,13 +108,13 @@ namespace elixir {
         kings.fill(Square::NO_SQ);
         pieces.fill(Piece::NO_PIECE);
         undo_stack.clear();
-        en_passant_square = Square::NO_SQ;
-        side = Color::WHITE;
-        castling_rights = 0;
+        en_passant_square  = Square::NO_SQ;
+        side               = Color::WHITE;
+        castling_rights    = 0;
         fifty_move_counter = 0;
-        fullmove_number = 0;
-        hash_key = 0ULL;
-        eval = 0;
+        fullmove_number    = 0;
+        hash_key           = 0ULL;
+        eval               = 0;
         history.clear();
     }
 
@@ -129,10 +122,14 @@ namespace elixir {
         assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
         bits::set_bit(b_occupancies[static_cast<I8>(color)], sq);
         bits::set_bit(b_pieces[static_cast<I8>(piece)], sq);
-        int square = static_cast<I8>(sq);
+        int square     = static_cast<I8>(sq);
         pieces[square] = static_cast<Piece>(static_cast<I8>(piece) * 2 + static_cast<I8>(color));
-        if (color == Color::WHITE) { square ^= 56; }
-        eval += (eval::material_score[static_cast<I8>(piece)] + eval::psqt[static_cast<I8>(piece)][square]) * color_offset[static_cast<int>(color)];
+        if (color == Color::WHITE) {
+            square ^= 56;
+        }
+        eval += (eval::material_score[static_cast<I8>(piece)] +
+                 eval::psqt[static_cast<I8>(piece)][square]) *
+                color_offset[static_cast<int>(color)];
     }
 
     void Board::remove_piece(const Square sq, const PieceType piece, const Color color) {
@@ -140,39 +137,45 @@ namespace elixir {
         bits::clear_bit(b_occupancies[static_cast<I8>(color)], sq);
         bits::clear_bit(b_pieces[static_cast<I8>(piece)], sq);
         int square = static_cast<int>(sq);
-        assert(pieces[square] == static_cast<Piece>(static_cast<I8>(piece) * 2 + static_cast<I8>(color)));
+        assert(pieces[square] ==
+               static_cast<Piece>(static_cast<I8>(piece) * 2 + static_cast<I8>(color)));
         pieces[square] = Piece::NO_PIECE;
-        if (color == Color::WHITE) { square ^= 56; }
-        eval -= (eval::material_score[static_cast<I8>(piece)] + eval::psqt[static_cast<I8>(piece)][square]) * color_offset[static_cast<int>(color)];
+        if (color == Color::WHITE) {
+            square ^= 56;
+        }
+        eval -= (eval::material_score[static_cast<I8>(piece)] +
+                 eval::psqt[static_cast<I8>(piece)][square]) *
+                color_offset[static_cast<int>(color)];
     }
 
     void Board::from_fen(const std::string fen) {
         clear_board();
         std::vector<std::string> params = str_utils::split(fen, ' ');
-        
-        const std::string position = params[0];
+
+        const std::string position   = params[0];
         const std::string move_right = params[1];
-        const std::string castling = params[2];
+        const std::string castling   = params[2];
         const std::string en_passant = params[3];
 
         fifty_move_counter = std::stoi(params.size() > 4 ? params[4] : "0");
-        fullmove_number = std::stoi(params.size() > 5 ? params[5] : "1");
+        fullmove_number    = std::stoi(params.size() > 5 ? params[5] : "1");
 
         std::vector<std::string> ranks = str_utils::split(position, '/');
-        
+
         assert(ranks.size() == 8);
-        
+
         for (int rank = 7; rank >= 0; rank--) {
             int file = 0;
             for (char c : ranks[7 - rank]) {
                 if (isdigit(c)) {
                     file += c - '0';
                 } else {
-                    const PieceType piece = static_cast<PieceType>(piece_str.find(c)/2);
-                    
+                    const PieceType piece = static_cast<PieceType>(piece_str.find(c) / 2);
+
                     assert(piece != PieceType::NO_PIECE_TYPE);
-                    
-                    set_piece(static_cast<Square>(8 * rank + file), piece, isupper(c) ? Color::WHITE : Color::BLACK);
+
+                    set_piece(static_cast<Square>(8 * rank + file), piece,
+                              isupper(c) ? Color::WHITE : Color::BLACK);
                     file++;
                 }
             }
@@ -200,7 +203,10 @@ namespace elixir {
             }
         }
 
-        en_passant_square = en_passant == "-" ? Square::NO_SQ : static_cast<Square>((en_passant[0] - 'a') + 8 * (en_passant[1] - '1'));
+        en_passant_square =
+            en_passant == "-"
+                ? Square::NO_SQ
+                : static_cast<Square>((en_passant[0] - 'a') + 8 * (en_passant[1] - '1'));
 
         kings[static_cast<I8>(Color::WHITE)] = static_cast<Square>(bits::lsb_index(white_king()));
         kings[static_cast<I8>(Color::BLACK)] = static_cast<Square>(bits::lsb_index(black_king()));
@@ -213,15 +219,15 @@ namespace elixir {
     }
 
     void Board::unmake_move(const move::Move move, const bool from_make_move) {
-        const Square from = move.get_from();
-        const Square to = move.get_to();
-        const Piece piece = move.get_piece();
+        const Square from     = move.get_from();
+        const Square to       = move.get_to();
+        const Piece piece     = move.get_piece();
         const move::Flag flag = move.get_flag();
-        
+
         const PieceType piecetype = piece_to_piecetype(piece);
-        int stm = static_cast<int>(side);
-        Color enemy_side = static_cast<Color>(stm^1);
-        int xstm = static_cast<int>(enemy_side);
+        int stm                   = static_cast<int>(side);
+        Color enemy_side          = static_cast<Color>(stm ^ 1);
+        int xstm                  = static_cast<int>(enemy_side);
 
         if (from_make_move) {
             std::swap(side, enemy_side);
@@ -242,7 +248,7 @@ namespace elixir {
                     break;
                 case move::Promotion::BISHOP:
                     remove_piece(to, PieceType::BISHOP, side);
-                    break;            
+                    break;
                 default:
                     break;
             }
@@ -256,11 +262,11 @@ namespace elixir {
             kings[static_cast<I8>(side)] = from;
         }
 
-        State s = undo_stack[undo_stack.size()-1];
-        hash_key = s.hash_key;
-        castling_rights = s.castling_rights;
-        en_passant_square = s.enpass;
-        fifty_move_counter = s.fifty_move_counter;
+        State s              = undo_stack[undo_stack.size() - 1];
+        hash_key             = s.hash_key;
+        castling_rights      = s.castling_rights;
+        en_passant_square    = s.enpass;
+        fifty_move_counter   = s.fifty_move_counter;
         Piece captured_piece = s.captured_piece;
 
         if (side == Color::BLACK) {
@@ -274,7 +280,7 @@ namespace elixir {
 
         // Handling En Passant
         if (flag == move::Flag::EN_PASSANT) {
-            const int int_to = static_cast<int>(to);
+            const int int_to       = static_cast<int>(to);
             Square captured_square = static_cast<Square>(int_to + (side == Color::WHITE ? -8 : 8));
             set_piece(captured_square, PieceType::PAWN, enemy_side);
         }
@@ -309,21 +315,21 @@ namespace elixir {
     }
 
     bool Board::make_move(move::Move move) {
-        const Square from = move.get_from();
-        const Square to = move.get_to();
-        const Piece piece = move.get_piece();
-        const move::Flag flag = move.get_flag();
+        const Square from               = move.get_from();
+        const Square to                 = move.get_to();
+        const Piece piece               = move.get_piece();
+        const move::Flag flag           = move.get_flag();
         const move::Promotion promotion = move.get_promotion();
 
-        const int stm = static_cast<int>(side);
-        const Color enemy_side = static_cast<Color>(stm^1);
-        const int xstm = static_cast<int>(enemy_side);
+        const int stm          = static_cast<int>(side);
+        const Color enemy_side = static_cast<Color>(stm ^ 1);
+        const int xstm         = static_cast<int>(enemy_side);
 
         const PieceType piecetype = piece_to_piecetype(piece);
 
         const int int_piece = static_cast<int>(piece);
-        const int int_from = static_cast<int>(from);
-        const int int_to = static_cast<int>(to);
+        const int int_from  = static_cast<int>(from);
+        const int int_to    = static_cast<int>(to);
 
         const Piece piece_ = piece_on(from);
 
@@ -332,23 +338,24 @@ namespace elixir {
         assert(piece != Piece::NO_PIECE);
         assert(piece_ == piece);
         assert(piece_color(piece_) == side);
-        
+
         Piece captured_piece = piece_on(to);
-        State s = State(hash_key, castling_rights, en_passant_square, fifty_move_counter, captured_piece, eval);
+        State s = State(hash_key, castling_rights, en_passant_square, fifty_move_counter,
+                        captured_piece, eval);
         undo_stack.push(s);
-        
+
         eval = s.eval;
 
         remove_piece(from, piecetype, side);
         // Move source piece to target only if not a capturing move
         // In case of a capture, moving of piece is handled in the "Handling Captures" section
-        if (!move.is_capture()) {
-            
+        if (! move.is_capture()) {
+
             assert(captured_piece == Piece::NO_PIECE);
-            
+
             set_piece(to, piecetype, side);
         }
-        
+
         if (piece_ == Piece::wK || piece_ == Piece::bK) {
             kings[static_cast<I8>(side)] = to;
         }
@@ -371,7 +378,8 @@ namespace elixir {
                 fifty_move_counter = 0;
                 remove_piece(to, piece_to_piecetype(captured_piece), enemy_side);
                 set_piece(to, piecetype, side);
-                hash_key ^= zobrist::piece_keys[static_cast<int>(captured_piece)][static_cast<int>(to)];
+                hash_key ^=
+                    zobrist::piece_keys[static_cast<int>(captured_piece)][static_cast<int>(to)];
             }
         }
 
@@ -396,19 +404,20 @@ namespace elixir {
                     promotion_piece = PieceType::NO_PIECE_TYPE;
                     break;
             }
-            
+
             assert(promotion_piece != PieceType::NO_PIECE_TYPE);
-            
+
             set_piece(to, promotion_piece, side);
             hash_key ^= zobrist::piece_keys[int_piece][int_to];
-            hash_key ^= zobrist::piece_keys[static_cast<int>(promotion_piece)+stm*6][int_to];
+            hash_key ^= zobrist::piece_keys[static_cast<int>(promotion_piece) + stm * 6][int_to];
         }
 
         // Handling En Passant
         if (flag == move::Flag::EN_PASSANT && en_passant_square != Square::NO_SQ) {
             Square captured_square = static_cast<Square>(int_to - 8 * color_offset[stm]);
             remove_piece(captured_square, PieceType::PAWN, enemy_side);
-            hash_key ^= zobrist::piece_keys[static_cast<int>(PieceType::PAWN)+xstm*6][static_cast<int>(captured_square)];
+            hash_key ^= zobrist::piece_keys[static_cast<int>(PieceType::PAWN) + xstm * 6]
+                                           [static_cast<int>(captured_square)];
         }
         if (en_passant_square != Square::NO_SQ) {
             hash_key ^= zobrist::ep_keys[static_cast<int>(en_passant_square)];
@@ -457,8 +466,8 @@ namespace elixir {
         if (is_square_attacked(kings[static_cast<I8>(side)], enemy_side)) {
             unmake_move(move, false);
             return false;
-        } 
-        
+        }
+
         side = enemy_side;
         hash_key ^= zobrist::castle_keys[castling_rights];
         castling_rights &= castling_update[int_from];
@@ -466,11 +475,12 @@ namespace elixir {
         hash_key ^= zobrist::castle_keys[castling_rights];
 
         hash_key ^= zobrist::side_key;
-        return true;     
+        return true;
     }
 
     void Board::make_null_move() {
-        const State s = State(hash_key, castling_rights, en_passant_square, fifty_move_counter, Piece::NO_PIECE, eval);
+        const State s = State(hash_key, castling_rights, en_passant_square, fifty_move_counter,
+                              Piece::NO_PIECE, eval);
         undo_stack.push(s);
         fifty_move_counter++;
         if (en_passant_square != Square::NO_SQ) {
@@ -478,28 +488,28 @@ namespace elixir {
         }
         en_passant_square = Square::NO_SQ;
         hash_key ^= zobrist::side_key;
-        side = static_cast<Color>(static_cast<int>(side)^1);
+        side = static_cast<Color>(static_cast<int>(side) ^ 1);
     }
 
     void Board::unmake_null_move() {
-        const State s = undo_stack[undo_stack.size()-1];
+        const State s = undo_stack[undo_stack.size() - 1];
         undo_stack.pop_back();
-        hash_key = s.hash_key;
+        hash_key           = s.hash_key;
         fifty_move_counter = s.fifty_move_counter;
-        en_passant_square = s.enpass;
-        castling_rights = s.castling_rights;
-        eval = s.eval;
-        side = static_cast<Color>(static_cast<int>(side)^1);
+        en_passant_square  = s.enpass;
+        castling_rights    = s.castling_rights;
+        eval               = s.eval;
+        side               = static_cast<Color>(static_cast<int>(side) ^ 1);
     }
 
     move::Move Board::parse_uci_move(const std::string move) const {
-        
+
         assert(move.length() == 4 || move.length() == 5);
-        
-        Square from = static_cast<Square>((move[0] - 'a') + 8 * (move[1] - '1'));
-        Square to = static_cast<Square>((move[2] - 'a') + 8 * (move[3] - '1'));
-        Piece piece = piece_on(from);
-        move::Flag flag = move::Flag::NORMAL;
+
+        Square from               = static_cast<Square>((move[0] - 'a') + 8 * (move[1] - '1'));
+        Square to                 = static_cast<Square>((move[2] - 'a') + 8 * (move[3] - '1'));
+        Piece piece               = piece_on(from);
+        move::Flag flag           = move::Flag::NORMAL;
         move::Promotion promotion = move::Promotion::QUEEN;
         if (move.length() == 5) {
             switch (move[4]) {
@@ -522,7 +532,8 @@ namespace elixir {
         }
 
         if (piece_on(to) != Piece::NO_PIECE) {
-            if (get_rank(to) == PromotionRank[static_cast<I8>(side)] && flag == move::Flag::PROMOTION) {
+            if (get_rank(to) == PromotionRank[static_cast<I8>(side)] &&
+                flag == move::Flag::PROMOTION) {
                 flag = move::Flag::CAPTURE_PROMOTION;
             } else {
                 flag = move::Flag::CAPTURE;
@@ -539,7 +550,7 @@ namespace elixir {
             flag = move::Flag::CASTLING;
         }
 
-        int to_rank = get_rank(to);
+        int to_rank   = get_rank(to);
         int from_rank = get_rank(from);
 
         if (piece == Piece::wP && from_rank == RANK_2 && to_rank == RANK_4) {
@@ -564,7 +575,7 @@ namespace elixir {
 
     bool Board::is_repetition() const {
         const auto limit = std::max<int>(0, undo_stack.size() - fifty_move_counter - 2);
-        int counter = 1;
+        int counter      = 1;
         for (int i = undo_stack.size() - 4; i >= limit; i -= 2) {
             if (undo_stack[i].hash_key == hash_key) {
                 if (--counter == 0) {

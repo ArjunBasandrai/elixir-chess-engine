@@ -1,46 +1,32 @@
 #pragma once
 
 #include <array>
-#include <span>
 #include <chrono>
+#include <span>
 
 #include "board/board.h"
 #include "move.h"
 
-namespace elixir::search
-{
-    struct SearchStack
-    {
-        move::Move move = move::NO_MOVE;
+namespace elixir::search {
+    struct SearchStack {
+        move::Move move       = move::NO_MOVE;
         move::Move killers[2] = {};
         int eval;
         int ply;
     };
 
-    class SearchInfo
-    {
-    public:
+    class SearchInfo {
+      public:
         SearchInfo() = default;
         SearchInfo(int depth)
-        : nodes(0),
-          stopped(false),
-          timed(false),
-          start_time(std::chrono::high_resolution_clock::now()),
-          depth(depth),
-          seldepth(0),
-          soft_limit(0),
-          hard_limit(0),
-          best_root_move(move::NO_MOVE) {}
-        SearchInfo(int depth, std::chrono::high_resolution_clock::time_point start_time, F64 soft_limit, F64 hard_limit)
-        : nodes(0),
-          depth(depth),
-          seldepth(0),
-          stopped(false),
-          timed(true),
-          start_time(start_time),
-          soft_limit(soft_limit),
-          hard_limit(hard_limit),
-          best_root_move(move::NO_MOVE) {}
+            : nodes(0), stopped(false), timed(false),
+              start_time(std::chrono::high_resolution_clock::now()), depth(depth), seldepth(0),
+              soft_limit(0), hard_limit(0), best_root_move(move::NO_MOVE) {}
+        SearchInfo(int depth, std::chrono::high_resolution_clock::time_point start_time,
+                   F64 soft_limit, F64 hard_limit)
+            : nodes(0), depth(depth), seldepth(0), stopped(false), timed(true),
+              start_time(start_time), soft_limit(soft_limit), hard_limit(hard_limit),
+              best_root_move(move::NO_MOVE) {}
 
         ~SearchInfo() = default;
         unsigned long long nodes;
@@ -54,45 +40,33 @@ namespace elixir::search
         move::Move best_root_move;
     };
 
-    struct PVariation
-    {
+    struct PVariation {
         std::size_t length;
         int score;
         std::array<move::Move, 256> line;
 
-        PVariation() : length(0), score(0)
-        {
-            for (auto &move : line)
-            {
+        PVariation() : length(0), score(0) {
+            for (auto &move : line) {
                 move = move::NO_MOVE;
             }
         }
 
-        std::span<move::Move> moves()
-        {
-            return std::span<move::Move>(line.data(), length);
-        }
+        std::span<move::Move> moves() { return std::span<move::Move>(line.data(), length); }
 
-        int score_value() const
-        {
-            return score;
-        }
+        int score_value() const { return score; }
 
-        void print_pv() const
-        {
-            for (int i = 0; i < length; i++)
-            {
+        void print_pv() const {
+            for (int i = 0; i < length; i++) {
                 line[i].print_uci();
                 std::cout << " ";
             }
         }
 
-        void update(const move::Move m, const int s, const PVariation &rest)
-        {
+        void update(const move::Move m, const int s, const PVariation &rest) {
             line[0] = m;
             std::copy(rest.line.begin(), rest.line.begin() + rest.length, line.begin() + 1);
             length = rest.length + 1;
-            score = s;
+            score  = s;
         }
     };
 
@@ -130,7 +104,9 @@ namespace elixir::search
     extern int lmr[MAX_DEPTH][64];
     void init_lmr();
 
-    int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv, SearchStack *ss);
-    bool SEE(const Board& board, const move::Move move, int threshold, const int see_values[7] = see_pieces);
+    int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv,
+                SearchStack *ss);
+    bool SEE(const Board &board, const move::Move move, int threshold,
+             const int see_values[7] = see_pieces);
     void search(Board &board, SearchInfo &info, bool print_info = true);
 }

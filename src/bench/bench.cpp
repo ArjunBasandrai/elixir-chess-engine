@@ -1,20 +1,18 @@
-#include <string>
 #include <array>
 #include <chrono>
+#include <string>
 
 #include "bench.h"
 
 #include "../board/board.h"
-#include "../utils/test_fens.h"
 #include "../search.h"
 #include "../tt.h"
+#include "../utils/test_fens.h"
 
-namespace elixir::bench
-{
-    void bench()
-    {
-        constexpr U8 bench_size = 50;
-        constexpr I8 bench_depth = 8;
+namespace elixir::bench {
+    void bench() {
+        constexpr U8 bench_size      = 50;
+        constexpr I8 bench_depth     = 8;
         std::string fens[bench_size] = {
             "r3k2r/2pb1ppp/2pp1q2/p7/1nP1B3/1P2P3/P2N1PPP/R2QK2R w KQkq a6 0 14",
             "4rrk1/2p1b1p1/p1p3q1/4p3/2P2n1p/1P1NR2P/PB3PP1/3R1QK1 b - - 2 24",
@@ -67,12 +65,11 @@ namespace elixir::bench
             "3br1k1/p1pn3p/1p3n2/5pNq/2P1p3/1PN3PP/P2Q1PB1/4R1K1 w - - 0 23",
             "2r2b2/5p2/5k2/p1r1pP2/P2pB3/1P3P2/K1P3R1/7R w - - 23 93"};
         search::SearchInfo info = search::SearchInfo(bench_depth);
-        U64 nodes = 0;
-        auto start_time = std::chrono::high_resolution_clock::now();
+        U64 nodes               = 0;
+        auto start_time         = std::chrono::high_resolution_clock::now();
         Board board;
         int c = 0;
-        for (auto &fen: fens)
-        {   
+        for (auto &fen : fens) {
             tt->clear_tt();
             info.nodes = 0;
             board.from_fen(fen);
@@ -80,7 +77,9 @@ namespace elixir::bench
             nodes += info.nodes;
         }
         auto end_time = std::chrono::high_resolution_clock::now();
-        auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() / 1000.0;
+        auto time =
+            std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() /
+            1000.0;
         std::cout << nodes << " nodes ";
         std::cout << (int)(nodes / time) << " nps" << std::endl;
     }

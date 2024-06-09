@@ -1,20 +1,20 @@
 #ifdef USE_TUNE
 #include <variant>
 
-#include "tune.h"
+#include "evaluate.h"
 #include "movepicker.h"
 #include "search.h"
-#include "evaluate.h"
+#include "tune.h"
 #endif
 
 namespace elixir {
-    int DEFAULT_MOVESTOGO = -1;
+    int DEFAULT_MOVESTOGO     = -1;
     int DEFAULT_MOVE_OVERHEAD = 100;
 }
 
 #ifdef USE_TUNE
 namespace elixir::tune {
-    
+
     Tuner tuner;
 
     void Tuner::add_field(TunerField field) {
@@ -22,22 +22,29 @@ namespace elixir::tune {
     }
 
     void Tuner::print_info() {
-        for (auto& field : fields) {
+        for (auto &field : fields) {
             const bool is_int = std::holds_alternative<int>(field.default_value);
             std::cout << "option name " << field.name;
             std::cout << " type " << (is_int ? "spin" : "string");
-            std::cout << " default " << (is_int ? std::get<int>(field.default_value) : std::get<double>(field.default_value));
-            std::cout << " min " << (is_int ? std::get<int>(field.min_value) : std::get<double>(field.min_value));
-            std::cout << " max " << (is_int ? std::get<int>(field.max_value) : std::get<double>(field.max_value));
+            std::cout << " default "
+                      << (is_int ? std::get<int>(field.default_value)
+                                 : std::get<double>(field.default_value));
+            std::cout << " min "
+                      << (is_int ? std::get<int>(field.min_value)
+                                 : std::get<double>(field.min_value));
+            std::cout << " max "
+                      << (is_int ? std::get<int>(field.max_value)
+                                 : std::get<double>(field.max_value));
             std::cout << std::endl;
         }
     }
 
     void Tuner::print_current() {
-        for (auto& field : fields) {
+        for (auto &field : fields) {
             const bool is_int = std::holds_alternative<int>(field.default_value);
             std::cout << field.name << ": ";
-            std::cout << (is_int ? *std::get<int*>(field.value) : *std::get<double*>(field.value));
+            std::cout << (is_int ? *std::get<int *>(field.value)
+                                 : *std::get<double *>(field.value));
             std::cout << std::endl;
         }
     }
@@ -98,217 +105,222 @@ namespace elixir::tune {
         tuner.add_field({"LMR_OFFSET", &LMR_OFFSET, 0.5137, 0.0, 4.0, 0.05, 0.002});
         tuner.add_field({"LMR_DIVISOR", &LMR_DIVISOR, 1.711, 0.5, 10.0, 0.1, 0.002});
     }
-    
+
     void Tuner::print_spsa_inputs() {
-        for (auto& field : fields) {
+        for (auto &field : fields) {
             const bool is_int = std::holds_alternative<int>(field.default_value);
             std::cout << field.name << ", " << (is_int ? "int" : "float") << ", ";
-            std::cout << (is_int ? std::get<int>(field.default_value) : std::get<double>(field.default_value)) << ", ";
-            std::cout << (is_int ? std::get<int>(field.min_value) : std::get<double>(field.min_value)) << ", ";
-            std::cout << (is_int ? std::get<int>(field.max_value) : std::get<double>(field.max_value)) << ", ";
+            std::cout << (is_int ? std::get<int>(field.default_value)
+                                 : std::get<double>(field.default_value))
+                      << ", ";
+            std::cout << (is_int ? std::get<int>(field.min_value)
+                                 : std::get<double>(field.min_value))
+                      << ", ";
+            std::cout << (is_int ? std::get<int>(field.max_value)
+                                 : std::get<double>(field.max_value))
+                      << ", ";
             std::cout << field.step << ", " << field.lr;
             std::cout << std::endl;
         }
     }
 
-    void Tuner::update_parameter(const std::string& name, const std::string& option_value) {
+    void Tuner::update_parameter(const std::string &name, const std::string &option_value) {
         if (name == "LMP_BASE") {
-            int lmp_base = std::stoi(option_value);
+            int lmp_base     = std::stoi(option_value);
             search::LMP_BASE = lmp_base;
         }
 
         else if (name == "RFP_MARGIN") {
-            int rfp_margin = std::stoi(option_value);
+            int rfp_margin     = std::stoi(option_value);
             search::RFP_MARGIN = rfp_margin;
         }
 
         else if (name == "RAZOR_MARGIN") {
-            int razor_margin = std::stoi(option_value);
+            int razor_margin     = std::stoi(option_value);
             search::RAZOR_MARGIN = razor_margin;
         }
 
         else if (name == "NMP_BASE_REDUCTION") {
-            int nmp_base_reduction = std::stoi(option_value);
+            int nmp_base_reduction     = std::stoi(option_value);
             search::NMP_BASE_REDUCTION = nmp_base_reduction;
         }
 
         else if (name == "NMP_DEPTH") {
-            int nmp_depth = std::stoi(option_value);
+            int nmp_depth     = std::stoi(option_value);
             search::NMP_DEPTH = nmp_depth;
         }
 
         else if (name == "NMP_DIVISOR") {
-            int nmp_divisor = std::stoi(option_value);
+            int nmp_divisor     = std::stoi(option_value);
             search::NMP_DIVISOR = nmp_divisor;
         }
 
         else if (name == "RFP_DEPTH") {
-            int rfp_depth = std::stoi(option_value);
+            int rfp_depth     = std::stoi(option_value);
             search::RFP_DEPTH = rfp_depth;
         }
 
         else if (name == "RAZOR_DEPTH") {
-            int razor_depth = std::stoi(option_value);
+            int razor_depth     = std::stoi(option_value);
             search::RAZOR_DEPTH = razor_depth;
         }
 
         else if (name == "IIR_DEPTH") {
-            int iir_depth = std::stoi(option_value);
+            int iir_depth     = std::stoi(option_value);
             search::IIR_DEPTH = iir_depth;
         }
 
         else if (name == "LMP_MULTIPLIER") {
-            int lmp_multiplier = std::stoi(option_value);
+            int lmp_multiplier     = std::stoi(option_value);
             search::LMP_MULTIPLIER = lmp_multiplier;
         }
 
         else if (name == "LMR_DEPTH") {
-            int lmr_depth = std::stoi(option_value);
+            int lmr_depth     = std::stoi(option_value);
             search::LMR_DEPTH = lmr_depth;
         }
 
         else if (name == "LMR_OFFSET") {
-            float lmr_offset = std::stof(option_value);
+            float lmr_offset   = std::stof(option_value);
             search::LMR_OFFSET = lmr_offset;
             search::init_lmr();
         }
 
         else if (name == "LMR_DIVISOR") {
-            float lmr_divisor = std::stof(option_value);
+            float lmr_divisor   = std::stof(option_value);
             search::LMR_DIVISOR = lmr_divisor;
             search::init_lmr();
         }
 
         else if (name == "FP_BASE") {
-            int fp_base = std::stoi(option_value);
+            int fp_base     = std::stoi(option_value);
             search::FP_BASE = fp_base;
         }
 
         else if (name == "FP_MULTIPLIER") {
-            int fp_multiplier = std::stoi(option_value);
+            int fp_multiplier     = std::stoi(option_value);
             search::FP_MULTIPLIER = fp_multiplier;
         }
 
         else if (name == "FP_DEPTH") {
-            int fp_depth = std::stoi(option_value);
+            int fp_depth     = std::stoi(option_value);
             search::FP_DEPTH = fp_depth;
         }
 
         else if (name == "SEE_QUIET") {
-            int see_quiet = std::stoi(option_value);
+            int see_quiet     = std::stoi(option_value);
             search::SEE_QUIET = see_quiet;
         }
 
         else if (name == "SEE_CAPTURE") {
-            int see_capture = std::stoi(option_value);
+            int see_capture     = std::stoi(option_value);
             search::SEE_CAPTURE = see_capture;
         }
 
         else if (name == "SEE_DEPTH") {
-            int see_depth = std::stoi(option_value);
+            int see_depth     = std::stoi(option_value);
             search::SEE_DEPTH = see_depth;
         }
 
         else if (name == "QS_SEE_THRESHOLD") {
-            int qs_see_threshold = std::stoi(option_value);
+            int qs_see_threshold     = std::stoi(option_value);
             search::QS_SEE_THRESHOLD = qs_see_threshold;
         }
 
         else if (name == "SEE_PAWN") {
-            int see_pawn = std::stoi(option_value);
+            int see_pawn     = std::stoi(option_value);
             search::SEE_PAWN = see_pawn;
         }
 
         else if (name == "SEE_KNIGHT") {
-            int see_knight = std::stoi(option_value);
+            int see_knight     = std::stoi(option_value);
             search::SEE_KNIGHT = see_knight;
         }
 
         else if (name == "SEE_BISHOP") {
-            int see_bishop = std::stoi(option_value);
+            int see_bishop     = std::stoi(option_value);
             search::SEE_BISHOP = see_bishop;
         }
 
         else if (name == "SEE_ROOK") {
-            int see_rook = std::stoi(option_value);
+            int see_rook     = std::stoi(option_value);
             search::SEE_ROOK = see_rook;
         }
 
         else if (name == "SEE_QUEEN") {
-            int see_queen = std::stoi(option_value);
+            int see_queen     = std::stoi(option_value);
             search::SEE_QUEEN = see_queen;
         }
 
         else if (name == "MP_SEE") {
             int mp_see = std::stoi(option_value);
-            MP_SEE = mp_see;
+            MP_SEE     = mp_see;
         }
 
         else if (name == "MIN_ASP_DEPTH") {
-            int min_asp_depth = std::stoi(option_value);
+            int min_asp_depth     = std::stoi(option_value);
             search::MIN_ASP_DEPTH = min_asp_depth;
         }
 
         else if (name == "DEFAULT_MOVESTOGO") {
             int default_movestogo = std::stoi(option_value);
-            DEFAULT_MOVESTOGO = default_movestogo;
+            DEFAULT_MOVESTOGO     = default_movestogo;
         }
 
         else if (name == "DEFAULT_MOVE_OVERHEAD") {
             int default_move_overhead = std::stoi(option_value);
-            DEFAULT_MOVE_OVERHEAD = default_move_overhead;
+            DEFAULT_MOVE_OVERHEAD     = default_move_overhead;
         }
 
         else if (name == "HISTORY_GRAVITY") {
             int history_gravity = std::stoi(option_value);
-            HISTORY_GRAVITY = history_gravity;
+            HISTORY_GRAVITY     = history_gravity;
         }
 
         else if (name == "INITIAL_ASP_DELTA") {
-            int initial_asp_delta = std::stoi(option_value);
+            int initial_asp_delta     = std::stoi(option_value);
             search::INITIAL_ASP_DELTA = initial_asp_delta;
         }
 
         else if (name == "TEMPO") {
-            int tempo = std::stoi(option_value);
+            int tempo   = std::stoi(option_value);
             eval::TEMPO = tempo;
         }
 
         else if (name == "ASP_MULTIPLIER") {
-            float asp_multiplier = std::stof(option_value);
+            float asp_multiplier   = std::stof(option_value);
             search::ASP_MULTIPLIER = asp_multiplier;
         }
 
         else if (name == "MP_PAWN") {
-            int mp_pawn = std::stoi(option_value);
+            int mp_pawn   = std::stoi(option_value);
             eval::MP_PAWN = mp_pawn;
         }
 
         else if (name == "MP_KNIGHT") {
-            int mp_knight = std::stoi(option_value);
+            int mp_knight   = std::stoi(option_value);
             eval::MP_KNIGHT = mp_knight;
         }
 
         else if (name == "MP_BISHOP") {
-            int mp_bishop = std::stoi(option_value);
+            int mp_bishop   = std::stoi(option_value);
             eval::MP_BISHOP = mp_bishop;
         }
 
         else if (name == "MP_ROOK") {
-            int mp_rook = std::stoi(option_value);
+            int mp_rook   = std::stoi(option_value);
             eval::MP_ROOK = mp_rook;
         }
 
         else if (name == "MP_QUEEN") {
-            int mp_queen = std::stoi(option_value);
+            int mp_queen   = std::stoi(option_value);
             eval::MP_QUEEN = mp_queen;
         }
 
         else if (name == "MP_KING") {
-            int mp_king = std::stoi(option_value);
+            int mp_king   = std::stoi(option_value);
             eval::MP_KING = mp_king;
         }
-
     }
 }
 #endif

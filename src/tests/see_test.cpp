@@ -1,13 +1,13 @@
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 
+#include "../board/board.h"
 #include "../defs.h"
-#include "../types.h"
 #include "../move.h"
 #include "../search.h"
+#include "../types.h"
 #include "../utils/str_utils.h"
-#include "../board/board.h"
 #include "see_test.h"
 
 namespace elixir {
@@ -41,17 +41,20 @@ namespace elixir {
             "8/pp6/2pkp3/4bp2/2R3b1/2P5/PP4B1/1K6 w - - | g2c6 | -200 | P - B",
             "4q3/1p1pr1k1/1B2rp2/6p1/p3PP2/P3R1P1/1P2R1K1/4Q3 b - - | e6e4 | -400 | P - R",
             "4q3/1p1pr1kb/1B2rp2/6p1/p3PP2/P3R1P1/1P2R1K1/4Q3 b - - | h7e4 | 100 | P",
-            "3r3k/3r4/2n1n3/8/3p4/2PR4/1B1Q4/3R3K w - - | d3d4 | -100 | P - R + N - P + N - B + R - Q + R",
+            "3r3k/3r4/2n1n3/8/3p4/2PR4/1B1Q4/3R3K w - - | d3d4 | -100 | P - R + N - P + N - B + R "
+            "- Q + R",
             "1k1r4/1ppn3p/p4b2/4n3/8/P2N2P1/1PP1R1BP/2K1Q3 w - - | d3e5 | 100 | N - N + B - R + N",
             "1k1r3q/1ppn3p/p4b2/4p3/8/P2N2P1/1PP1R1BP/2K1Q3 w - - | d3e5 | -200 | P - N",
             "rnb2b1r/ppp2kpp/5n2/4P3/q2P3B/5R2/PPP2PPP/RN1QKB2 w Q - | h4f6 | 100 | N - B + P",
             "r2q1rk1/2p1bppp/p2p1n2/1p2P3/4P1b1/1nP1BN2/PP3PPP/RN1QR1K1 b - - | g4f3 | 0 | N - B",
-            "r1bqkb1r/2pp1ppp/p1n5/1p2p3/3Pn3/1B3N2/PPP2PPP/RNBQ1RK1 b kq - | c6d4 | 0 | P - N + N - P",
+            "r1bqkb1r/2pp1ppp/p1n5/1p2p3/3Pn3/1B3N2/PPP2PPP/RNBQ1RK1 b kq - | c6d4 | 0 | P - N + N "
+            "- P",
             "r1bq1r2/pp1ppkbp/4N1p1/n3P1B1/8/2N5/PPP2PPP/R2QK2R w KQ - | e6g7 | 0 | B - N",
             "r1bq1r2/pp1ppkbp/4N1pB/n3P3/8/2N5/PPP2PPP/R2QK2R w KQ - | e6g7 | 300 | B",
             "rnq1k2r/1b3ppp/p2bpn2/1p1p4/3N4/1BN1P3/PPP2PPP/R1BQR1K1 b kq - | d6h2 | -200 | P - B",
             "rn2k2r/1bq2ppp/p2bpn2/1p1p4/3N4/1BN1P3/PPP2PPP/R1BQR1K1 b kq - | d6h2 | 100 | P",
-            "r2qkbn1/ppp1pp1p/3p1rp1/3Pn3/4P1b1/2N2N2/PPP2PPP/R1BQKB1R b KQq - | g4f3 | 100 | N - B + P",
+            "r2qkbn1/ppp1pp1p/3p1rp1/3Pn3/4P1b1/2N2N2/PPP2PPP/R1BQKB1R b KQq - | g4f3 | 100 | N - "
+            "B + P",
             "rnbq1rk1/pppp1ppp/4pn2/8/1bPP4/P1N5/1PQ1PPPP/R1B1KBNR b KQ - | b4c3 | 0 | N - B",
             "r4rk1/3nppbp/bq1p1np1/2pP4/8/2N2NPP/PP2PPB1/R1BQR1K1 b - - | b6b2 | -800 | P - Q",
             "r4rk1/1q1nppbp/b2p1np1/2pP4/8/2N2NPP/PP2PPB1/R1BQR1K1 b - - | f6d5 | -200 | P - N",
@@ -63,7 +66,8 @@ namespace elixir {
             "1r5k/p4pp1/2p1p2p/qpQP3P/2P2P2/1P1R4/P4rP1/1K1R4 b - - | a5a2 | 100 | P",
             "r2q1rk1/1b2bppp/p2p1n2/1ppNp3/3nP3/P2P1N1P/BPP2PP1/R1BQR1K1 w - - | d5e7 | 0 | B - N",
             "rnbqrbn1/pp3ppp/3p4/2p2k2/4p3/3B1K2/PPP2PPP/RNB1Q1NR w - - | d3e4 | 100 | P",
-            "rnb1k2r/p3p1pp/1p3p1b/7n/1N2N3/3P1PB1/PPP1P1PP/R2QKB1R w KQkq - | e4d6 | -200 | -N + P",
+            "rnb1k2r/p3p1pp/1p3p1b/7n/1N2N3/3P1PB1/PPP1P1PP/R2QKB1R w KQkq - | e4d6 | -200 | -N + "
+            "P",
             "r1b1k2r/p4npp/1pp2p1b/7n/1N2N3/3P1PB1/PPP1P1PP/R2QKB1R w KQkq - | e4d6 | 0 | -N + N",
             "2r1k2r/pb4pp/5p1b/2KB3n/4N3/2NP1PB1/PPP1P1PP/R2Q3R w k - | d5c6 | -300 | -B",
             "2r1k2r/pb4pp/5p1b/2KB3n/1N2N3/3P1PB1/PPP1P1PP/R2Q3R w k - | d5c6 | 0 | -B + B",
@@ -77,7 +81,8 @@ namespace elixir {
             "4kbnr/p1P4p/b1q5/5pP1/4n3/5Q2/PP1PPP1P/RNB1KBNR w KQk f6 | g5f6 | 0 | P - P",
             "4kbnr/p1P4p/b1q5/5pP1/4n3/5Q2/PP1PPP1P/RNB1KBNR w KQk f6 | g5f6 | 0 | P - P",
             "4kbnr/p1P4p/b1q5/5pP1/4n2Q/8/PP1PPP1P/RNB1KBNR w KQk f6 | g5f6 | 0 | P - P",
-            "1n2kb1r/p1P4p/2qb4/5pP1/4n2Q/8/PP1PPP1P/RNB1KBNR w KQk - | c7b8q | 200 | N + (Q - P) - Q",
+            "1n2kb1r/p1P4p/2qb4/5pP1/4n2Q/8/PP1PPP1P/RNB1KBNR w KQk - | c7b8q | 200 | N + (Q - P) "
+            "- Q",
             "rnbqk2r/pp3ppp/2p1pn2/3p4/3P4/N1P1BN2/PPB1PPPb/R2Q1RK1 w kq - | g1h2 | 300 | B",
             "3N4/2K5/2n5/1k6/8/8/8/8 b - - | c6d8 | 0 | N - N",
             "3n3r/2P5/8/1k6/8/8/3Q4/4K3 w - - | c7d8q | 700 | (N + Q - P) - Q + R",
@@ -89,40 +94,52 @@ namespace elixir {
 
 
         void see_test() {
-            std::cout << "------------------------------------------------------------------------------------------------------------------------------\n";
+            std::cout << "-------------------------------------------------------------------------"
+                         "-----------------------------------------------------\n";
             std::cout << "Running SEE test..." << std::endl;
-            std::cout << "------------------------------------------------------------------------------------------------------------------------------\n" << std::endl;
+            std::cout << "-------------------------------------------------------------------------"
+                         "-----------------------------------------------------\n"
+                      << std::endl;
 
             const int see_values[7] = {100, 300, 300, 500, 900, 0, 0};
 
             int counter = 1;
-            for (const auto& entry: see_suite) {
+            for (const auto &entry : see_suite) {
                 std::cout << "Running test [" << counter++ << "] [" << entry << "]..." << std::endl;
                 const auto data = str_utils::split(entry, '|');
                 Board board(data[0]);
-                const move::Move move = board.parse_uci_move(str_utils::remove_whitespaces(data[1]));
-                
+                const move::Move move =
+                    board.parse_uci_move(str_utils::remove_whitespaces(data[1]));
+
                 bool is_promotion = false;
                 if (move.is_promotion()) {
                     is_promotion = true;
                 }
 
                 const int threshold = std::stoi(str_utils::remove_whitespaces(data[2]));
-                if ((search::SEE(board, move, threshold, see_values) && !search::SEE(board, move, threshold + 1, see_values)) || is_promotion) {
-                    std::cout << "SEE test [" << counter << "] [" << entry << "] passed!" << std::endl;
+                if ((search::SEE(board, move, threshold, see_values) &&
+                     ! search::SEE(board, move, threshold + 1, see_values)) ||
+                    is_promotion) {
+                    std::cout << "SEE test [" << counter << "] [" << entry << "] passed!"
+                              << std::endl;
                 } else {
                     std::cout << std::endl;
-                    std::cout << "------------------------------------------------------------------------------------------------------------------------------\n";
-                    std::cerr << "ELIXIR_SEE_FAILED: SEE test [" << entry << "] failed!" << std::endl;
-                    std::cout << "------------------------------------------------------------------------------------------------------------------------------\n";
+                    std::cout << "-----------------------------------------------------------------"
+                                 "-------------------------------------------------------------\n";
+                    std::cerr << "ELIXIR_SEE_FAILED: SEE test [" << entry << "] failed!"
+                              << std::endl;
+                    std::cout << "-----------------------------------------------------------------"
+                                 "-------------------------------------------------------------\n";
                     return;
                 }
                 std::cout << std::endl;
             }
 
-            std::cout << "------------------------------------------------------------------------------------------------------------------------------\n";
+            std::cout << "-------------------------------------------------------------------------"
+                         "-----------------------------------------------------\n";
             std::cout << "SEE test passed!" << std::endl;
-            std::cout << "------------------------------------------------------------------------------------------------------------------------------\n";
+            std::cout << "-------------------------------------------------------------------------"
+                         "-----------------------------------------------------\n";
         }
     }
 }

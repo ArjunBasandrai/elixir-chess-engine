@@ -1,29 +1,31 @@
+#include <algorithm>
+#include <chrono>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <chrono>
 
 #include "uci.h"
 
 #include "bench/bench.h"
-#include "utils/test_fens.h"
-#include "utils/str_utils.h"
-#include "utils/perft.h"
-#include "tests/see_test.h"
-#include "search.h"
 #include "evaluate.h"
+#include "history.h"
+#include "movepicker.h"
+#include "search.h"
+#include "tests/see_test.h"
 #include "tt.h"
 #include "tune.h"
-#include "movepicker.h"
-#include "history.h"
+#include "utils/perft.h"
+#include "utils/str_utils.h"
+#include "utils/test_fens.h"
 
 #define version "1.0"
 
 namespace elixir::uci {
 
-    void optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo, std::chrono::high_resolution_clock::time_point start_time) {
-        if (time < 0) time = 1000;
+    void optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo,
+                      std::chrono::high_resolution_clock::time_point start_time) {
+        if (time < 0)
+            time = 1000;
 
         time -= DEFAULT_MOVE_OVERHEAD;
 
@@ -32,7 +34,7 @@ namespace elixir::uci {
         if (movestogo != -1) {
             base_time = time / movestogo;
         } else {
-            base_time = time * 0.054 + inc * 0.6;            
+            base_time = time * 0.054 + inc * 0.6;
         }
         const auto max_bound = 0.76 * time;
 
@@ -47,7 +49,7 @@ namespace elixir::uci {
             board.from_fen(start_position);
             if (input.length() > 23) {
                 if (input.substr(18, 5) == "moves") {
-                    std::string moves = input.substr(24);
+                    std::string moves                  = input.substr(24);
                     std::vector<std::string> move_list = str_utils::split(moves, ' ');
                     for (auto move : move_list) {
                         board.play_uci_move(move);
@@ -59,9 +61,13 @@ namespace elixir::uci {
             if (fen_pos != std::string::npos) {
                 size_t moves_pos = input.find("moves", fen_pos);
                 if (moves_pos != std::string::npos) {
-                    std::string fen = input.substr(fen_pos + 4, moves_pos - (fen_pos + 5)); // Offset by 4 to skip "fen " and subtract 5 to exclude the space before "moves"
+                    std::string fen =
+                        input.substr(fen_pos + 4,
+                                     moves_pos -
+                                         (fen_pos + 5)); // Offset by 4 to skip "fen " and subtract
+                                                         // 5 to exclude the space before "moves"
                     board.from_fen(fen);
-                    std::string moves = input.substr(moves_pos + 6);
+                    std::string moves                  = input.substr(moves_pos + 6);
                     std::vector<std::string> move_list = str_utils::split(moves, ' ');
                     for (auto move : move_list) {
                         board.play_uci_move(move);
@@ -81,12 +87,14 @@ namespace elixir::uci {
         int depth = MAX_DEPTH, movestogo = -1;
         F64 time = 0, inc = 0;
         // If there are no tokens after "go" command, return
-        if (tokens.size() <= 1) return;
+        if (tokens.size() <= 1)
+            return;
 
         for (int i = 1; i < tokens.size(); i++) {
             if (tokens[i] == "depth") {
                 // If depth is not specified, return
-                if (++i >= tokens.size()) return;
+                if (++i >= tokens.size())
+                    return;
                 depth = std::stoi(tokens[i]);
             } else if (tokens[i] == "perft") {
                 const int depth = std::stoi(tokens[++i]);
@@ -97,24 +105,31 @@ namespace elixir::uci {
             } else {
                 if (tokens[i] == "infinite") {
                     search::SearchInfo info(MAX_DEPTH);
-                } else if ((tokens[i] == "wtime" || tokens[i] == "btime") && ++i < (int)tokens.size() && tokens[i - 1] == (board.get_side_to_move() == Color::WHITE ? "wtime" : "btime")) {
+                } else if ((tokens[i] == "wtime" || tokens[i] == "btime") &&
+                           ++i < (int)tokens.size() &&
+                           tokens[i - 1] ==
+                               (board.get_side_to_move() == Color::WHITE ? "wtime" : "btime")) {
                     time = std::stoi(tokens[i]);
                     time = std::max<F64>(time, 1.0);
-                } else if ((tokens[i] == "winc" || tokens[i] == "binc") && ++i < (int)tokens.size() && tokens[i - 1] == (board.get_side_to_move() == Color::WHITE ? "winc" : "binc")) {
+                } else if ((tokens[i] == "winc" || tokens[i] == "binc") &&
+                           ++i < (int)tokens.size() &&
+                           tokens[i - 1] ==
+                               (board.get_side_to_move() == Color::WHITE ? "winc" : "binc")) {
                     inc = std::stoi(tokens[i]);
                     inc = std::max<F64>(inc, 1.0);
                 } else if (tokens[i] == "movestogo" && ++i < tokens.size()) {
                     movestogo = std::stoi(tokens[i]);
-                    movestogo = std::min<int>(movestogo, static_cast<U32>(std::numeric_limits<I32>::max()));
-                    if (!movestogo) movestogo = DEFAULT_MOVESTOGO;
+                    movestogo =
+                        std::min<int>(movestogo, static_cast<U32>(std::numeric_limits<I32>::max()));
+                    if (! movestogo)
+                        movestogo = DEFAULT_MOVESTOGO;
                 }
             }
         }
 
         if (time != 0) {
             optimum_time(info, time, inc, movestogo, start_time);
-        }
-        else {
+        } else {
             info = search::SearchInfo(depth);
         }
 
@@ -124,22 +139,22 @@ namespace elixir::uci {
     void parse_setoption(std::string input) {
         std::vector<std::string> tokens = str_utils::split(input, ' ');
 
-        if (tokens.size() < 5 || tokens[3] != "value") return;
+        if (tokens.size() < 5 || tokens[3] != "value")
+            return;
 
         if (tokens[1] == "name") {
             std::string option_value = tokens[4];
             if (tokens[2] == "Hash") {
                 int tt_size = std::stoi(option_value);
-                tt_size = std::clamp<int>(tt_size, MIN_HASH, MAX_HASH);
+                tt_size     = std::clamp<int>(tt_size, MIN_HASH, MAX_HASH);
                 tt->resize(tt_size);
             }
 
             else {
-            #ifdef USE_TUNE
+#ifdef USE_TUNE
                 tune::tuner.update_parameter(tokens[2], option_value);
-            #endif
+#endif
             }
-
         }
     }
 
@@ -150,41 +165,33 @@ namespace elixir::uci {
             if (input == "uci") {
                 std::cout << "id name Elixir " << version << std::endl;
                 std::cout << "id author Arjun Basandrai" << std::endl;
-                std::cout << "option name Hash type spin default " << DEFAULT_HASH_SIZE << " min " << MIN_HASH << " max " << MAX_HASH << std::endl;
+                std::cout << "option name Hash type spin default " << DEFAULT_HASH_SIZE << " min "
+                          << MIN_HASH << " max " << MAX_HASH << std::endl;
                 std::cout << "option name Threads type spin default 1 min 1 max 1" << std::endl;
-                #ifdef USE_TUNE
-                    tune::tuner.print_info();
-                #endif
+#ifdef USE_TUNE
+                tune::tuner.print_info();
+#endif
                 std::cout << "uciok" << std::endl;
-            }
-            else if (input == "isready") {
+            } else if (input == "isready") {
                 std::cout << "readyok" << std::endl;
-            }
-            else if (input == "quit") {
+            } else if (input == "quit") {
                 break;
-            }
-            else if (input == "ucinewgame") {
+            } else if (input == "ucinewgame") {
                 board.from_fen(start_position);
                 tt->clear_tt();
-            }
-            else if (input == "bench"){
-                 bench::bench();
+            } else if (input == "bench") {
+                bench::bench();
                 break;
-            }
-            else if (input == "see") {
+            } else if (input == "see") {
                 tests::see_test();
                 break;
-            }
-            else if (input == "print") {
+            } else if (input == "print") {
                 board.print_board();
-            }
-            else if (input.substr(0, 9) == "position ") {
+            } else if (input.substr(0, 9) == "position ") {
                 parse_position(input, board);
-            }
-            else if (input.substr(0, 2) == "go") {
+            } else if (input.substr(0, 2) == "go") {
                 parse_go(input, board);
-            }
-            else if (input.substr(0, 9) == "setoption") {
+            } else if (input.substr(0, 9) == "setoption") {
                 parse_setoption(input);
             }
         }

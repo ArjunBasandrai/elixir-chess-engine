@@ -1,8 +1,8 @@
 #pragma once
 
-#include "magics.h"
-#include "../types.h"
 #include "../defs.h"
+#include "../types.h"
+#include "magics.h"
 
 namespace elixir::attacks {
     extern Bitboard pawn_attacks[2][64];

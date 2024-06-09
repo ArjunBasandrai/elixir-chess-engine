@@ -1,6 +1,5 @@
 #pragma once
 
-namespace elixir::bench
-{
+namespace elixir::bench {
     void bench();
 }

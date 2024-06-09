@@ -1,11 +1,11 @@
 #include <cstdlib>
 #include <ctime>
 
-#include "hash.h"
-#include "../types.h"
-#include "../defs.h"
 #include "../board/board.h"
+#include "../defs.h"
+#include "../types.h"
 #include "../utils/bits.h"
+#include "hash.h"
 
 namespace elixir {
     namespace random {
