@@ -120,6 +120,8 @@ namespace elixir::search {
         move::Move move;
         TTFlag flag = TT_ALPHA;
 
+        if (!ss->ply) info.best_root_move = mp.first_move();
+
         while ((move = mp.next_move()) != move::NO_MOVE) {
             
             /*
@@ -167,8 +169,8 @@ namespace elixir::search {
         bool in_check = board.is_in_check();
         int eval;
 
-        if (should_stop(info)) return 0;
-        if (info.stopped) return 0;
+        if (!root_node && should_stop(info)) return 0;
+        if (!root_node && info.stopped) return 0;
 
         if (ss->ply > info.seldepth) info.seldepth = ss->ply;
         
@@ -292,6 +294,7 @@ namespace elixir::search {
         */
         MovePicker mp;
         mp.init_mp(board, tt_move, ss, false); 
+        if (root_node) info.best_root_move = mp.first_move();
 
         TTFlag flag = TT_ALPHA;
         move::Move move;
@@ -550,7 +553,7 @@ namespace elixir::search {
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-            if (print_info) {
+            if (print_info && pv.line[0] != move::NO_MOVE) {
                 int time_ms = duration.count();
                 int nps = info.nodes * 1000 / (time_ms + 1);
                 if (score > -MATE && score < -MATE_FOUND) {
@@ -574,7 +577,7 @@ namespace elixir::search {
 
         if (print_info) {
             std::cout << "bestmove ";
-            pv.line[0].print_uci();
+            (pv.line[0] != move::NO_MOVE) ? pv.line[0].print_uci() : info.best_root_move.print_uci();
             std::cout << std::endl;
         }
     }

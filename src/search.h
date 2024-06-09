@@ -29,7 +29,8 @@ namespace elixir::search
           depth(depth),
           seldepth(0),
           soft_limit(0),
-          hard_limit(0) {}
+          hard_limit(0),
+          best_root_move(move::NO_MOVE) {}
         SearchInfo(int depth, std::chrono::high_resolution_clock::time_point start_time, F64 soft_limit, F64 hard_limit)
         : nodes(0),
           depth(depth),
@@ -38,7 +39,8 @@ namespace elixir::search
           timed(true),
           start_time(start_time),
           soft_limit(soft_limit),
-          hard_limit(hard_limit) {}
+          hard_limit(hard_limit),
+          best_root_move(move::NO_MOVE) {}
 
         ~SearchInfo() = default;
         unsigned long long nodes;
@@ -49,6 +51,7 @@ namespace elixir::search
         std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
         F64 soft_limit;
         F64 hard_limit;
+        move::Move best_root_move;
     };
 
     struct PVariation
