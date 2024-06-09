@@ -13,6 +13,10 @@ namespace elixir {
         ~MovePicker() = default;
         void init_mp(const Board& board, move::Move tt_move, search::SearchStack *ss, bool for_qs);
         move::Move next_move();
+        move::Move first_move() { 
+            if (moves.size() == 0) return move::NO_MOVE; 
+            return moves[0]; 
+        }
     private:
         MoveList moves;
         StaticVector<int, 256> scores;
