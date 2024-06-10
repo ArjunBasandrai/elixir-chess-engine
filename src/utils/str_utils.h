@@ -1,7 +1,9 @@
 #pragma once
 
+#include <cctype>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace elixir::str_utils {

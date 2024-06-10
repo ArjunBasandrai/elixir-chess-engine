@@ -21,7 +21,7 @@ namespace elixir::texel {
         auto tokens           = str_utils::split(line, '[');
         const auto fen        = tokens[0];
         const auto wdl_result = str_utils::remove_whitespaces_and_brackets(tokens[1]);
-        Result result         = static_cast<Result>(std::stoi(wdl_result));
+        Result result         = static_cast<Result>((std::stod(wdl_result) * 2) - 1);
         trace                 = Trace();
 
         board.from_fen(fen);
