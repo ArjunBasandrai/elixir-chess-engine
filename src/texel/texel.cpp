@@ -1,7 +1,7 @@
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include <cassert>
 
 #include "texel.h"
 
@@ -9,8 +9,8 @@
 #include "../defs.h"
 #include "../evaluate.h"
 #include "../types.h"
-#include "../utils/str_utils.h"
 #include "../utils/eval_terms.h"
+#include "../utils/str_utils.h"
 
 namespace elixir::texel {
     void Tune::get_intial_parameters() {
@@ -22,14 +22,16 @@ namespace elixir::texel {
         const auto fen        = tokens[0];
         const auto wdl_result = str_utils::remove_whitespaces_and_brackets(tokens[1]);
         Result result         = static_cast<Result>(std::stoi(wdl_result));
-        trace            = Trace();
+        trace                 = Trace();
+
         board.from_fen(fen);
         const auto phase = board.get_phase();
+
         eval::evaluate(board);
 
         TunerPosition position;
-        position.phase    = phase;
-        position.outcome  = result;
+        position.phase   = phase;
+        position.outcome = result;
         position.coefficients.reserve(num_params);
         get_all_coefficients(position);
         positions.push_back(position);
@@ -38,18 +40,23 @@ namespace elixir::texel {
     }
 
     void Tune::read_epd(std::string filename) {
+        std::cout << "Reading " << filename << "..." << std::endl;
         std::ifstream file(filename);
         if (! file.is_open()) {
-            std::cerr << "Error: could not open file " << filename << std::endl;
+            std::cerr << "ERROR: could not open file " << filename << std::endl;
             return;
         }
 
         Board board;
         std::string line;
+        int count = 0;
         while (std::getline(file, line)) {
             create_entry(board, line);
+            if (++count % 10000 == 0) {
+                std::cout << "Read " << count << " positions" << std::endl;
+            }
         }
-
+        std::cout << std::endl;
         file.close();
     }
 

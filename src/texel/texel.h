@@ -50,7 +50,8 @@ namespace elixir::texel {
         Tune()  = default;
         ~Tune() = default;
 
-        void get_coefficient_value_single(TunerPosition &position, const std::array<int, 2> &param) {
+        void get_coefficient_value_single(TunerPosition &position,
+                                          const std::array<int, 2> &param) {
             Coefficient coeff;
             coeff.index = ++position.coeff_index;
             coeff.value = param[0] - param[1];
@@ -58,7 +59,8 @@ namespace elixir::texel {
         }
 
         template <std::size_t N>
-        void get_coefficient_value_array(TunerPosition &position, const std::array<std::array<int ,2>, N> &param) {
+        void get_coefficient_value_array(TunerPosition &position,
+                                         const std::array<std::array<int, 2>, N> &param) {
             for (const auto &p : param) {
                 get_coefficient_value_single(position, {p[0], p[1]});
             }
