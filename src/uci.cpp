@@ -13,7 +13,7 @@
 #include "search.h"
 #include "tests/see_test.h"
 #include "tt.h"
-#include "tune.h"
+#include "spsa.h"
 #include "utils/perft.h"
 #include "utils/str_utils.h"
 #include "utils/test_fens.h"

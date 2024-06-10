@@ -8,7 +8,7 @@
 #include "src/search.h"
 #include "src/tests/see_test.h"
 #include "src/tt.h"
-#include "src/tune.h"
+#include "src/spsa.h"
 #include "src/types.h"
 #include "src/uci.h"
 #include "src/utils/masks.h"

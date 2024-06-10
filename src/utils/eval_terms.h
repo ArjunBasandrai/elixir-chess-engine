@@ -2,9 +2,8 @@
 
 #include "../evaluate.h"
 #include "../types.h"
-
 namespace elixir::eval {
-    const EvalScore material_score[6] = {S(117, 59),  S(304, 372),   S(323, 364),
+    const std::array<EvalScore, 6> material_score = {S(117, 59),  S(304, 372),   S(323, 364),
                                          S(484, 654), S(1062, 1183), S(0, 0)};
     const EvalScore psqt[6][64]       = {
               {S(0, 0),     S(0, 0),     S(0, 0),     S(0, 0),     S(0, 0),    S(0, 0),    S(0, 0),
