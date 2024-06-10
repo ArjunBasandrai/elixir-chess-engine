@@ -25,4 +25,14 @@ namespace elixir::str_utils {
         return output;
     }
 
+    inline std::string remove_whitespaces_and_brackets(std::string_view input) {
+        std::string output;
+        for (char c : input) {
+            if (! std::isspace(static_cast<unsigned char>(c)) && c != '[' && c != ']') {
+                output.push_back(c);
+            }
+        }
+        return output;
+    }
+
 }

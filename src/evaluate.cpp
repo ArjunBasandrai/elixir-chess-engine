@@ -124,10 +124,8 @@ namespace elixir::eval {
 
         score_opening = e_info.opening_score();
         score_endgame = e_info.endgame_score();
-        int phase     = count_bits(board.minors()) + 2 * count_bits(board.rooks()) +
-                    4 * count_bits(board.queens());
-        phase = std::clamp(phase, 0, 24);
-        score = (score_opening * phase + score_endgame * (24 - phase)) / 24;
+        int phase     = board.get_phase();
+        score         = (score_opening * phase + score_endgame * (24 - phase)) / 24;
         return ((side == Color::WHITE) ? score : -score) + TEMPO;
     }
 }
