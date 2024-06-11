@@ -25,6 +25,7 @@ namespace elixir::texel {
         int coeff_index = -1;
         int phase;
         Result outcome;
+        int eval = 0;
         std::vector<Coefficient> coefficients;
     };
 
@@ -97,6 +98,7 @@ namespace elixir::texel {
 
         void get_intial_parameters();
         void load_data(std::vector<std::string> files);
+        void get_eval();
 
       private:
         int num_params = 0;

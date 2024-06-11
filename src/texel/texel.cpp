@@ -15,7 +15,7 @@
 namespace elixir::texel {
     void Tune::get_intial_parameters() {
         add_parameter_array<6>(eval::material_score);
-    }
+    } 
 
     void Tune::create_entry(Board &board, const std::string line) {
         auto tokens           = str_utils::split(line, '[');
@@ -53,7 +53,7 @@ namespace elixir::texel {
         while (std::getline(file, line)) {
             create_entry(board, line);
             if (++count % 10000 == 0) {
-                std::cout << "Read " << count << " positions" << std::endl;
+                // std::cout << "Read " << count << " positions" << std::endl;
             }
         }
         std::cout << std::endl;
@@ -68,4 +68,20 @@ namespace elixir::texel {
         assert(fens.size() == positions.size());
         std::cout << "Loaded " << fens.size() << " positions" << std::endl;
     }
+
+    void Tune::get_eval() {
+        std::cout << "Getting eval..." << std::endl;
+        for (TunerPosition &position : positions) {
+            EvalScore eval = 0;
+            for (const Coefficient &coeff : position.coefficients) {
+                const auto param = parameters[coeff.index];
+                const auto scaled_param = S(param[0], param[1]) * coeff.value;
+                std::cout << coeff.value << std::endl;
+                eval += scaled_param;
+            }
+            const auto tapered_eval = (O(eval) * position.phase + E(eval) * (24 - position.phase)) / 24;
+            position.eval = tapered_eval;
+        }
+    }
+
 }
