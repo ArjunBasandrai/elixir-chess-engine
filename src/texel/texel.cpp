@@ -15,7 +15,7 @@
 namespace elixir::texel {
     void Tune::get_intial_parameters() {
         add_parameter_array<6>(eval::material_score);
-    } 
+    }
 
     void Tune::create_entry(Board &board, const std::string line) {
         auto tokens           = str_utils::split(line, '[');
@@ -74,23 +74,40 @@ namespace elixir::texel {
         for (TunerPosition &position : positions) {
             EvalScore eval = 0;
             for (const Coefficient &coeff : position.coefficients) {
-                const auto param = parameters[coeff.index];
+                const auto param        = parameters[coeff.index];
                 const auto scaled_param = S(param[0], param[1]) * coeff.value;
-                std::cout << coeff.value << std::endl;
                 eval += scaled_param;
             }
-            const auto tapered_eval = (O(eval) * position.phase + E(eval) * (24 - position.phase)) / 24;
+            const auto tapered_eval =
+                (O(eval) * position.phase + E(eval) * (24 - position.phase)) / 24;
             position.eval = tapered_eval;
         }
     }
 
-    double Tune::get_error() const {
+    double Tune::get_error(const double K) const {
         double error = 0.0;
 
         for (const TunerPosition &position : positions) {
-            error += std::pow((double)((position.outcome + 1) / 2) - sigmoid(position.eval), 2);
+            error += std::pow((double)((position.outcome + 1) / 2) - sigmoid(position.eval, K), 2);
         }
 
         return error / positions.size();
+    }
+
+    void Tune::set_optimal_k() {
+        const double rate = 10, delta = 1e-5, deviation_goal = 1e-6;
+        double deviation   = 1;
+        hyper_parameters.K = 2.5;
+
+        while (fabs(deviation) > deviation_goal) {
+            double up   = get_error(hyper_parameters.K + delta);
+            double down = get_error(hyper_parameters.K - delta);
+            deviation   = (up - down) / (2 * delta);
+            hyper_parameters.K -= rate * deviation;
+            std::cout << "K: " << hyper_parameters.K << " up: " << up << " down: " << down
+                      << " deviation: " << deviation << std::endl;
+        }
+
+        std::cout << "Optimal K: " << hyper_parameters.K << std::endl;
     }
 }

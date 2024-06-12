@@ -104,10 +104,11 @@ namespace elixir::texel {
         void get_intial_parameters();
         void load_data(std::vector<std::string> files);
         void get_eval();
-        [[nodiscard]] inline double Tune::sigmoid(Score score) const {
-            return 1.0 / (1.0 + std::exp(-hyper_parameters.K * score / 400.0));
+        [[nodiscard]] inline double sigmoid(Score score, const double K) const {
+            return 1.0 / (1.0 + std::exp(-K * score / 400.0));
         }
-        double get_error() const;
+        double get_error(const double K) const;
+        void set_optimal_k();
 
       private:
         int num_params = 0;
