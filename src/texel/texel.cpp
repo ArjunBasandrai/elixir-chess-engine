@@ -117,14 +117,11 @@ namespace elixir::texel {
     }
 
     void Tune::get_gradients() {
-        std::vector<pair_t> local_grads;
-        local_grads.reserve(num_params);
         gradients.reserve(num_params);
 
         compute_eval();
 
         for (int i = 0; i < num_params; i++) {
-            local_grads.push_back({0, 0});
             gradients.push_back({0, 0});
         }
 
@@ -138,15 +135,9 @@ namespace elixir::texel {
 
             for (const Coefficient &coeff : position.coefficients) {
                 const auto idx = coeff.index;
-                local_grads[idx][0] += mg_base * coeff.value;
-                local_grads[idx][1] += eg_base * coeff.value;
+                gradients[idx][0] += mg_base * coeff.value;
+                gradients[idx][1] += eg_base * coeff.value;
             }
         }
-
-        for (int i = 0; i < num_params; i++) {
-            gradients[i][0] += local_grads[i][0];
-            gradients[i][1] += local_grads[i][1];
-        }
-
     }
 }
