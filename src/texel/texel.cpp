@@ -88,9 +88,13 @@ namespace elixir::texel {
 
     double Tune::get_error(const double K) const {
         double error = 0.0;
-
-        for (const TunerPosition &position : positions) {
-            error += std::pow((double)((position.outcome + 1) / 2) - sigmoid(position.eval, K), 2);
+        
+        #pragma omp parallel shared(error) num_threads(6)
+        {
+            #pragma omp for schedule(static) reduction(+ : error)
+            for (const TunerPosition &position : positions) {
+                error += std::pow((double)((position.outcome + 1) / 2) - sigmoid(position.eval, K), 2);
+            }
         }
 
         return error / positions.size();
