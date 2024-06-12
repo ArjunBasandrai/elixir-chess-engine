@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <chrono>
 
 #include "texel.h"
 
@@ -14,6 +15,7 @@
 
 namespace elixir::texel {
     void Tune::get_intial_parameters() {
+        start_time = std::chrono::high_resolution_clock::now();
         add_parameter_array<6>(eval::material_score);
     }
 
@@ -40,7 +42,7 @@ namespace elixir::texel {
     }
 
     void Tune::read_epd(std::string filename) {
-        std::cout << "Reading " << filename << "..." << std::endl;
+        std::cout << "Reading " << filename << "...\n" << std::endl;
         std::ifstream file(filename);
         if (! file.is_open()) {
             std::cerr << "ERROR: could not open file " << filename << std::endl;
@@ -53,7 +55,7 @@ namespace elixir::texel {
         while (std::getline(file, line)) {
             create_entry(board, line);
             if (++count % 10000 == 0) {
-                std::cout << "Read " << count << " positions" << std::endl;
+                std::cout << "[" << time_spent() << "s]" << " Read " << count << " positions" << std::endl;
             }
         }
         std::cout << std::endl;
@@ -61,7 +63,7 @@ namespace elixir::texel {
     }
 
     void Tune::load_data(std::vector<std::string> files) {
-        std::cout << "Loading data..." << std::endl;
+        std::cout << "Loading data...\n " << std::endl;
         for (const std::string &file : files) {
             read_epd(file);
         }
@@ -104,10 +106,10 @@ namespace elixir::texel {
             double down = get_error(hyper_parameters.K - delta);
             deviation   = (up - down) / (2 * delta);
             hyper_parameters.K -= rate * deviation;
-            std::cout << "K: " << hyper_parameters.K << " up: " << up << " down: " << down
+            std::cout << "[" << time_spent() << "s]" << " K: " << hyper_parameters.K << " up: " << up << " down: " << down
                       << " deviation: " << deviation << std::endl;
         }
 
-        std::cout << "Optimal K: " << hyper_parameters.K << std::endl;
+        std::cout << "[" << time_spent() << "s]" << " Optimal K: " << hyper_parameters.K << std::endl;
     }
 }

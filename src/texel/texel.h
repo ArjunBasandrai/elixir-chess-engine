@@ -3,6 +3,7 @@
 #include <array>
 #include <string>
 #include <vector>
+#include <chrono>
 
 #include "../defs.h"
 #include "../evaluate.h"
@@ -117,9 +118,15 @@ namespace elixir::texel {
         std::vector<pair_t> gradients;
         positions_t fens;
         TunerHyperParams hyper_parameters;
+        std::chrono::time_point<std::chrono::steady_clock> start_time;
 
         void read_epd(std::string filename);
         void create_entry(Board &board, std::string line);
+
+        auto time_spent() const {
+            const auto end_time = std::chrono::high_resolution_clock::now();
+            return std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count();
+        }
     };
 
     inline Tune texel;
