@@ -53,7 +53,7 @@ namespace elixir::texel {
         while (std::getline(file, line)) {
             create_entry(board, line);
             if (++count % 10000 == 0) {
-                // std::cout << "Read " << count << " positions" << std::endl;
+                std::cout << "Read " << count << " positions" << std::endl;
             }
         }
         std::cout << std::endl;
@@ -84,4 +84,13 @@ namespace elixir::texel {
         }
     }
 
+    double Tune::get_error() const {
+        double error = 0.0;
+
+        for (const TunerPosition &position : positions) {
+            error += std::pow((double)((position.outcome + 1) / 2) - sigmoid(position.eval), 2);
+        }
+
+        return error / positions.size();
+    }
 }

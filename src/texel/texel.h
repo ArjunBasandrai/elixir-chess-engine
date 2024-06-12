@@ -29,6 +29,11 @@ namespace elixir::texel {
         std::vector<Coefficient> coefficients;
     };
 
+    struct TunerHyperParams {
+        double learning_rate = 1.0;
+        double K             = 0.0;
+    };
+
     struct Trace {
         std::array<std::array<int, 2>, 6> material_score;
     };
@@ -99,6 +104,10 @@ namespace elixir::texel {
         void get_intial_parameters();
         void load_data(std::vector<std::string> files);
         void get_eval();
+        [[nodiscard]] inline double Tune::sigmoid(Score score) const {
+            return 1.0 / (1.0 + std::exp(-hyper_parameters.K * score / 400.0));
+        }
+        double get_error() const;
 
       private:
         int num_params = 0;
@@ -106,6 +115,8 @@ namespace elixir::texel {
         std::vector<TunerPosition> positions;
         std::vector<pair_t> gradients;
         positions_t fens;
+        TunerHyperParams hyper_parameters;
+
         void read_epd(std::string filename);
         void create_entry(Board &board, std::string line);
     };
