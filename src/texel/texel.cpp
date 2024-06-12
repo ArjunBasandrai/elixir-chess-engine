@@ -71,8 +71,7 @@ namespace elixir::texel {
         std::cout << "Loaded " << fens.size() << " positions" << std::endl;
     }
 
-    void Tune::get_eval() {
-        std::cout << "Getting eval..." << std::endl;
+    void Tune::compute_eval() {
         for (TunerPosition &position : positions) {
             EvalScore eval = 0;
             for (const Coefficient &coeff : position.coefficients) {
@@ -101,7 +100,7 @@ namespace elixir::texel {
     }
 
     void Tune::set_optimal_k() {
-        const double rate = 10, delta = 1e-5, deviation_goal = 1e-6;
+        const double rate = 10, delta = 1e-5, deviation_goal = 1e-7;
         double deviation   = 1;
         hyper_parameters.K = 2.5;
 
@@ -115,5 +114,39 @@ namespace elixir::texel {
         }
 
         std::cout << "[" << time_spent() << "s]" << " Optimal K: " << hyper_parameters.K << std::endl;
+    }
+
+    void Tune::get_gradients() {
+        std::vector<pair_t> local_grads;
+        local_grads.reserve(num_params);
+        gradients.reserve(num_params);
+
+        compute_eval();
+
+        for (int i = 0; i < num_params; i++) {
+            local_grads.push_back({0, 0});
+            gradients.push_back({0, 0});
+        }
+
+        for (const auto &position: positions) {
+            double S = sigmoid(position.eval, hyper_parameters.K);
+            double result = (position.outcome + 1) / 2.0;
+            double D = (result - S) * S * (1 - S);
+
+            double mg_base = D * (position.phase / 24.0);
+            double eg_base = D - mg_base;
+
+            for (const Coefficient &coeff : position.coefficients) {
+                const auto idx = coeff.index;
+                local_grads[idx][0] += mg_base * coeff.value;
+                local_grads[idx][1] += eg_base * coeff.value;
+            }
+        }
+
+        for (int i = 0; i < num_params; i++) {
+            gradients[i][0] += local_grads[i][0];
+            gradients[i][1] += local_grads[i][1];
+        }
+
     }
 }

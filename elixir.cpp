@@ -54,8 +54,9 @@ int main(int argc, char *argv[]) {
 
     texel::texel.get_intial_parameters();
     texel::texel.load_data({"lichess-big3.epd", "quiet-labeled.epd"});
-    texel::texel.get_eval();
+    texel::texel.compute_eval();
     texel::texel.set_optimal_k();
+    texel::texel.get_gradients();
 
     // uci::uci_loop(board);
     return 0;
