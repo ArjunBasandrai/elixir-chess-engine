@@ -32,12 +32,21 @@ namespace elixir::texel {
     };
 
     struct TunerHyperParams {
-        double learning_rate  = 1.0;
+        double learning_rate  = 1;
         double K              = 0.0;
         int max_epochs        = 10000;
         double momentum_coeff = 0.9;
         double velocity_coeff = 0.999;
         double epsilon        = 1e-8;
+        int early_stopping    = 8;
+        double lr_decay       = 0.5;
+        int lr_decay_interval = 5;
+    };
+
+    struct BestParams {
+        int epoch    = -1;
+        double error = 10000;
+        std::vector<pair_t> params;
     };
 
     struct Trace {
@@ -125,6 +134,7 @@ namespace elixir::texel {
         std::vector<pair_t> gradients;
         positions_t fens;
         TunerHyperParams hyper_parameters;
+        BestParams best_params;
         std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
 
         void read_epd(std::string filename);

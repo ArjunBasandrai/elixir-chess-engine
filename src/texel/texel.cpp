@@ -16,6 +16,7 @@
 namespace elixir::texel {
     void Tune::get_intial_parameters() {
         start_time = std::chrono::high_resolution_clock::now();
+        std::cout << "[" << time_spent() << "s]" << " Getting initial parameters...\n" << std::endl;
         add_parameter_array<6>(eval::material_score);
     }
 
@@ -156,8 +157,6 @@ namespace elixir::texel {
 
         set_optimal_k();
 
-        double error;
-
         for (int epoch = 0; epoch < hyper_parameters.max_epochs; epoch++) {
             get_gradients();
 
@@ -186,9 +185,35 @@ namespace elixir::texel {
                 parameters[i][1] -= update[1];
             }
 
-            error = get_error(hyper_parameters.K);
+            const double error = get_error(hyper_parameters.K);
             std::cout << "[" << time_spent() << "s]"
-                      << " Epoch: " << epoch << " Error: " << error << " Rate: " << hyper_parameters.learning_rate << std::endl;
+                      << " Epoch: " << epoch << " Error: " << error
+                      << " Rate: " << hyper_parameters.learning_rate << std::endl;
+            if (error < best_params.error) {
+                best_params.error  = error;
+                best_params.epoch  = epoch;
+                best_params.params = parameters;
+            } else {
+                if (epoch - best_params.epoch >= hyper_parameters.early_stopping) {
+                    std::cout << "[" << time_spent() << "s]"
+                              << " Early stopping at epoch " << epoch << " with error "
+                              << get_error(hyper_parameters.K) << std::endl;
+                    std::cout << "[" << time_spent() << "s]"
+                              << " Restoring best parameters from epoch " << best_params.epoch
+                              << "..." << std::endl;
+                    parameters = best_params.params;
+                    break;
+                }
+            }
+
+            if (epoch % hyper_parameters.lr_decay_interval == 0 && epoch) {
+                hyper_parameters.learning_rate *= hyper_parameters.lr_decay;
+            }
+
+            // print all params
+            for (const pair_t &p : parameters) {
+                std::cout << "S(" << p[0] << ", " << p[1] << ")" << std::endl;
+            }
         }
     }
 }
