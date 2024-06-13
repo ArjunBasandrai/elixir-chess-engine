@@ -1,8 +1,8 @@
 #include <cassert>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include <chrono>
 
 #include "texel.h"
 
@@ -55,7 +55,8 @@ namespace elixir::texel {
         while (std::getline(file, line)) {
             create_entry(board, line);
             if (++count % 10000 == 0) {
-                std::cout << "[" << time_spent() << "s]" << " Read " << count << " positions" << std::endl;
+                std::cout << "[" << time_spent() << "s]"
+                          << " Read " << count << " positions" << std::endl;
             }
         }
         std::cout << std::endl;
@@ -87,12 +88,13 @@ namespace elixir::texel {
 
     double Tune::get_error(const double K) const {
         double error = 0.0;
-        
-        #pragma omp parallel shared(error) num_threads(6)
+
+#pragma omp parallel shared(error) num_threads(6)
         {
-            #pragma omp for schedule(static) reduction(+ : error)
+#pragma omp for schedule(static) reduction(+ : error)
             for (const TunerPosition &position : positions) {
-                error += std::pow((double)((position.outcome + 1) / 2) - sigmoid(position.eval, K), 2);
+                error +=
+                    std::pow((double)((position.outcome + 1) / 2) - sigmoid(position.eval, K), 2);
             }
         }
 
@@ -104,16 +106,20 @@ namespace elixir::texel {
         double deviation   = 1;
         hyper_parameters.K = 2.5;
 
+        compute_eval();
+
         while (fabs(deviation) > deviation_goal) {
             double up   = get_error(hyper_parameters.K + delta);
             double down = get_error(hyper_parameters.K - delta);
             deviation   = (up - down) / (2 * delta);
             hyper_parameters.K -= rate * deviation;
-            std::cout << "[" << time_spent() << "s]" << " K: " << hyper_parameters.K << " up: " << up << " down: " << down
+            std::cout << "[" << time_spent() << "s]"
+                      << " K: " << hyper_parameters.K << " up: " << up << " down: " << down
                       << " deviation: " << deviation << std::endl;
         }
 
-        std::cout << "[" << time_spent() << "s]" << " Optimal K: " << hyper_parameters.K << std::endl;
+        std::cout << "[" << time_spent() << "s]"
+                  << " Optimal K: " << hyper_parameters.K << std::endl;
     }
 
     void Tune::get_gradients() {
@@ -125,10 +131,10 @@ namespace elixir::texel {
             gradients.push_back({0, 0});
         }
 
-        for (const auto &position: positions) {
-            double S = sigmoid(position.eval, hyper_parameters.K);
+        for (const auto &position : positions) {
+            double S      = sigmoid(position.eval, hyper_parameters.K);
             double result = (position.outcome + 1) / 2.0;
-            double D = (result - S) * S * (1 - S);
+            double D      = (result - S) * S * (1 - S);
 
             double mg_base = D * (position.phase / 24.0);
             double eg_base = D - mg_base;
@@ -138,6 +144,51 @@ namespace elixir::texel {
                 gradients[idx][0] += mg_base * coeff.value;
                 gradients[idx][1] += eg_base * coeff.value;
             }
+        }
+    }
+
+    void Tune::tune() {
+        std::vector<pair_t> velocity, momentum;
+        velocity.resize(num_params);
+        momentum.resize(num_params);
+
+        const std::size_t num_entries = positions.size();
+
+        set_optimal_k();
+
+        double error;
+
+        for (int epoch = 0; epoch < hyper_parameters.max_epochs; epoch++) {
+            get_gradients();
+
+            for (int i = 0; i < num_params; i++) {
+                pair_t grads;
+                grads[0] = (-hyper_parameters.K / 400.0) * gradients[i][0] / num_entries;
+                grads[1] = (-hyper_parameters.K / 400.0) * gradients[i][1] / num_entries;
+
+                momentum[i][0] = hyper_parameters.momentum_coeff * momentum[i][0] +
+                                 (1 - hyper_parameters.momentum_coeff) * grads[0];
+                momentum[i][1] = hyper_parameters.momentum_coeff * momentum[i][1] +
+                                 (1 - hyper_parameters.momentum_coeff) * grads[1];
+
+                velocity[i][0] = hyper_parameters.velocity_coeff * velocity[i][0] +
+                                 (1 - hyper_parameters.velocity_coeff) * std::pow(grads[0], 2);
+                velocity[i][1] = hyper_parameters.velocity_coeff * velocity[i][1] +
+                                 (1 - hyper_parameters.velocity_coeff) * std::pow(grads[1], 2);
+
+                pair_t update;
+                update[0] = hyper_parameters.learning_rate * momentum[i][0] /
+                            (hyper_parameters.epsilon + std::sqrt(velocity[i][0]));
+                update[1] = hyper_parameters.learning_rate * momentum[i][1] /
+                            (hyper_parameters.epsilon + std::sqrt(velocity[i][1]));
+
+                parameters[i][0] -= update[0];
+                parameters[i][1] -= update[1];
+            }
+
+            error = get_error(hyper_parameters.K);
+            std::cout << "[" << time_spent() << "s]"
+                      << " Epoch: " << epoch << " Error: " << error << " Rate: " << hyper_parameters.learning_rate << std::endl;
         }
     }
 }

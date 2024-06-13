@@ -1,9 +1,10 @@
 #pragma once
 
 #include <array>
+#include <chrono>
+#include <cmath>
 #include <string>
 #include <vector>
-#include <chrono>
 
 #include "../defs.h"
 #include "../evaluate.h"
@@ -31,8 +32,12 @@ namespace elixir::texel {
     };
 
     struct TunerHyperParams {
-        double learning_rate = 1.0;
-        double K             = 0.0;
+        double learning_rate  = 1.0;
+        double K              = 0.0;
+        int max_epochs        = 10000;
+        double momentum_coeff = 0.9;
+        double velocity_coeff = 0.999;
+        double epsilon        = 1e-8;
     };
 
     struct Trace {
@@ -111,6 +116,7 @@ namespace elixir::texel {
         double get_error(const double K) const;
         void set_optimal_k();
         void get_gradients();
+        void tune();
 
       private:
         int num_params = 0;
@@ -119,7 +125,7 @@ namespace elixir::texel {
         std::vector<pair_t> gradients;
         positions_t fens;
         TunerHyperParams hyper_parameters;
-        std::chrono::time_point<std::chrono::steady_clock> start_time;
+        std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
 
         void read_epd(std::string filename);
         void create_entry(Board &board, std::string line);
