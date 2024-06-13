@@ -107,20 +107,20 @@ namespace elixir::eval {
         Color side      = board.get_side_to_move();
         EvalInfo e_info = EvalInfo(board.get_eval());
 
-        e_info.add_score(evaluate_pawns(board, Color::WHITE));
-        e_info.add_score(evaluate_pawns(board, Color::BLACK));
+        // e_info.add_score(evaluate_pawns(board, Color::WHITE));
+        // e_info.add_score(evaluate_pawns(board, Color::BLACK));
 
-        e_info.add_score(evaluate_knights(board, Color::WHITE));
-        e_info.add_score(evaluate_knights(board, Color::BLACK));
+        // e_info.add_score(evaluate_knights(board, Color::WHITE));
+        // e_info.add_score(evaluate_knights(board, Color::BLACK));
 
-        e_info.add_score(evaluate_bishops(board, Color::WHITE));
-        e_info.add_score(evaluate_bishops(board, Color::BLACK));
+        // e_info.add_score(evaluate_bishops(board, Color::WHITE));
+        // e_info.add_score(evaluate_bishops(board, Color::BLACK));
 
-        e_info.add_score(evaluate_rooks(board, Color::WHITE));
-        e_info.add_score(evaluate_rooks(board, Color::BLACK));
+        // e_info.add_score(evaluate_rooks(board, Color::WHITE));
+        // e_info.add_score(evaluate_rooks(board, Color::BLACK));
 
-        e_info.add_score(evaluate_queens(board, Color::WHITE));
-        e_info.add_score(evaluate_queens(board, Color::BLACK));
+        // e_info.add_score(evaluate_queens(board, Color::WHITE));
+        // e_info.add_score(evaluate_queens(board, Color::BLACK));
 
         score_opening = e_info.opening_score();
         score_endgame = e_info.endgame_score();

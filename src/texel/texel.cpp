@@ -30,9 +30,8 @@ namespace elixir::texel {
         board.from_fen(fen);
         const auto phase = board.get_phase();
 
-        eval::evaluate(board);
-
         TunerPosition position;
+        position.eval = eval::evaluate(board) * color_offset[static_cast<int>(board.get_side_to_move())];
         position.phase   = phase;
         position.outcome = result;
         position.coefficients.reserve(num_params);
@@ -106,8 +105,6 @@ namespace elixir::texel {
         const double rate = 10, delta = 1e-5, deviation_goal = 1e-7;
         double deviation   = 1;
         hyper_parameters.K = 2.5;
-
-        compute_eval();
 
         while (fabs(deviation) > deviation_goal) {
             double up   = get_error(hyper_parameters.K + delta);
