@@ -23,6 +23,9 @@ namespace elixir::texel {
         add_parameter_array<14>(eval::bishop_mobility);
         add_parameter_array<15>(eval::rook_mobility);
         add_parameter_array<28>(eval::queen_mobility);
+        add_parameter_single(eval::stacked_pawn_penalty);
+        add_parameter_single(eval::bishop_pair_bonus);
+        add_parameter_array<8>(eval::passed_pawn_bonus);
     }
 
     void Tune::create_entry(Board &board, const std::string line) {
@@ -93,7 +96,7 @@ namespace elixir::texel {
     double Tune::get_error(const double K) const {
         double error = 0.0;
 
-#pragma omp parallel shared(error) num_threads(6)
+#pragma omp parallel shared(error) num_threads(config.error_threads)
         {
 #pragma omp for schedule(static) reduction(+ : error)
             for (const TunerPosition &position : positions) {
@@ -108,7 +111,7 @@ namespace elixir::texel {
     double Tune::get_tuned_error(const double K) const {
         double error = 0.0;
 
-#pragma omp parallel shared(error) num_threads(6)
+#pragma omp parallel shared(error) num_threads(config.error_threads)
         {
 #pragma omp for schedule(static) reduction(+ : error)
             for (const auto &position : positions) {

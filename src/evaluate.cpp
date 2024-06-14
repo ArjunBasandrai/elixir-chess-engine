@@ -36,10 +36,12 @@ namespace elixir::eval {
 
             if (Files[file] & pawns) {
                 score -= stacked_pawn_penalty;
+                TRACE_DECREMENT(stacked_pawn_penalty, icolor);
             }
 
             if (! (masks::passed_pawn_masks[icolor][sq_] & board.pawns())) {
                 score += passed_pawn_bonus[rank];
+                TRACE_INCREMENT(passed_pawn_bonus[rank], icolor);
             }
         }
 
@@ -54,7 +56,7 @@ namespace elixir::eval {
             const int sq_            = pop_bit(knights);
             const int mobility_count = count_bits(attacks::get_knight_attacks(sq(sq_)) & ~ours);
             score += knight_mobility[mobility_count];
-            TRACE_INCREMENT(knight_mobility[mobility_count], static_cast<int>(side));
+            TRACE_INCREMENT(knight_mobility[mobility_count], static_cast<I8>(side));
         }
 
         return (side == Color::WHITE) ? score : -score;
@@ -66,13 +68,14 @@ namespace elixir::eval {
         EvalScore score     = 0;
         if (count_bits(ours & board.bishops()) >= 2) {
             score += bishop_pair_bonus;
+            TRACE_INCREMENT(bishop_pair_bonus, static_cast<I8>(side));
         }
         while (bishops) {
             int sq_ = pop_bit(bishops);
             int mobility_count =
                 count_bits(attacks::get_bishop_attacks(sq(sq_), board.occupancy()) & ~ours);
             score += bishop_mobility[mobility_count];
-            TRACE_INCREMENT(bishop_mobility[mobility_count], static_cast<int>(side));
+            TRACE_INCREMENT(bishop_mobility[mobility_count], static_cast<I8>(side));
         }
 
         return (side == Color::WHITE) ? score : -score;
@@ -87,7 +90,7 @@ namespace elixir::eval {
             int mobility_count =
                 count_bits(attacks::get_rook_attacks(sq(sq_), board.occupancy()) & ~ours);
             score += rook_mobility[mobility_count];
-            TRACE_INCREMENT(rook_mobility[mobility_count], static_cast<int>(side));
+            TRACE_INCREMENT(rook_mobility[mobility_count], static_cast<I8>(side));
         }
 
         return (side == Color::WHITE) ? score : -score;
@@ -102,7 +105,7 @@ namespace elixir::eval {
             int mobility_count =
                 count_bits(attacks::get_queen_attacks(sq(sq_), board.occupancy()) & ~ours);
             score += queen_mobility[mobility_count];
-            TRACE_INCREMENT(queen_mobility[mobility_count], static_cast<int>(side));
+            TRACE_INCREMENT(queen_mobility[mobility_count], static_cast<I8>(side));
         }
 
         return (side == Color::WHITE) ? score : -score;

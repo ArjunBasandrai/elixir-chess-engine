@@ -18,6 +18,11 @@ namespace elixir::texel {
 
     enum Result : I8 { BLACK_WIN = -1, DRAW = 0, WHITE_WIN = 1 };
 
+    struct TunerConfig {
+        int error_threads = 6;
+        bool tune_from_zero = false;
+    };
+
     struct Coefficient {
         int index = -1;
         int value = 0;
@@ -38,9 +43,9 @@ namespace elixir::texel {
         double momentum_coeff = 0.9;
         double velocity_coeff = 0.999;
         double epsilon        = 1e-8;
-        int early_stopping    = 8;
-        double lr_decay       = 0.5;
-        int lr_decay_interval = 5;
+        int early_stopping    = 12;
+        double lr_decay       = 0.8;
+        int lr_decay_interval = 10;
     };
 
     struct BestParams {
@@ -56,6 +61,9 @@ namespace elixir::texel {
         std::array<std::array<int, 2>, 14> bishop_mobility;
         std::array<std::array<int, 2>, 15> rook_mobility;
         std::array<std::array<int, 2>, 28> queen_mobility;
+        std::array<int, 2> stacked_pawn_penalty;
+        std::array<int, 2> bishop_pair_bonus;
+        std::array<std::array<int, 2>, 8> passed_pawn_bonus;
     };
 
     inline Trace trace;
@@ -112,11 +120,18 @@ namespace elixir::texel {
             get_coefficient_value_array<14>(position, trace.bishop_mobility);
             get_coefficient_value_array<15>(position, trace.rook_mobility);
             get_coefficient_value_array<28>(position, trace.queen_mobility);
+            get_coefficient_value_single(position, trace.stacked_pawn_penalty);
+            get_coefficient_value_single(position, trace.bishop_pair_bonus);
+            get_coefficient_value_array<8>(position, trace.passed_pawn_bonus);
         }
 
         void add_parameter_single(const EvalScore &param) {
-            parameters.push_back(
-                (pair_t){static_cast<double>(O(param)), static_cast<double>(E(param))});
+            if (config.tune_from_zero) {
+                parameters.push_back({0.0, 0.0});
+            } else {
+                parameters.push_back(
+                    (pair_t){static_cast<double>(O(param)), static_cast<double>(E(param))});
+            }
             num_params++;
         }
 
@@ -159,6 +174,7 @@ namespace elixir::texel {
         positions_t fens;
         TunerHyperParams hyper_parameters;
         BestParams best_params;
+        TunerConfig config;
         std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
 
         void read_epd(std::string filename);
