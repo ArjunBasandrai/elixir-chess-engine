@@ -78,8 +78,13 @@ namespace elixir::texel {
 
         void get_coefficient_value_single(TunerPosition &position,
                                           const std::array<int, 2> &param) {
+
+            ++position.coeff_index;
+
+            if ((param[0] == 0 && param[1] == 0) || (param[0] - param[1] == 0)) return;
+
             Coefficient coeff;
-            coeff.index = ++position.coeff_index;
+            coeff.index = position.coeff_index;
             coeff.value = param[0] - param[1];
             position.coefficients.push_back(coeff);
         }
