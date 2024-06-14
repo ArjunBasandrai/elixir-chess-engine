@@ -51,6 +51,11 @@ namespace elixir::texel {
 
     struct Trace {
         std::array<std::array<int, 2>, 6> material_score;
+        std::array<std::array<std::array<int, 2>, 64>, 6> psqt;
+        std::array<std::array<int, 2>, 9> knight_mobility;
+        std::array<std::array<int, 2>, 14> bishop_mobility;
+        std::array<std::array<int, 2>, 15> rook_mobility;
+        std::array<std::array<int, 2>, 28> queen_mobility;
     };
 
     inline Trace trace;
@@ -87,8 +92,21 @@ namespace elixir::texel {
             }
         }
 
+        template <std::size_t M, std::size_t N>
+        void get_coefficient_value_matrix(TunerPosition &position,
+                                          const std::array<std::array<std::array<int, 2>, N>, M> &param) {
+            for (const auto &p : param) {
+                get_coefficient_value_array<N>(position, p);
+            }
+        }
+
         void get_all_coefficients(TunerPosition &position) {
             get_coefficient_value_array<6>(position, trace.material_score);
+            get_coefficient_value_matrix<6, 64>(position, trace.psqt);
+            get_coefficient_value_array<9>(position, trace.knight_mobility);
+            get_coefficient_value_array<14>(position, trace.bishop_mobility);
+            get_coefficient_value_array<15>(position, trace.rook_mobility);
+            get_coefficient_value_array<28>(position, trace.queen_mobility);
         }
 
         void add_parameter_single(const EvalScore &param) {
@@ -118,11 +136,12 @@ namespace elixir::texel {
 
         void get_intial_parameters();
         void load_data(std::vector<std::string> files);
-        void compute_eval();
+        int get_eval(const TunerPosition &position) const;
         [[nodiscard]] inline double sigmoid(Score score, const double K) const {
             return 1.0 / (1.0 + std::exp(-K * score / 400.0));
         }
         double get_error(const double K) const;
+        double get_tuned_error(const double K) const;
         void set_optimal_k();
         void get_gradients();
         void tune();

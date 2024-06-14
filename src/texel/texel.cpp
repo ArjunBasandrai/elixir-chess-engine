@@ -18,6 +18,11 @@ namespace elixir::texel {
         start_time = std::chrono::high_resolution_clock::now();
         std::cout << "[" << time_spent() << "s]" << " Getting initial parameters...\n" << std::endl;
         add_parameter_array<6>(eval::material_score);
+        add_parameter_matrix<6, 64>(eval::psqt);
+        add_parameter_array<9>(eval::knight_mobility);
+        add_parameter_array<14>(eval::bishop_mobility);
+        add_parameter_array<15>(eval::rook_mobility);
+        add_parameter_array<28>(eval::queen_mobility);
     }
 
     void Tune::create_entry(Board &board, const std::string line) {
@@ -72,18 +77,17 @@ namespace elixir::texel {
         std::cout << "Loaded " << fens.size() << " positions" << std::endl;
     }
 
-    void Tune::compute_eval() {
-        for (TunerPosition &position : positions) {
-            EvalScore eval = 0;
+    int Tune::get_eval(const TunerPosition &position) const {
+        Score mg = 0, eg = 0;
+        #pragma omp parallel shared(mg, eg) num_threads(2)
+        {
+            #pragma omp for schedule(static) reduction(+ : mg, eg)
             for (const Coefficient &coeff : position.coefficients) {
-                const auto param        = parameters[coeff.index];
-                const auto scaled_param = S(param[0], param[1]) * coeff.value;
-                eval += scaled_param;
+                mg += parameters[coeff.index][0] * coeff.value;
+                eg += parameters[coeff.index][1] * coeff.value;
             }
-            const auto tapered_eval =
-                (O(eval) * position.phase + E(eval) * (24 - position.phase)) / 24;
-            position.eval = tapered_eval;
         }
+        return (mg * position.phase + eg * (24 - position.phase)) / 24;
     }
 
     double Tune::get_error(const double K) const {
@@ -95,6 +99,21 @@ namespace elixir::texel {
             for (const TunerPosition &position : positions) {
                 error +=
                     std::pow((double)((position.outcome + 1) / 2) - sigmoid(position.eval, K), 2);
+            }
+        }
+
+        return error / positions.size();
+    }
+
+    double Tune::get_tuned_error(const double K) const {
+        double error = 0.0;
+
+#pragma omp parallel shared(error) num_threads(6)
+        {
+#pragma omp for schedule(static) reduction(+ : error)
+            for (const auto &position : positions) {
+                error +=
+                    std::pow((double)((position.outcome + 1) / 2) - sigmoid(get_eval(position), K), 2);
             }
         }
 
@@ -123,14 +142,14 @@ namespace elixir::texel {
     void Tune::get_gradients() {
         gradients.reserve(num_params);
 
-        compute_eval();
 
         for (int i = 0; i < num_params; i++) {
             gradients.push_back({0, 0});
         }
 
         for (const auto &position : positions) {
-            double S      = sigmoid(position.eval, hyper_parameters.K);
+            int E = get_eval(position);
+            double S      = sigmoid(E, hyper_parameters.K);
             double result = (position.outcome + 1) / 2.0;
             double D      = (result - S) * S * (1 - S);
 
@@ -182,9 +201,9 @@ namespace elixir::texel {
                 parameters[i][1] -= update[1];
             }
 
-            const double error = get_error(hyper_parameters.K);
+            const double error = get_tuned_error(hyper_parameters.K);
             std::cout << "[" << time_spent() << "s]"
-                      << " Epoch: " << epoch << " Error: " << error
+                      << " Epoch: " << epoch + 1 << " Error: " << error
                       << " Rate: " << hyper_parameters.learning_rate << std::endl;
             if (error < best_params.error) {
                 best_params.error  = error;
@@ -193,23 +212,17 @@ namespace elixir::texel {
             } else {
                 if (epoch - best_params.epoch >= hyper_parameters.early_stopping) {
                     std::cout << "[" << time_spent() << "s]"
-                              << " Early stopping at epoch " << epoch << " with error "
-                              << get_error(hyper_parameters.K) << std::endl;
+                              << " Early stopping at epoch " << epoch << std::endl;
                     std::cout << "[" << time_spent() << "s]"
-                              << " Restoring best parameters from epoch " << best_params.epoch
+                              << " Restoring best parameters from epoch " << best_params.epoch + 1
                               << "..." << std::endl;
                     parameters = best_params.params;
                     break;
                 }
             }
 
-            if (epoch % hyper_parameters.lr_decay_interval == 0 && epoch) {
+            if ((epoch + 1) % hyper_parameters.lr_decay_interval == 0 && epoch) {
                 hyper_parameters.learning_rate *= hyper_parameters.lr_decay;
-            }
-
-            // print all params
-            for (const pair_t &p : parameters) {
-                std::cout << "S(" << p[0] << ", " << p[1] << ")" << std::endl;
             }
         }
     }

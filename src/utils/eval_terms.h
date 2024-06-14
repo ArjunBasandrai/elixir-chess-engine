@@ -5,7 +5,7 @@
 namespace elixir::eval {
     const std::array<EvalScore, 6> material_score = {S(82, 94),  S(337, 281),  S(365, 297),
                                                      S(477, 512), S(1025, 936), S(0, 0)};
-    const EvalScore psqt[6][64]                   = {
+    const std::array<std::array<EvalScore, 64>, 6> psqt                  = {{
                           {S(0, 0),     S(0, 0),     S(0, 0),     S(0, 0),     S(0, 0),    S(0, 0),    S(0, 0),
                            S(0, 0),     S(41, 285),  S(68, 276),  S(49, 270),  S(75, 217), S(65, 211), S(55, 229),
                            S(-13, 280), S(-55, 290), S(-36, 182), S(-13, 191), S(20, 156), S(23, 129), S(29, 119),
@@ -66,17 +66,17 @@ namespace elixir::eval {
                            S(-75, 35),  S(-91, 49),  S(-86, 49),  S(-80, 40),  S(-35, 20),  S(-53, 5),   S(61, -34),
                            S(15, -4),   S(-3, 10),   S(-42, 23),  S(-43, 26),  S(-21, 16),  S(30, -4),   S(40, -24),
                            S(49, -71),  S(86, -52),  S(61, -31),  S(-48, -9),  S(19, -31),  S(-17, -12), S(64, -44),
-                           S(61, -75)}};
-    const EvalScore knight_mobility[9]   = {S(25, -4), S(44, -3), S(54, 2), S(57, 0), S(61, 2),
+                           S(61, -75)}}};
+    const std::array<EvalScore, 9> knight_mobility = {S(25, -4), S(44, -3), S(54, 2), S(57, 0), S(61, 2),
                                             S(60, 7),  S(59, 8),  S(58, 8), S(59, 4)};
-    const EvalScore bishop_mobility[14]  = {S(6, -66),  S(14, -43), S(23, -37), S(25, -26),
+    const std::array<EvalScore, 14> bishop_mobility = {S(6, -66),  S(14, -43), S(23, -37), S(25, -26),
                                             S(33, -13), S(40, 0),   S(46, 4),   S(49, 11),
                                             S(51, 18),  S(52, 17),  S(57, 15),  S(60, 16),
                                             S(61, 20),  S(86, 5)};
-    const EvalScore rook_mobility[15]    = {S(-15, -28), S(-4, -11), S(0, -7),  S(4, -4),  S(4, 2),
+    const std::array<EvalScore, 15> rook_mobility  = {S(-15, -28), S(-4, -11), S(0, -7),  S(4, -4),  S(4, 2),
                                             S(13, 4),    S(17, 7),   S(26, 9),  S(30, 18), S(37, 21),
                                             S(43, 22),   S(47, 27),  S(49, 33), S(56, 36), S(57, 34)};
-    const EvalScore queen_mobility[28]   = {S(-72, -3),  S(-70, -90), S(-73, -57), S(-70, -41),
+    const std::array<EvalScore, 28> queen_mobility   = {S(-72, -3),  S(-70, -90), S(-73, -57), S(-70, -41),
                                             S(-67, -41), S(-63, -32), S(-59, -25), S(-61, -4),
                                             S(-59, 6),   S(-56, 9),   S(-55, 21),  S(-55, 28),
                                             S(-54, 37),  S(-52, 43),  S(-50, 48),  S(-49, 53),
@@ -85,6 +85,6 @@ namespace elixir::eval {
                                             S(-7, 65),   S(46, 49),   S(71, 34),   S(161, -4)};
     const EvalScore stacked_pawn_penalty = S(20, 35);
     const EvalScore bishop_pair_bonus    = S(25, 66);
-    const EvalScore passed_pawn_bonus[8] = {S(10, 20), S(-9, -7),  S(-13, 16), S(-4, 36),
+    const std::array<EvalScore, 8> passed_pawn_bonus = {S(10, 20), S(-9, -7),  S(-13, 16), S(-4, 36),
                                             S(-3, 37), S(-16, 17), S(-16, -9), S(10, 20)};
 }
