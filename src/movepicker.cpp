@@ -60,6 +60,8 @@ namespace elixir {
                 value = 800000000;
             } else if (move == ss->killers[1]) {
                 value = 700000000;
+            } else if (move == board.history.get_countermove(board.get_side_to_move(), (ss-1)->move.get_from(), (ss-1)->move.get_to())) {
+                value = 600000000;
             } else {
                 // Butterfly History Move Ordering (~45 ELO)
                 value = board.history.get_history(from, to);

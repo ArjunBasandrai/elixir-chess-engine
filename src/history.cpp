@@ -12,6 +12,12 @@ namespace elixir {
                 history[i][j] = 0;
             }
         }
+        for (int i = 0; i < 64; i++) {
+            for (int j = 0; j < 64; j++) {
+                counter_moves[0][i][j] = move::NO_MOVE;
+                counter_moves[1][i][j] = move::NO_MOVE;
+            }
+        }
     }
 
     int History::scale_bonus(int score, int bonus) {
@@ -37,4 +43,13 @@ namespace elixir {
     int History::get_history(Square from, Square to) const {
         return history[static_cast<int>(from)][static_cast<int>(to)];
     }
+
+    void History::update_countermove(Color side, Square from, Square to, move::Move countermove) {
+        counter_moves[static_cast<int>(side)][static_cast<int>(from)][static_cast<int>(to)] = countermove;
+    }
+
+    move::Move History::get_countermove(Color side, Square from, Square to) const {
+        return counter_moves[static_cast<int>(side)][static_cast<int>(from)][static_cast<int>(to)];
+    }
+
 }
