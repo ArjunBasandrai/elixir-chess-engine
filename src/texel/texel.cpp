@@ -83,8 +83,8 @@ namespace elixir::texel {
         std::cout << "Loaded " << fens.size() << " positions" << std::endl;
     }
 
-    int Tune::get_eval(const TunerPosition &position) const {
-        Score mg = 0, eg = 0;
+    double Tune::get_eval(const TunerPosition &position) const {
+        double mg = 0, eg = 0;
 #pragma omp parallel shared(mg, eg) num_threads(2)
         {
 #pragma omp for schedule(static) reduction(+ : mg, eg)
@@ -93,7 +93,7 @@ namespace elixir::texel {
                 eg += parameters[coeff.index][1] * coeff.value;
             }
         }
-        return (mg * position.phase + eg * (24 - position.phase)) / 24;
+        return (mg * position.phase + eg * (24 - position.phase)) / 24.0;
     }
 
     double Tune::get_error(const double K) const {
@@ -119,8 +119,7 @@ namespace elixir::texel {
 #pragma omp for schedule(static) reduction(+ : error)
             for (const auto &position : positions) {
                 error +=
-                    std::pow((double)((position.outcome + 1) / 2) - sigmoid(get_eval(position), K),
-                             2);
+                    std::pow((double)((position.outcome + 1) / 2.0 - sigmoid(get_eval(position), K)), 2);
             }
         }
 
@@ -128,7 +127,7 @@ namespace elixir::texel {
     }
 
     void Tune::set_optimal_k() {
-        const double rate = 10, delta = 1e-5, deviation_goal = 1e-7;
+        const double rate = 10, delta = 1e-5, deviation_goal = 1e-6;
         double deviation   = 1;
         hyper_parameters.K = 2.5;
 
@@ -155,10 +154,9 @@ namespace elixir::texel {
         }
 
         for (const auto &position : positions) {
-            int E         = get_eval(position);
+            double E      = get_eval(position);
             double S      = sigmoid(E, hyper_parameters.K);
-            double result = (position.outcome + 1) / 2.0;
-            double D      = (result - S) * S * (1 - S);
+            double D      = (((position.outcome + 1) / 2.0) - S) * S * (1 - S);
 
             double mg_base = D * (position.phase / 24.0);
             double eg_base = D - mg_base;

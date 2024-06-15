@@ -17,13 +17,13 @@ debug: __debug_compile __run
 tune: __tune_compile
 
 __compile:
-	$(CXX) -Ofast -fopenmp -march=native -DNDEBUG -std=c++20 -o $(EXE_NAME) elixir.cpp $(SRC)
+	$(CXX) -Ofast -march=native -DNDEBUG -std=c++20 -o $(EXE_NAME) elixir.cpp $(SRC)
 
 __tune_compile:
 	$(CXX) -Ofast -march=native -DNDEBUG -DUSE_TUNE -std=c++20 -o $(EXE_NAME) elixir.cpp $(SRC)
 
 __debug_compile:
-	$(CXX) -Og -fopenmp -g -std=c++20 -o $(EXE_NAME) elixir.cpp $(SRC)
+	$(CXX) -Og -g -std=c++20 -o $(EXE_NAME) elixir.cpp $(SRC)
 
 __run:
 	./$(EXE_NAME)

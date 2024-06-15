@@ -220,8 +220,8 @@ namespace elixir::texel {
 
         void get_intial_parameters();
         void load_data(std::vector<std::string> files);
-        int get_eval(const TunerPosition &position) const;
-        [[nodiscard]] inline double sigmoid(Score score, const double K) const {
+        double get_eval(const TunerPosition &position) const;
+        [[nodiscard]] inline double sigmoid(double score, const double K) const {
             return 1.0 / (1.0 + std::exp(-K * score / 400.0));
         }
         double get_error(const double K) const;
