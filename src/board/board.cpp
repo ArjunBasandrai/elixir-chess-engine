@@ -134,6 +134,7 @@ namespace elixir {
 
         using namespace texel;
         TRACE_INCREMENT(material_score[static_cast<I8>(piece)], static_cast<I8>(color));
+        TRACE_INCREMENT(psqt[static_cast<I8>(piece)][square], static_cast<I8>(color));
     }
 
     void Board::remove_piece(const Square sq, const PieceType piece, const Color color) {
@@ -153,6 +154,7 @@ namespace elixir {
 
         using namespace texel;
         TRACE_DECREMENT(material_score[static_cast<I8>(piece)], static_cast<I8>(color));
+        TRACE_DECREMENT(psqt[static_cast<I8>(piece)][square], static_cast<I8>(color));
     }
 
     void Board::from_fen(const std::string fen) {

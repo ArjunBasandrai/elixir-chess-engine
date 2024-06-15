@@ -34,8 +34,9 @@ namespace elixir::texel {
     struct TunerPosition {
         int coeff_index = -1;
         int phase;
-        Result outcome;
+        double outcome;
         int eval = 0;
+        int stm;
         std::vector<Coefficient> coefficients;
     };
 
