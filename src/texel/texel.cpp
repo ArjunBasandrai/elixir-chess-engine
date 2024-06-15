@@ -16,7 +16,9 @@
 namespace elixir::texel {
     void Tune::get_intial_parameters() {
         start_time = std::chrono::high_resolution_clock::now();
-        std::cout << "[" << time_spent() << "s]" << " Getting initial parameters...\n" << std::endl;
+        std::cout << "[" << time_spent() << "s]"
+                  << " Getting initial parameters...\n"
+                  << std::endl;
         add_parameter_array<6>(eval::material_score);
         add_parameter_matrix<6, 64>(eval::psqt);
         add_parameter_array<9>(eval::knight_mobility);
@@ -39,7 +41,8 @@ namespace elixir::texel {
         const auto phase = board.get_phase();
 
         TunerPosition position;
-        position.eval = eval::evaluate(board) * color_offset[static_cast<int>(board.get_side_to_move())];
+        position.eval =
+            eval::evaluate(board) * color_offset[static_cast<int>(board.get_side_to_move())];
         position.phase   = phase;
         position.outcome = result;
         position.coefficients.reserve(num_params);
@@ -82,9 +85,9 @@ namespace elixir::texel {
 
     int Tune::get_eval(const TunerPosition &position) const {
         Score mg = 0, eg = 0;
-        #pragma omp parallel shared(mg, eg) num_threads(2)
+#pragma omp parallel shared(mg, eg) num_threads(2)
         {
-            #pragma omp for schedule(static) reduction(+ : mg, eg)
+#pragma omp for schedule(static) reduction(+ : mg, eg)
             for (const Coefficient &coeff : position.coefficients) {
                 mg += parameters[coeff.index][0] * coeff.value;
                 eg += parameters[coeff.index][1] * coeff.value;
@@ -116,7 +119,8 @@ namespace elixir::texel {
 #pragma omp for schedule(static) reduction(+ : error)
             for (const auto &position : positions) {
                 error +=
-                    std::pow((double)((position.outcome + 1) / 2) - sigmoid(get_eval(position), K), 2);
+                    std::pow((double)((position.outcome + 1) / 2) - sigmoid(get_eval(position), K),
+                             2);
             }
         }
 
@@ -151,7 +155,7 @@ namespace elixir::texel {
         }
 
         for (const auto &position : positions) {
-            int E = get_eval(position);
+            int E         = get_eval(position);
             double S      = sigmoid(E, hyper_parameters.K);
             double result = (position.outcome + 1) / 2.0;
             double D      = (result - S) * S * (1 - S);
@@ -223,6 +227,8 @@ namespace elixir::texel {
                     break;
                 }
             }
+
+            print_parameters(epoch);
 
             if ((epoch + 1) % hyper_parameters.lr_decay_interval == 0 && epoch) {
                 hyper_parameters.learning_rate *= hyper_parameters.lr_decay;

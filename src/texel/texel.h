@@ -3,6 +3,9 @@
 #include <array>
 #include <chrono>
 #include <cmath>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -19,7 +22,7 @@ namespace elixir::texel {
     enum Result : I8 { BLACK_WIN = -1, DRAW = 0, WHITE_WIN = 1 };
 
     struct TunerConfig {
-        int error_threads = 6;
+        int error_threads   = 6;
         bool tune_from_zero = false;
     };
 
@@ -89,7 +92,8 @@ namespace elixir::texel {
 
             ++position.coeff_index;
 
-            if ((param[0] == 0 && param[1] == 0) || (param[0] - param[1] == 0)) return;
+            if ((param[0] == 0 && param[1] == 0) || (param[0] - param[1] == 0))
+                return;
 
             Coefficient coeff;
             coeff.index = position.coeff_index;
@@ -106,8 +110,9 @@ namespace elixir::texel {
         }
 
         template <std::size_t M, std::size_t N>
-        void get_coefficient_value_matrix(TunerPosition &position,
-                                          const std::array<std::array<std::array<int, 2>, N>, M> &param) {
+        void get_coefficient_value_matrix(
+            TunerPosition &position,
+            const std::array<std::array<std::array<int, 2>, N>, M> &param) {
             for (const auto &p : param) {
                 get_coefficient_value_array<N>(position, p);
             }
@@ -148,10 +153,69 @@ namespace elixir::texel {
             }
         }
 
-        void print_parameters() {
-            for (const pair_t &p : parameters) {
-                std::cout << "S(" << p[0] << ", " << p[1] << ")" << std::endl;
+        void print_parameter(std::stringstream &ss, const pair_t &param) {
+            ss << "S(" << static_cast<int>(param[0]) << ", " << static_cast<int>(param[1]) << ") ";
+        }
+
+        void print_parameter_single(std::stringstream &ss, std::string name, int &index) {
+            ss << "const EvalScore " << name << " = ";
+            print_parameter(ss, parameters[index++]);
+            ss << ";\n" << std::endl;
+        }
+
+        template <std::size_t N>
+        void print_parameter_array(std::stringstream &ss, std::string name, int &index) {
+            ss << "const std::array<EvalScore, " << N << "> " << name << " = ";
+            ss << "{" << std::endl;
+            ss << "    ";
+            for (int i = 0; i < N; i++) {
+                print_parameter(ss, parameters[index++]);
+                if (i != N - 1) ss << ", ";
+
             }
+            ss << "\n};\n" << std::endl;
+        }
+
+        template <std::size_t M, std::size_t N>
+        void print_parameter_matrix(std::stringstream &ss, std::string name, int &index) {
+            ss << "const std::array<std::array<EvalScore, " << N << ">, " << M << "> " << name
+               << " = {" << std::endl;
+            for (int i = 0; i < M; i++) {
+                ss << "    {\n";
+                ss << "        ";
+                for (int j = 0; j < N; j++) {
+                    print_parameter(ss, parameters[index++]);
+                    if (j != N - 1) ss << ", ";
+                }
+                ss << "\n    }";
+                if (i != M - 1) ss << ", ";
+                ss << std::endl;
+            }
+            ss << "};\n" << std::endl;
+        }
+
+        void print_parameters(int epoch) {
+            std::stringstream ss;
+            int index = 0;
+            print_parameter_array<6>(ss, "material_score", index);
+            print_parameter_matrix<6, 64>(ss, "psqt", index);
+            print_parameter_array<9>(ss, "knight_mobility", index);
+            print_parameter_array<14>(ss, "bishop_mobility", index);
+            print_parameter_array<15>(ss, "rook_mobility", index);
+            print_parameter_array<28>(ss, "queen_mobility", index);
+            print_parameter_single(ss, "stacked_pawn_penalty", index);
+            print_parameter_single(ss, "bishop_pair_bonus", index);
+            print_parameter_array<8>(ss, "passed_pawn_bonus", index);
+
+            const std::string filename =
+                "src/texel/results/parameters_" + std::to_string(epoch + 1) + ".elixir.parameters";
+            std::ofstream file(filename);
+            if (! file.is_open()) {
+                std::cerr << "ERROR: Unable to save tuned parameters to " << filename << std::endl;
+                return;
+            }
+            file << ss.str();
+            file.close();
         }
 
         void get_intial_parameters();

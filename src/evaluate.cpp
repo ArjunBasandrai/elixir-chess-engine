@@ -5,11 +5,11 @@
 
 #include "board/board.h"
 #include "defs.h"
+#include "texel/texel.h"
 #include "types.h"
 #include "utils/bits.h"
 #include "utils/eval_terms.h"
 #include "utils/masks.h"
-#include "texel/texel.h"
 
 using namespace elixir::bits;
 using namespace elixir::texel;
