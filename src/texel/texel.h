@@ -179,7 +179,7 @@ namespace elixir::texel {
         template <std::size_t M, std::size_t N>
         void print_parameter_matrix(std::stringstream &ss, std::string name, int &index) {
             ss << "const std::array<std::array<EvalScore, " << N << ">, " << M << "> " << name
-               << " = {" << std::endl;
+               << " = {{" << std::endl;
             for (int i = 0; i < M; i++) {
                 ss << "    {\n";
                 ss << "        ";
@@ -191,7 +191,7 @@ namespace elixir::texel {
                 if (i != M - 1) ss << ", ";
                 ss << std::endl;
             }
-            ss << "};\n" << std::endl;
+            ss << "}};\n" << std::endl;
         }
 
         void print_parameters(int epoch) {
