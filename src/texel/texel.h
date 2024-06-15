@@ -40,7 +40,7 @@ namespace elixir::texel {
     };
 
     struct TunerHyperParams {
-        double learning_rate  = 1;
+        double learning_rate  = 0.3;
         double K              = 0.0;
         int max_epochs        = 10000;
         double momentum_coeff = 0.9;
@@ -53,7 +53,7 @@ namespace elixir::texel {
 
     struct BestParams {
         int epoch    = -1;
-        double error = 10000;
+        double error = 1000000;
         std::vector<pair_t> params;
     };
 

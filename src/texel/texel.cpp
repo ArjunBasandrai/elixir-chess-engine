@@ -146,8 +146,7 @@ namespace elixir::texel {
     }
 
     void Tune::get_gradients() {
-        gradients.reserve(num_params);
-
+        gradients.resize(num_params);
 
         for (int i = 0; i < num_params; i++) {
             gradients.push_back({0, 0});
