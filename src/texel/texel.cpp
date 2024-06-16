@@ -31,6 +31,7 @@ namespace elixir::texel {
         add_parameter_array<8>(eval::passed_pawn_bonus);
         add_parameter_array<8>(eval::rook_open_file_bonus);
         add_parameter_array<8>(eval::rook_semi_open_file_bonus);
+        add_parameter_array<8>(eval::isolated_pawn_penalty);
     }
 
     void Tune::create_entry(Board &board, const std::string line) {
@@ -179,6 +180,10 @@ namespace elixir::texel {
     }
 
     void Tune::tune() {
+        get_intial_parameters();
+
+        load_data({"lichess-big3.epd"});
+
         std::vector<pair_t> velocity, momentum;
         velocity.resize(num_params);
         momentum.resize(num_params);

@@ -45,7 +45,8 @@ namespace elixir {
     }
 
     void History::update_countermove(Color side, Square from, Square to, move::Move countermove) {
-        counter_moves[static_cast<int>(side)][static_cast<int>(from)][static_cast<int>(to)] = countermove;
+        counter_moves[static_cast<int>(side)][static_cast<int>(from)][static_cast<int>(to)] =
+            countermove;
     }
 
     move::Move History::get_countermove(Color side, Square from, Square to) const {
