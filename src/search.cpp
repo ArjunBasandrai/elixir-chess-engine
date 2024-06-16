@@ -568,6 +568,7 @@ namespace elixir::search {
 
     void search(Board &board, SearchInfo &info, bool print_info) {
         auto start = std::chrono::high_resolution_clock::now();
+        info.start_time = start;
         PVariation pv;
         for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
             info.seldepth = 0;
