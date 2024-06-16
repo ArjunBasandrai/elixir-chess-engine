@@ -19,8 +19,6 @@ namespace elixir::texel {
     using pair_t      = std::array<double, 2>;
     using positions_t = std::vector<std::string>;
 
-    enum Result : I8 { BLACK_WIN = -1, DRAW = 0, WHITE_WIN = 1 };
-
     struct TunerConfig {
         int error_threads   = 6;
         bool tune_from_zero = false;
@@ -41,7 +39,7 @@ namespace elixir::texel {
     };
 
     struct TunerHyperParams {
-        double learning_rate  = 0.3;
+        double learning_rate  = 1;
         double K              = 0.0;
         int max_epochs        = 10000;
         double momentum_coeff = 0.9;
@@ -68,6 +66,8 @@ namespace elixir::texel {
         std::array<int, 2> stacked_pawn_penalty;
         std::array<int, 2> bishop_pair_bonus;
         std::array<std::array<int, 2>, 8> passed_pawn_bonus;
+        std::array<std::array<int, 2>, 8> rook_open_file_bonus;
+        std::array<std::array<int, 2>, 8> rook_semi_open_file_bonus;
     };
 
     inline Trace trace;
@@ -129,6 +129,8 @@ namespace elixir::texel {
             get_coefficient_value_single(position, trace.stacked_pawn_penalty);
             get_coefficient_value_single(position, trace.bishop_pair_bonus);
             get_coefficient_value_array<8>(position, trace.passed_pawn_bonus);
+            get_coefficient_value_array<8>(position, trace.rook_open_file_bonus);
+            get_coefficient_value_array<8>(position, trace.rook_semi_open_file_bonus);
         }
 
         void add_parameter_single(const EvalScore &param) {
@@ -171,8 +173,8 @@ namespace elixir::texel {
             ss << "    ";
             for (int i = 0; i < N; i++) {
                 print_parameter(ss, parameters[index++]);
-                if (i != N - 1) ss << ", ";
-
+                if (i != N - 1)
+                    ss << ", ";
             }
             ss << "\n};\n" << std::endl;
         }
@@ -186,10 +188,12 @@ namespace elixir::texel {
                 ss << "        ";
                 for (int j = 0; j < N; j++) {
                     print_parameter(ss, parameters[index++]);
-                    if (j != N - 1) ss << ", ";
+                    if (j != N - 1)
+                        ss << ", ";
                 }
                 ss << "\n    }";
-                if (i != M - 1) ss << ", ";
+                if (i != M - 1)
+                    ss << ", ";
                 ss << std::endl;
             }
             ss << "}};\n" << std::endl;
@@ -207,6 +211,8 @@ namespace elixir::texel {
             print_parameter_single(ss, "stacked_pawn_penalty", index);
             print_parameter_single(ss, "bishop_pair_bonus", index);
             print_parameter_array<8>(ss, "passed_pawn_bonus", index);
+            print_parameter_array<8>(ss, "rook_open_file_bonus", index);
+            print_parameter_array<8>(ss, "rook_semi_open_file_bonus", index);
 
             const std::string filename =
                 "src/texel/results/parameters_" + std::to_string(epoch + 1) + ".elixir.parameters";

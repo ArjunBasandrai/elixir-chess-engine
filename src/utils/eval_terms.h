@@ -89,4 +89,10 @@ namespace elixir::eval {
     const std::array<EvalScore, 8> passed_pawn_bonus = {S(10, 20),  S(-9, -7), S(-13, 16),
                                                         S(-4, 36),  S(-3, 37), S(-16, 17),
                                                         S(-16, -9), S(10, 20)};
+    const std::array<EvalScore, 8> rook_open_file_bonus = {S(0, 0),  S(0, 0), S(0, 0),
+                                                        S(0, 0),  S(0, 0), S(0, 0),
+                                                        S(0, 0), S(0, 0)};
+    const std::array<EvalScore, 8> rook_semi_open_file_bonus = {S(0, 0),  S(0, 0), S(0, 0),
+                                                        S(0, 0),  S(0, 0), S(0, 0),
+                                                        S(0, 0), S(0, 0)};
 }

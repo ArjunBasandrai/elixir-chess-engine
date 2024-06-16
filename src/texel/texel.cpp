@@ -2,8 +2,8 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
-#include <vector>
 #include <stdexcept>
+#include <vector>
 
 #include "texel.h"
 
@@ -29,6 +29,8 @@ namespace elixir::texel {
         add_parameter_single(eval::stacked_pawn_penalty);
         add_parameter_single(eval::bishop_pair_bonus);
         add_parameter_array<8>(eval::passed_pawn_bonus);
+        add_parameter_array<8>(eval::rook_open_file_bonus);
+        add_parameter_array<8>(eval::rook_semi_open_file_bonus);
     }
 
     void Tune::create_entry(Board &board, const std::string line) {
@@ -46,12 +48,13 @@ namespace elixir::texel {
             eval::evaluate(board) * color_offset[static_cast<int>(board.get_side_to_move())];
         position.phase   = phase;
         position.outcome = result;
-        position.stm = static_cast<int>(board.get_side_to_move());
+        position.stm     = static_cast<int>(board.get_side_to_move());
         position.coefficients.reserve(num_params);
         get_all_coefficients(position);
         if (std::abs(get_eval(position) - position.eval) > 1) {
             std::cerr << "ERROR: Evaluation mismatch for position " << fen << std::endl;
-            std::cerr << "Expected: " << position.eval << " Got: " << get_eval(position) << std::endl;
+            std::cerr << "Expected: " << position.eval << " Got: " << get_eval(position)
+                      << std::endl;
             throw std::runtime_error("Evaluation mismatch");
         }
         positions.push_back(position);
@@ -100,7 +103,8 @@ namespace elixir::texel {
                 eg += parameters[coeff.index][1] * coeff.value;
             }
         }
-        return (mg * position.phase + eg * (24 - position.phase)) / 24 + eval::TEMPO * color_offset[position.stm];
+        return (mg * position.phase + eg * (24 - position.phase)) / 24 +
+               eval::TEMPO * color_offset[position.stm];
     }
 
     double Tune::get_error(const double K) const {
@@ -110,8 +114,7 @@ namespace elixir::texel {
         {
 #pragma omp for schedule(static) reduction(+ : error)
             for (const TunerPosition &position : positions) {
-                error +=
-                    std::pow(position.outcome - sigmoid(position.eval, K), 2);
+                error += std::pow(position.outcome - sigmoid(position.eval, K), 2);
             }
         }
 
@@ -125,8 +128,7 @@ namespace elixir::texel {
         {
 #pragma omp for schedule(static) reduction(+ : error)
             for (const auto &position : positions) {
-                error +=
-                    std::pow(position.outcome - sigmoid(get_eval(position), K), 2);
+                error += std::pow(position.outcome - sigmoid(get_eval(position), K), 2);
             }
         }
 

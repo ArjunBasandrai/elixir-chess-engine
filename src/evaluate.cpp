@@ -83,14 +83,29 @@ namespace elixir::eval {
 
     EvalScore evaluate_rooks(const Board &board, const Color side) {
         const Bitboard ours = board.color_occupancy(side);
-        Bitboard rooks      = board.rooks() & ours;
-        EvalScore score     = 0;
+        const Bitboard theirs =
+            board.color_occupancy(static_cast<Color>(static_cast<I8>(side) ^ 1));
+        const Bitboard our_pawns   = board.pawns() & ours;
+        const Bitboard their_pawns = board.pawns() & theirs;
+        Bitboard rooks             = board.rooks() & ours;
+        EvalScore score            = 0;
         while (rooks) {
-            int sq_ = pop_bit(rooks);
+            int sq_  = pop_bit(rooks);
+            int file = get_file(sq(sq_));
             int mobility_count =
                 count_bits(attacks::get_rook_attacks(sq(sq_), board.occupancy()) & ~ours);
             score += rook_mobility[mobility_count];
             TRACE_INCREMENT(rook_mobility[mobility_count], static_cast<I8>(side));
+
+            if (! (Files[file] & our_pawns)) {
+                if (! (Files[file] & their_pawns)) {
+                    score += rook_open_file_bonus[file];
+                    TRACE_INCREMENT(rook_open_file_bonus[file], static_cast<I8>(side));
+                } else {
+                    score += rook_semi_open_file_bonus[file];
+                    TRACE_INCREMENT(rook_semi_open_file_bonus[file], static_cast<I8>(side));
+                }
+            }
         }
 
         return (side == Color::WHITE) ? score : -score;
