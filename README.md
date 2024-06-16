@@ -51,6 +51,7 @@ Alternatively, you can download pre-compiled binaries from the [Releases](https:
   - TT Move ordering
   - Good and Bad Captures ordering using SEE
   - Killer Move Ordering
+  - Counter Move History
   - Butterfly History Move Ordering with maluses
 - **Evaluation** : Hand Crafted Evaluation (HCE) using texel-tuned values
   - Tapered Evaluation
@@ -59,6 +60,7 @@ Alternatively, you can download pre-compiled binaries from the [Releases](https:
   - Stacked Pawn Penalty
   - Bishop Pair Bonus
   - Passed Pawn Bonus
+  - Rook Open & Semi-Open File Bonus
   - Tempo Bonus
 
 ## Acknowledgements
