@@ -215,6 +215,13 @@ namespace elixir {
 
         bool is_repetition() const;
 
+        int get_phase() const {
+            int phase = bits::count_bits(minors()) + 2 * bits::count_bits(rooks()) +
+                        4 * bits::count_bits(queens());
+            phase = std::clamp(phase, 0, 24);
+            return phase;
+        }
+
         History history;
 
       private:

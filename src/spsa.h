@@ -27,9 +27,9 @@ namespace elixir::tune {
         double step;
         double lr;
     };
-    class Tuner {
+    class SPSA {
       public:
-        Tuner() = default;
+        SPSA() = default;
         void add_field(TunerField field);
         void print_info();
         void print_current();
@@ -42,6 +42,6 @@ namespace elixir::tune {
 
     void init_tune();
 
-    extern Tuner tuner;
+    extern SPSA tuner;
 }
 #endif

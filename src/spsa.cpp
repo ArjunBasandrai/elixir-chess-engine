@@ -4,7 +4,7 @@
 #include "evaluate.h"
 #include "movepicker.h"
 #include "search.h"
-#include "tune.h"
+#include "spsa.h"
 #endif
 
 namespace elixir {
@@ -15,13 +15,13 @@ namespace elixir {
 #ifdef USE_TUNE
 namespace elixir::tune {
 
-    Tuner tuner;
+    SPSA tuner;
 
-    void Tuner::add_field(TunerField field) {
+    void SPSA::add_field(TunerField field) {
         fields.push_back(field);
     }
 
-    void Tuner::print_info() {
+    void SPSA::print_info() {
         for (auto &field : fields) {
             const bool is_int = std::holds_alternative<int>(field.default_value);
             std::cout << "option name " << field.name;
@@ -39,7 +39,7 @@ namespace elixir::tune {
         }
     }
 
-    void Tuner::print_current() {
+    void SPSA::print_current() {
         for (auto &field : fields) {
             const bool is_int = std::holds_alternative<int>(field.default_value);
             std::cout << field.name << ": ";
@@ -106,7 +106,7 @@ namespace elixir::tune {
         tuner.add_field({"LMR_DIVISOR", &LMR_DIVISOR, 1.711, 0.5, 10.0, 0.1, 0.002});
     }
 
-    void Tuner::print_spsa_inputs() {
+    void SPSA::print_spsa_inputs() {
         for (auto &field : fields) {
             const bool is_int = std::holds_alternative<int>(field.default_value);
             std::cout << field.name << ", " << (is_int ? "int" : "float") << ", ";
@@ -124,7 +124,7 @@ namespace elixir::tune {
         }
     }
 
-    void Tuner::update_parameter(const std::string &name, const std::string &option_value) {
+    void SPSA::update_parameter(const std::string &name, const std::string &option_value) {
         if (name == "LMP_BASE") {
             int lmp_base     = std::stoi(option_value);
             search::LMP_BASE = lmp_base;

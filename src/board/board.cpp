@@ -9,6 +9,7 @@
 #include "../defs.h"
 #include "../evaluate.h"
 #include "../hashing/hash.h"
+#include "../texel/texel.h"
 #include "../types.h"
 #include "../utils/bits.h"
 #include "../utils/eval_terms.h"
@@ -130,6 +131,10 @@ namespace elixir {
         eval += (eval::material_score[static_cast<I8>(piece)] +
                  eval::psqt[static_cast<I8>(piece)][square]) *
                 color_offset[static_cast<int>(color)];
+
+        using namespace texel;
+        TRACE_INCREMENT(material_score[static_cast<I8>(piece)], static_cast<I8>(color));
+        TRACE_INCREMENT(psqt[static_cast<I8>(piece)][square], static_cast<I8>(color));
     }
 
     void Board::remove_piece(const Square sq, const PieceType piece, const Color color) {
@@ -146,6 +151,10 @@ namespace elixir {
         eval -= (eval::material_score[static_cast<I8>(piece)] +
                  eval::psqt[static_cast<I8>(piece)][square]) *
                 color_offset[static_cast<int>(color)];
+
+        using namespace texel;
+        TRACE_DECREMENT(material_score[static_cast<I8>(piece)], static_cast<I8>(color));
+        TRACE_DECREMENT(psqt[static_cast<I8>(piece)][square], static_cast<I8>(color));
     }
 
     void Board::from_fen(const std::string fen) {

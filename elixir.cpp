@@ -1,3 +1,5 @@
+#include <fstream>
+#include <iostream>
 #include <string>
 
 #include "src/attacks/attacks.h"
@@ -6,9 +8,10 @@
 #include "src/defs.h"
 #include "src/hashing/hash.h"
 #include "src/search.h"
+#include "src/spsa.h"
 #include "src/tests/see_test.h"
+#include "src/texel/texel.h"
 #include "src/tt.h"
-#include "src/tune.h"
 #include "src/types.h"
 #include "src/uci.h"
 #include "src/utils/masks.h"

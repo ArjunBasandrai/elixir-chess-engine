@@ -5,12 +5,14 @@
 
 #include "board/board.h"
 #include "defs.h"
+#include "texel/texel.h"
 #include "types.h"
 #include "utils/bits.h"
 #include "utils/eval_terms.h"
 #include "utils/masks.h"
 
 using namespace elixir::bits;
+using namespace elixir::texel;
 
 namespace elixir::eval {
     int TEMPO           = 7;
@@ -34,10 +36,12 @@ namespace elixir::eval {
 
             if (Files[file] & pawns) {
                 score -= stacked_pawn_penalty;
+                TRACE_DECREMENT(stacked_pawn_penalty, icolor);
             }
 
             if (! (masks::passed_pawn_masks[icolor][sq_] & board.pawns())) {
                 score += passed_pawn_bonus[rank];
+                TRACE_INCREMENT(passed_pawn_bonus[rank], icolor);
             }
         }
 
@@ -52,6 +56,7 @@ namespace elixir::eval {
             const int sq_            = pop_bit(knights);
             const int mobility_count = count_bits(attacks::get_knight_attacks(sq(sq_)) & ~ours);
             score += knight_mobility[mobility_count];
+            TRACE_INCREMENT(knight_mobility[mobility_count], static_cast<I8>(side));
         }
 
         return (side == Color::WHITE) ? score : -score;
@@ -63,12 +68,14 @@ namespace elixir::eval {
         EvalScore score     = 0;
         if (count_bits(ours & board.bishops()) >= 2) {
             score += bishop_pair_bonus;
+            TRACE_INCREMENT(bishop_pair_bonus, static_cast<I8>(side));
         }
         while (bishops) {
             int sq_ = pop_bit(bishops);
             int mobility_count =
                 count_bits(attacks::get_bishop_attacks(sq(sq_), board.occupancy()) & ~ours);
             score += bishop_mobility[mobility_count];
+            TRACE_INCREMENT(bishop_mobility[mobility_count], static_cast<I8>(side));
         }
 
         return (side == Color::WHITE) ? score : -score;
@@ -76,13 +83,29 @@ namespace elixir::eval {
 
     EvalScore evaluate_rooks(const Board &board, const Color side) {
         const Bitboard ours = board.color_occupancy(side);
-        Bitboard rooks      = board.rooks() & ours;
-        EvalScore score     = 0;
+        const Bitboard theirs =
+            board.color_occupancy(static_cast<Color>(static_cast<I8>(side) ^ 1));
+        const Bitboard our_pawns   = board.pawns() & ours;
+        const Bitboard their_pawns = board.pawns() & theirs;
+        Bitboard rooks             = board.rooks() & ours;
+        EvalScore score            = 0;
         while (rooks) {
-            int sq_ = pop_bit(rooks);
+            int sq_  = pop_bit(rooks);
+            int file = get_file(sq(sq_));
             int mobility_count =
                 count_bits(attacks::get_rook_attacks(sq(sq_), board.occupancy()) & ~ours);
             score += rook_mobility[mobility_count];
+            TRACE_INCREMENT(rook_mobility[mobility_count], static_cast<I8>(side));
+
+            if (! (Files[file] & our_pawns)) {
+                if (! (Files[file] & their_pawns)) {
+                    score += rook_open_file_bonus[file];
+                    TRACE_INCREMENT(rook_open_file_bonus[file], static_cast<I8>(side));
+                } else {
+                    score += rook_semi_open_file_bonus[file];
+                    TRACE_INCREMENT(rook_semi_open_file_bonus[file], static_cast<I8>(side));
+                }
+            }
         }
 
         return (side == Color::WHITE) ? score : -score;
@@ -97,6 +120,7 @@ namespace elixir::eval {
             int mobility_count =
                 count_bits(attacks::get_queen_attacks(sq(sq_), board.occupancy()) & ~ours);
             score += queen_mobility[mobility_count];
+            TRACE_INCREMENT(queen_mobility[mobility_count], static_cast<I8>(side));
         }
 
         return (side == Color::WHITE) ? score : -score;
@@ -124,10 +148,8 @@ namespace elixir::eval {
 
         score_opening = e_info.opening_score();
         score_endgame = e_info.endgame_score();
-        int phase     = count_bits(board.minors()) + 2 * count_bits(board.rooks()) +
-                    4 * count_bits(board.queens());
-        phase = std::clamp(phase, 0, 24);
-        score = (score_opening * phase + score_endgame * (24 - phase)) / 24;
+        int phase     = board.get_phase();
+        score         = (score_opening * phase + score_endgame * (24 - phase)) / 24;
         return ((side == Color::WHITE) ? score : -score) + TEMPO;
     }
 }

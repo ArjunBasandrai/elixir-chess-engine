@@ -37,3 +37,7 @@ elixir*
 *.ilk
 
 .vscode
+
+*.epd
+
+**/results/**
