@@ -56,13 +56,25 @@ namespace elixir::eval {
 
     EvalScore evaluate_knights(const Board &board, const Color side) {
         const Bitboard ours = board.color_occupancy(side);
-        Bitboard knights    = board.knights() & ours;
-        EvalScore score     = 0;
+        const Bitboard theirs =
+            board.color_occupancy(static_cast<Color>(static_cast<I8>(side) ^ 1));
+        const Bitboard their_pawns = board.pawns() & theirs;
+        Bitboard knights           = board.knights() & ours;
+        EvalScore score            = 0;
+        I8 icolor                  = static_cast<I8>(side);
         while (knights) {
             const int sq_            = pop_bit(knights);
+            const int file           = get_file(sq(sq_));
             const int mobility_count = count_bits(attacks::get_knight_attacks(sq(sq_)) & ~ours);
             score += knight_mobility[mobility_count];
             TRACE_INCREMENT(knight_mobility[mobility_count], static_cast<I8>(side));
+
+            if (! (masks::passed_pawn_masks[icolor][sq_] & masks::isolated_pawn_masks[file] &
+                   their_pawns)) {
+                const int colored_sq = (icolor == 0) ? sq_ ^ 56 : sq_;
+                score += knight_outpost_bonus[colored_sq];
+                TRACE_INCREMENT(knight_outpost_bonus[colored_sq], icolor);
+            }
         }
 
         return (side == Color::WHITE) ? score : -score;
