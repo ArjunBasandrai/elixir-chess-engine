@@ -52,10 +52,6 @@ int main(int argc, char *argv[]) {
     Board board;
     board.to_startpos();
 
-    texel::texel.get_intial_parameters();
-    texel::texel.load_data({"lichess-big3.epd"});
-    texel::texel.tune();
-
-    // uci::uci_loop(board);
+    uci::uci_loop(board);
     return 0;
 }
