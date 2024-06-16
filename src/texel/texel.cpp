@@ -32,6 +32,7 @@ namespace elixir::texel {
         add_parameter_array<8>(eval::rook_open_file_bonus);
         add_parameter_array<8>(eval::rook_semi_open_file_bonus);
         add_parameter_array<8>(eval::isolated_pawn_penalty);
+        add_parameter_array<64>(eval::knight_outpost_bonus);
     }
 
     void Tune::create_entry(Board &board, const std::string line) {
