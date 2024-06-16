@@ -20,7 +20,7 @@ namespace elixir {
 
       private:
         int scale_bonus(int score, int bonus);
-        int history[64][64] = {0};
-        move::Move counter_moves[2][64][64] = { move::NO_MOVE };
+        int history[64][64]                 = {0};
+        move::Move counter_moves[2][64][64] = {move::NO_MOVE};
     };
 }

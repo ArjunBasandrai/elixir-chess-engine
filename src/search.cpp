@@ -442,7 +442,9 @@ namespace elixir::search {
                                 ss->killers[1] = ss->killers[0];
                                 ss->killers[0] = best_move;
                             }
-                            board.history.update_countermove(board.get_side_to_move(), (ss-1)->move.get_from(), (ss-1)->move.get_to(), move);
+                            board.history.update_countermove(board.get_side_to_move(),
+                                                             (ss - 1)->move.get_from(),
+                                                             (ss - 1)->move.get_to(), move);
                             board.history.update_history(move.get_from(), move.get_to(), depth,
                                                          bad_quiets);
                         }
