@@ -156,13 +156,14 @@ namespace elixir::texel {
         gradients.resize(num_params);
 
         for (int i = 0; i < num_params; i++) {
-            gradients.push_back({0, 0});
+            gradients[i][0] = 0;
+            gradients[i][1] = 0;
         }
 
         for (const auto &position : positions) {
-            double E      = get_eval(position);
-            double S      = sigmoid(E, hyper_parameters.K);
-            double D      = (position.outcome - S) * S * (1 - S);
+            double E = get_eval(position);
+            double S = sigmoid(E, hyper_parameters.K);
+            double D = (position.outcome - S) * S * (1 - S);
 
             double mg_base = D * (position.phase / 24.0);
             double eg_base = D - mg_base;
