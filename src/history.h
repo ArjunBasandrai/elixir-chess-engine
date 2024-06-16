@@ -15,8 +15,12 @@ namespace elixir {
         void update_history(Square from, Square to, int depth, MoveList &bad_quiets);
         int get_history(Square from, Square to) const;
 
+        void update_countermove(Color side, Square from, Square to, move::Move countermove);
+        move::Move get_countermove(Color side, Square from, Square to) const;
+
       private:
         int scale_bonus(int score, int bonus);
         int history[64][64] = {0};
+        move::Move counter_moves[2][64][64] = { move::NO_MOVE };
     };
 }
