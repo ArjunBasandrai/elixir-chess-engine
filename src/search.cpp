@@ -589,7 +589,7 @@ namespace elixir::search {
                 beta  = std::min(INF, score + delta);
             }
 
-            // aspiration windows
+            // Aspiration Windows
             while (1) {
                 score = negamax(board, alpha, beta, current_depth, info, pv, ss);
 

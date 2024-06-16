@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <thread>
 
 #include "uci.h"
 
@@ -22,7 +23,15 @@
 
 namespace elixir::uci {
 
-    void optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo,
+    std::jthread main_search_thread;
+
+    void stop_search_thread(search::SearchInfo &info) {
+        info.stopped = true;
+        if (main_search_thread.joinable())
+            main_search_thread.request_stop();
+    }
+
+    void set_optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo,
                       std::chrono::high_resolution_clock::time_point start_time) {
         if (time < 0)
             time = 1000;
@@ -80,9 +89,9 @@ namespace elixir::uci {
         }
     }
 
-    void parse_go(std::string input, Board &board) {
+    void parse_go(std::string input, Board &board, search::SearchInfo &info) {
+        info = search::SearchInfo();
         std::vector<std::string> tokens = str_utils::split(input, ' ');
-        search::SearchInfo info;
         const auto start_time = std::chrono::high_resolution_clock::now();
         int depth = MAX_DEPTH, movestogo = -1;
         F64 time = 0, inc = 0;
@@ -128,12 +137,14 @@ namespace elixir::uci {
         }
 
         if (time != 0) {
-            optimum_time(info, time, inc, movestogo, start_time);
+            set_optimum_time(info, time, inc, movestogo, start_time);
         } else {
             info = search::SearchInfo(depth);
         }
 
-        search::search(board, info);
+        main_search_thread = std::jthread([&]() {
+            search::search(board, info);
+        });
     }
 
     void parse_setoption(std::string input) {
@@ -159,6 +170,7 @@ namespace elixir::uci {
     }
 
     void uci_loop(Board &board) {
+        search::SearchInfo info;
         while (true) {
             std::string input;
             std::getline(std::cin, input);
@@ -175,7 +187,10 @@ namespace elixir::uci {
             } else if (input == "isready") {
                 std::cout << "readyok" << std::endl;
             } else if (input == "quit") {
+                stop_search_thread(info);
                 break;
+            } else if (input == "stop") {
+                stop_search_thread(info);
             } else if (input == "ucinewgame") {
                 board.from_fen(start_position);
                 tt->clear_tt();
@@ -190,7 +205,7 @@ namespace elixir::uci {
             } else if (input.substr(0, 9) == "position ") {
                 parse_position(input, board);
             } else if (input.substr(0, 2) == "go") {
-                parse_go(input, board);
+                parse_go(input, board, info);
             } else if (input.substr(0, 9) == "setoption") {
                 parse_setoption(input);
             }

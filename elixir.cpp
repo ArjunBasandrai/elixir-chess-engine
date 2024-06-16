@@ -50,8 +50,8 @@ int main(int argc, char *argv[]) {
         if (std::string(argv[1]) == "texel") {
 #ifdef TEXEL
             texel::texel.tune();
-#endif
             return 0;
+#endif
         }
     }
 
