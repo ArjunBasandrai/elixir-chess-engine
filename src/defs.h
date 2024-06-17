@@ -128,6 +128,7 @@ namespace elixir {
 
     constexpr Bitboard Files[8] = {FILE_A_BB, FILE_B_BB, FILE_C_BB, FILE_D_BB,
                                    FILE_E_BB, FILE_F_BB, FILE_G_BB, FILE_H_BB};
+
     constexpr Bitboard Ranks[8] = {Rank_1_BB, Rank_2_BB, Rank_3_BB, Rank_4_BB,
                                    Rank_5_BB, Rank_6_BB, Rank_7_BB, Rank_8_BB};
 
