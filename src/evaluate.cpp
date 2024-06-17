@@ -49,6 +49,11 @@ namespace elixir::eval {
                 score -= isolated_pawn_penalty[file];
                 TRACE_DECREMENT(isolated_pawn_penalty[file], icolor);
             }
+
+            if (attacks::get_pawn_attacks(static_cast<Color>(icolor ^ 1), sq(sq_)) & our_pawns) {
+                score += supported_pawn_bonus[rank];
+                TRACE_INCREMENT(supported_pawn_bonus[rank], icolor);
+            }
         }
 
         return (side == Color::WHITE) ? score : -score;
