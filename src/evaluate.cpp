@@ -31,9 +31,10 @@ namespace elixir::eval {
         EvalScore score     = 0;
         I8 icolor           = static_cast<I8>(side);
         while (pawns) {
-            const int sq_  = pop_bit(pawns);
-            const int file = get_file(sq(sq_));
-            const int rank = get_rank(sq(sq_));
+            const int sq_           = pop_bit(pawns);
+            const int file          = get_file(sq(sq_));
+            const int rank          = get_rank(sq(sq_));
+            const int relative_rank = (side == Color::WHITE) ? 7 - rank : rank;
 
             if (Files[file] & pawns) {
                 score -= stacked_pawn_penalty;
@@ -41,8 +42,8 @@ namespace elixir::eval {
             }
 
             if (! (masks::passed_pawn_masks[icolor][sq_] & board.pawns())) {
-                score += passed_pawn_bonus[rank];
-                TRACE_INCREMENT(passed_pawn_bonus[rank], icolor);
+                score += passed_pawn_bonus[relative_rank];
+                TRACE_INCREMENT(passed_pawn_bonus[relative_rank], icolor);
             }
 
             if (! (masks::isolated_pawn_masks[file] & our_pawns)) {
@@ -51,8 +52,8 @@ namespace elixir::eval {
             }
 
             if (attacks::get_pawn_attacks(static_cast<Color>(icolor ^ 1), sq(sq_)) & our_pawns) {
-                score += supported_pawn_bonus[rank];
-                TRACE_INCREMENT(supported_pawn_bonus[rank], icolor);
+                score += supported_pawn_bonus[relative_rank];
+                TRACE_INCREMENT(supported_pawn_bonus[relative_rank], icolor);
             }
         }
 
