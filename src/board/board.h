@@ -174,6 +174,10 @@ namespace elixir {
         [[nodiscard]] U64 get_hash_key() const noexcept { return hash_key; }
         [[nodiscard]] EvalScore get_eval() const noexcept { return eval; }
 
+        [[nodiscard]] Square get_king_square(Color c) const noexcept {
+            return kings[static_cast<I8>(c)];
+        }
+
         [[nodiscard]] Bitboard get_attackers(Square sq, Color c, Bitboard occupancy) const {
             Bitboard attackers = 0ULL;
             attackers |= (attacks::get_pawn_attacks(Color::WHITE, sq) & black_pawns());
