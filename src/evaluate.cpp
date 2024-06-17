@@ -155,6 +155,31 @@ namespace elixir::eval {
         return (side == Color::WHITE) ? score : -score;
     }
 
+    EvalScore evaluate_kings(const Board &board, const Color side) {
+        const Bitboard ours = board.color_occupancy(side);
+        const Bitboard theirs =
+            board.color_occupancy(static_cast<Color>(static_cast<I8>(side) ^ 1));
+        const Bitboard our_pawns   = board.pawns() & ours;
+        const Bitboard their_pawns = board.pawns() & theirs;
+        Bitboard kings             = board.king() & ours;
+        const auto sq_             = board.get_king_square(side);
+        const int file             = get_file(sq_);
+        EvalScore score            = 0;
+
+        if (! (Files[file] & our_pawns)) {
+            if (! (Files[file] & their_pawns)) {
+                score -= king_open_file_penalty[file];
+                TRACE_DECREMENT(king_open_file_penalty[file], static_cast<I8>(side));
+            } else {
+                score -= king_semi_open_file_penalty[file];
+                TRACE_DECREMENT(king_semi_open_file_penalty[file], static_cast<I8>(side));
+            }
+        }
+
+        return (side == Color::WHITE) ? score : -score;
+    }
+
+
     int evaluate(Board &board) {
         Score score = 0, score_opening = 0, score_endgame = 0;
         Color side      = board.get_side_to_move();
@@ -174,6 +199,9 @@ namespace elixir::eval {
 
         e_info.add_score(evaluate_queens(board, Color::WHITE));
         e_info.add_score(evaluate_queens(board, Color::BLACK));
+
+        e_info.add_score(evaluate_kings(board, Color::WHITE));
+        e_info.add_score(evaluate_kings(board, Color::BLACK));
 
         score_opening = e_info.opening_score();
         score_endgame = e_info.endgame_score();
