@@ -34,6 +34,7 @@ namespace elixir::texel {
         add_parameter_array<8>(eval::isolated_pawn_penalty);
         add_parameter_array<64>(eval::knight_outpost_bonus);
         add_parameter_array<8>(eval::supported_pawn_bonus);
+        add_parameter_array<8>(eval::pawn_duo_bonus);
     }
 
     void Tune::create_entry(Board &board, const std::string line) {

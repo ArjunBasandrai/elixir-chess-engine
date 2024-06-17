@@ -71,6 +71,7 @@ namespace elixir::texel {
         std::array<std::array<int, 2>, 8> isolated_pawn_penalty;
         std::array<std::array<int, 2>, 64> knight_outpost_bonus;
         std::array<std::array<int, 2>, 8> supported_pawn_bonus;
+        std::array<std::array<int, 2>, 8> pawn_duo_bonus;
     };
 
     inline Trace trace;
@@ -137,6 +138,7 @@ namespace elixir::texel {
             get_coefficient_value_array<8>(position, trace.isolated_pawn_penalty);
             get_coefficient_value_array<64>(position, trace.knight_outpost_bonus);
             get_coefficient_value_array<8>(position, trace.supported_pawn_bonus);
+            get_coefficient_value_array<8>(position, trace.pawn_duo_bonus);
         }
 
         void add_parameter_single(const EvalScore &param) {
@@ -222,6 +224,7 @@ namespace elixir::texel {
             print_parameter_array<8>(ss, "isolated_pawn_penalty", index);
             print_parameter_array<64>(ss, "knight_outpost_bonus", index);
             print_parameter_array<8>(ss, "supported_pawn_bonus", index);
+            print_parameter_array<8>(ss, "pawn_duo_bonus", index);
 
             const std::string filename =
                 "src/texel/results/parameters_" + std::to_string(epoch + 1) + ".elixir.parameters";

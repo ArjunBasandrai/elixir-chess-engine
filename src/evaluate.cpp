@@ -55,6 +55,11 @@ namespace elixir::eval {
                 score += supported_pawn_bonus[relative_rank];
                 TRACE_INCREMENT(supported_pawn_bonus[relative_rank], icolor);
             }
+
+            if (masks::isolated_pawn_masks[file] & Ranks[rank] & our_pawns) {
+                score += pawn_duo_bonus[relative_rank];
+                TRACE_INCREMENT(pawn_duo_bonus[relative_rank], icolor);
+            }
         }
 
         return (side == Color::WHITE) ? score : -score;
