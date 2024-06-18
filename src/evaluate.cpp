@@ -204,6 +204,36 @@ namespace elixir::eval {
             TRACE_INCREMENT(pawn_shelter_table[idx], static_cast<I8>(side));
         }
 
+        const Square their_king_sq_ =
+            board.get_king_square(static_cast<Color>(static_cast<I8>(side) ^ 1));
+        const int their_king_file = get_file(their_king_sq_);
+        const int their_king_rank = get_rank(their_king_sq_);
+        const Bitboard pawn_storm_zone =
+            masks::isolated_pawn_masks[their_king_file] | Files[their_king_file];
+
+        Bitboard storming_pawns = our_pawns & pawn_storm_zone;
+
+        while (storming_pawns) {
+            const int pawn_sq_  = pop_bit(storming_pawns);
+            const int pawn_file = get_file(sq(pawn_sq_));
+            const int pawn_rank = get_rank(sq(pawn_sq_));
+
+            if (side == Color::WHITE) {
+                if (pawn_rank <= their_king_rank)
+                    continue;
+            } else {
+                if (pawn_rank >= their_king_rank)
+                    continue;
+            }
+
+            const int rank_diff          = std::abs(pawn_rank - their_king_rank);
+            const int file_diff          = std::abs(pawn_file - their_king_file);
+            const int manhattan_distance = rank_diff + file_diff;
+
+            score += eval::pawn_storm_table[manhattan_distance];
+            TRACE_INCREMENT(pawn_storm_table[manhattan_distance], static_cast<I8>(side));
+        }
+
         return (side == Color::WHITE) ? score : -score;
     }
 
