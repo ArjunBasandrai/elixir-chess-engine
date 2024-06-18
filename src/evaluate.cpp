@@ -177,15 +177,16 @@ namespace elixir::eval {
             }
         }
 
-        Bitboard king_attacks = attacks::get_king_attacks(sq_);
-        Bitboard shelter_zone;
+        Bitboard shelter_zone = attacks::get_king_attacks(sq_);
         if (side == Color::WHITE) {
             if (rank < 7)
-                shelter_zone = king_attacks |= (king_attacks >> 8);
+                shelter_zone |= (shelter_zone << 8);
         } else {
             if (rank > 0)
-                shelter_zone = king_attacks |= (king_attacks << 8);
+                shelter_zone |= (shelter_zone >> 8);
         }
+
+        shelter_zone &= ~bits::bit(sq_);
 
         Bitboard shelter_pawns = our_pawns & shelter_zone;
 
@@ -196,6 +197,11 @@ namespace elixir::eval {
 
             const int rank_diff = pawn_rank - rank;
             const int file_diff = pawn_file - file;
+
+            if (rank_diff > 2 || rank_diff < -2)
+                std::cout << "Rank diff: " << rank_diff << std::endl;
+            if (file_diff > 1 || file_diff < -1)
+                std::cout << "File diff: " << file_diff << std::endl;
 
             const int idx = 7 - (rank_diff * 3 + file_diff) * color_offset[static_cast<I8>(side)];
 
