@@ -37,8 +37,8 @@ namespace elixir::eval {
             const int relative_rank = (side == Color::WHITE) ? 7 - rank : rank;
 
             if (Files[file] & pawns) {
-                score -= stacked_pawn_penalty;
-                TRACE_DECREMENT(stacked_pawn_penalty, icolor);
+                score -= stacked_pawn_penalty[file];
+                TRACE_DECREMENT(stacked_pawn_penalty[file], icolor);
             }
 
             if (! (masks::passed_pawn_masks[icolor][sq_] & board.pawns())) {

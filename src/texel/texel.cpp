@@ -26,7 +26,7 @@ namespace elixir::texel {
         add_parameter_array<14>(eval::bishop_mobility);
         add_parameter_array<15>(eval::rook_mobility);
         add_parameter_array<28>(eval::queen_mobility);
-        add_parameter_single(eval::stacked_pawn_penalty);
+        add_parameter_array<8>(eval::stacked_pawn_penalty);
         add_parameter_single(eval::bishop_pair_bonus);
         add_parameter_array<8>(eval::passed_pawn_bonus);
         add_parameter_array<8>(eval::rook_open_file_bonus);

@@ -63,7 +63,7 @@ namespace elixir::texel {
         std::array<std::array<int, 2>, 14> bishop_mobility;
         std::array<std::array<int, 2>, 15> rook_mobility;
         std::array<std::array<int, 2>, 28> queen_mobility;
-        std::array<int, 2> stacked_pawn_penalty;
+        std::array<std::array<int, 2>, 8> stacked_pawn_penalty;
         std::array<int, 2> bishop_pair_bonus;
         std::array<std::array<int, 2>, 8> passed_pawn_bonus;
         std::array<std::array<int, 2>, 8> rook_open_file_bonus;
@@ -133,7 +133,7 @@ namespace elixir::texel {
             get_coefficient_value_array<14>(position, trace.bishop_mobility);
             get_coefficient_value_array<15>(position, trace.rook_mobility);
             get_coefficient_value_array<28>(position, trace.queen_mobility);
-            get_coefficient_value_single(position, trace.stacked_pawn_penalty);
+            get_coefficient_value_array<8>(position, trace.stacked_pawn_penalty);
             get_coefficient_value_single(position, trace.bishop_pair_bonus);
             get_coefficient_value_array<8>(position, trace.passed_pawn_bonus);
             get_coefficient_value_array<8>(position, trace.rook_open_file_bonus);
@@ -222,7 +222,7 @@ namespace elixir::texel {
             print_parameter_array<14>(ss, "bishop_mobility", index);
             print_parameter_array<15>(ss, "rook_mobility", index);
             print_parameter_array<28>(ss, "queen_mobility", index);
-            print_parameter_single(ss, "stacked_pawn_penalty", index);
+            print_parameter_array<8>(ss, "stacked_pawn_penalty", index);
             print_parameter_single(ss, "bishop_pair_bonus", index);
             print_parameter_array<8>(ss, "passed_pawn_bonus", index);
             print_parameter_array<8>(ss, "rook_open_file_bonus", index);
