@@ -44,6 +44,16 @@ namespace elixir::eval {
             if (! (masks::passed_pawn_masks[icolor][sq_] & board.pawns())) {
                 score += passed_pawn_bonus[relative_rank];
                 TRACE_INCREMENT(passed_pawn_bonus[relative_rank], icolor);
+
+                const Bitboard our_sliders = (board.queens() | board.rooks()) & ours;
+                const Bitboard defense_file =
+                    (icolor == 0) ? masks::file_behind_masks[rank] : masks::file_ahead_masks[rank];
+                const Bitboard defending_sliders = our_sliders & defense_file;
+
+                if (defending_sliders) {
+                    score += passed_pawn_defended_bonus[relative_rank];
+                    TRACE_INCREMENT(passed_pawn_defended_bonus[relative_rank], icolor);
+                }
             }
 
             if (! (masks::isolated_pawn_masks[file] & our_pawns)) {
