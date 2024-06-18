@@ -164,6 +164,7 @@ namespace elixir::eval {
         Bitboard kings             = board.king() & ours;
         const auto sq_             = board.get_king_square(side);
         const int file             = get_file(sq_);
+        const int rank             = get_rank(sq_);
         EvalScore score            = 0;
 
         if (! (Files[file] & our_pawns)) {
@@ -176,9 +177,35 @@ namespace elixir::eval {
             }
         }
 
+        Bitboard shelter_zone = attacks::get_king_attacks(sq_);
+        if (side == Color::WHITE) {
+            if (rank < 7)
+                shelter_zone |= (shelter_zone << 8);
+        } else {
+            if (rank > 0)
+                shelter_zone |= (shelter_zone >> 8);
+        }
+
+        shelter_zone &= ~bits::bit(sq_);
+
+        Bitboard shelter_pawns = our_pawns & shelter_zone;
+
+        while (shelter_pawns) {
+            const int pawn_sq_  = pop_bit(shelter_pawns);
+            const int pawn_file = get_file(sq(pawn_sq_));
+            const int pawn_rank = get_rank(sq(pawn_sq_));
+
+            const int rank_diff = pawn_rank - rank;
+            const int file_diff = pawn_file - file;
+
+            const int idx = 7 - (rank_diff * 3 + file_diff) * color_offset[static_cast<I8>(side)];
+
+            score += eval::pawn_shelter_table[idx];
+            TRACE_INCREMENT(pawn_shelter_table[idx], static_cast<I8>(side));
+        }
+
         return (side == Color::WHITE) ? score : -score;
     }
-
 
     int evaluate(Board &board) {
         Score score = 0, score_opening = 0, score_endgame = 0;
