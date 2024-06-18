@@ -119,8 +119,9 @@ namespace elixir::eval {
         Bitboard rooks             = board.rooks() & ours;
         EvalScore score            = 0;
         while (rooks) {
-            int sq_  = pop_bit(rooks);
-            int file = get_file(sq(sq_));
+            const int sq_  = pop_bit(rooks);
+            const int file = get_file(sq(sq_));
+            const int rank = get_rank(sq(sq_));
             int mobility_count =
                 count_bits(attacks::get_rook_attacks(sq(sq_), board.occupancy()) & ~ours);
             score += rook_mobility[mobility_count];
@@ -134,6 +135,13 @@ namespace elixir::eval {
                     score += rook_semi_open_file_bonus[file];
                     TRACE_INCREMENT(rook_semi_open_file_bonus[file], static_cast<I8>(side));
                 }
+            }
+
+            const int relative_7th_rank = (side == Color::WHITE) ? 6 : 1;
+
+            if (rank == relative_7th_rank) {
+                score += rook_on_seventh_bonus;
+                TRACE_INCREMENT(rook_on_seventh_bonus, static_cast<I8>(side));
             }
         }
 
