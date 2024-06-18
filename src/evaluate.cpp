@@ -93,18 +93,30 @@ namespace elixir::eval {
 
     EvalScore evaluate_bishops(const Board &board, const Color side) {
         const Bitboard ours = board.color_occupancy(side);
-        Bitboard bishops    = board.bishops() & ours;
-        EvalScore score     = 0;
+        const Bitboard theirs =
+            board.color_occupancy(static_cast<Color>(static_cast<I8>(side) ^ 1));
+        const Bitboard their_pawns = board.pawns() & theirs;
+        Bitboard bishops           = board.bishops() & ours;
+        EvalScore score            = 0;
+        I8 icolor                  = static_cast<I8>(side);
         if (count_bits(ours & board.bishops()) >= 2) {
             score += bishop_pair_bonus;
             TRACE_INCREMENT(bishop_pair_bonus, static_cast<I8>(side));
         }
         while (bishops) {
-            int sq_ = pop_bit(bishops);
-            int mobility_count =
+            const int sq_  = pop_bit(bishops);
+            const int file = get_file(sq(sq_));
+            const int mobility_count =
                 count_bits(attacks::get_bishop_attacks(sq(sq_), board.occupancy()) & ~ours);
             score += bishop_mobility[mobility_count];
             TRACE_INCREMENT(bishop_mobility[mobility_count], static_cast<I8>(side));
+
+            if (! (masks::passed_pawn_masks[icolor][sq_] & masks::isolated_pawn_masks[file] &
+                   their_pawns)) {
+                const int colored_sq = (icolor == 0) ? sq_ ^ 56 : sq_;
+                score += bishop_outpost_bonus[colored_sq];
+                TRACE_INCREMENT(bishop_outpost_bonus[colored_sq], icolor);
+            }
         }
 
         return (side == Color::WHITE) ? score : -score;
