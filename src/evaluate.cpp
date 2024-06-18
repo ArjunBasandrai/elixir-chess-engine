@@ -26,10 +26,13 @@ namespace elixir::eval {
 
     EvalScore evaluate_pawns(const Board &board, const Color side) {
         const Bitboard ours = board.color_occupancy(side);
-        Bitboard pawns      = board.pawns() & ours;
-        Bitboard our_pawns  = pawns;
-        EvalScore score     = 0;
-        I8 icolor           = static_cast<I8>(side);
+        const Bitboard theirs =
+            board.color_occupancy(static_cast<Color>(static_cast<I8>(side) ^ 1));
+        Bitboard pawns       = board.pawns() & ours;
+        Bitboard our_pawns   = pawns;
+        Bitboard their_pawns = board.pawns() & theirs;
+        EvalScore score      = 0;
+        I8 icolor            = static_cast<I8>(side);
         while (pawns) {
             const int sq_           = pop_bit(pawns);
             const int file          = get_file(sq(sq_));
@@ -41,24 +44,38 @@ namespace elixir::eval {
                 TRACE_DECREMENT(stacked_pawn_penalty, icolor);
             }
 
-            if (! (masks::passed_pawn_masks[icolor][sq_] & board.pawns())) {
+            const bool is_passed = ! (masks::passed_pawn_masks[icolor][sq_] & board.pawns());
+            if (is_passed) {
                 score += passed_pawn_bonus[relative_rank];
                 TRACE_INCREMENT(passed_pawn_bonus[relative_rank], icolor);
             }
 
-            if (! (masks::isolated_pawn_masks[file] & our_pawns)) {
+            const bool is_isolated = ! (masks::isolated_pawn_masks[file] & our_pawns);
+            if (is_isolated) {
                 score -= isolated_pawn_penalty[file];
                 TRACE_DECREMENT(isolated_pawn_penalty[file], icolor);
             }
 
-            if (attacks::get_pawn_attacks(static_cast<Color>(icolor ^ 1), sq(sq_)) & our_pawns) {
+            const bool is_supported =
+                attacks::get_pawn_attacks(static_cast<Color>(icolor ^ 1), sq(sq_)) & our_pawns;
+            if (is_supported) {
                 score += supported_pawn_bonus[relative_rank];
                 TRACE_INCREMENT(supported_pawn_bonus[relative_rank], icolor);
             }
 
-            if (masks::isolated_pawn_masks[file] & Ranks[rank] & our_pawns) {
+            const bool is_duo = masks::isolated_pawn_masks[file] & Ranks[rank] & our_pawns;
+            if (is_duo) {
                 score += pawn_duo_bonus[relative_rank];
                 TRACE_INCREMENT(pawn_duo_bonus[relative_rank], icolor);
+            }
+
+            const int next_sq_     = sq_ + 8 * color_offset[icolor];
+            const bool is_backward = ! (is_isolated || is_passed || is_supported || is_duo ||
+                                        (their_pawns & attacks::get_pawn_attacks(side, sq(sq_)))) &&
+                                     (their_pawns & attacks::get_pawn_attacks(side, sq(next_sq_)));
+            if (is_backward) {
+                score -= backward_pawn_penalty[file];
+                TRACE_DECREMENT(backward_pawn_penalty[file], icolor);
             }
         }
 
