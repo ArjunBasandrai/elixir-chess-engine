@@ -48,7 +48,9 @@ namespace elixir::eval {
                 const Bitboard our_sliders = (board.queens() | board.rooks()) & ours;
                 const Bitboard defense_file =
                     (icolor == 0) ? masks::file_behind_masks[rank] : masks::file_ahead_masks[rank];
-                const Bitboard defending_sliders = our_sliders & defense_file;
+                const Bitboard defending_sliders =
+                    our_sliders & defense_file &
+                    attacks::get_rook_attacks(sq(sq_), board.occupancy());
 
                 if (defending_sliders) {
                     score += passed_pawn_defended_bonus[relative_rank];
