@@ -198,11 +198,6 @@ namespace elixir::eval {
             const int rank_diff = pawn_rank - rank;
             const int file_diff = pawn_file - file;
 
-            if (rank_diff > 2 || rank_diff < -2)
-                std::cout << "Rank diff: " << rank_diff << std::endl;
-            if (file_diff > 1 || file_diff < -1)
-                std::cout << "File diff: " << file_diff << std::endl;
-
             const int idx = 7 - (rank_diff * 3 + file_diff) * color_offset[static_cast<I8>(side)];
 
             score += eval::pawn_shelter_table[idx];
