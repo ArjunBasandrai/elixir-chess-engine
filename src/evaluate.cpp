@@ -69,10 +69,12 @@ namespace elixir::eval {
         const Bitboard ours = board.color_occupancy(side);
         const Bitboard theirs =
             board.color_occupancy(static_cast<Color>(static_cast<I8>(side) ^ 1));
+        const Bitboard our_pawns   = board.pawns() & ours;
         const Bitboard their_pawns = board.pawns() & theirs;
         Bitboard knights           = board.knights() & ours;
         EvalScore score            = 0;
         I8 icolor                  = static_cast<I8>(side);
+        const Color enemy_side     = static_cast<Color>(icolor ^ 1);
         while (knights) {
             const int sq_            = pop_bit(knights);
             const int file           = get_file(sq(sq_));
@@ -86,15 +88,22 @@ namespace elixir::eval {
                 score += knight_outpost_bonus[colored_sq];
                 TRACE_INCREMENT(knight_outpost_bonus[colored_sq], icolor);
             }
+
+            if (attacks::get_pawn_attacks(enemy_side, sq(sq_)) & our_pawns) {
+                score += defended_knight_bonus;
+                TRACE_INCREMENT(defended_knight_bonus, static_cast<I8>(side));
+            }
         }
 
         return (side == Color::WHITE) ? score : -score;
     }
 
     EvalScore evaluate_bishops(const Board &board, const Color side) {
-        const Bitboard ours = board.color_occupancy(side);
-        Bitboard bishops    = board.bishops() & ours;
-        EvalScore score     = 0;
+        const Bitboard ours      = board.color_occupancy(side);
+        const Bitboard our_pawns = board.pawns() & ours;
+        Bitboard bishops         = board.bishops() & ours;
+        EvalScore score          = 0;
+        const Color enemy_side   = static_cast<Color>(static_cast<I8>(side) ^ 1);
         if (count_bits(ours & board.bishops()) >= 2) {
             score += bishop_pair_bonus;
             TRACE_INCREMENT(bishop_pair_bonus, static_cast<I8>(side));
@@ -105,6 +114,11 @@ namespace elixir::eval {
                 count_bits(attacks::get_bishop_attacks(sq(sq_), board.occupancy()) & ~ours);
             score += bishop_mobility[mobility_count];
             TRACE_INCREMENT(bishop_mobility[mobility_count], static_cast<I8>(side));
+
+            if (attacks::get_pawn_attacks(enemy_side, sq(sq_)) & our_pawns) {
+                score += defended_bishop_bonus;
+                TRACE_INCREMENT(defended_bishop_bonus, static_cast<I8>(side));
+            }
         }
 
         return (side == Color::WHITE) ? score : -score;

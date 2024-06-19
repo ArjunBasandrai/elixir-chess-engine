@@ -75,6 +75,8 @@ namespace elixir::texel {
         std::array<std::array<int, 2>, 8> king_open_file_penalty;
         std::array<std::array<int, 2>, 8> king_semi_open_file_penalty;
         std::array<std::array<int, 2>, 12> pawn_shelter_table;
+        std::array<int, 2> defended_bishop_bonus;
+        std::array<int, 2> defended_knight_bonus;
     };
 
     inline Trace trace;
@@ -145,6 +147,8 @@ namespace elixir::texel {
             get_coefficient_value_array<8>(position, trace.king_open_file_penalty);
             get_coefficient_value_array<8>(position, trace.king_semi_open_file_penalty);
             get_coefficient_value_array<12>(position, trace.pawn_shelter_table);
+            get_coefficient_value_single(position, trace.defended_bishop_bonus);
+            get_coefficient_value_single(position, trace.defended_knight_bonus);
         }
 
         void add_parameter_single(const EvalScore &param) {
@@ -234,6 +238,8 @@ namespace elixir::texel {
             print_parameter_array<8>(ss, "king_open_file_penalty", index);
             print_parameter_array<8>(ss, "king_semi_open_file_penalty", index);
             print_parameter_array<12>(ss, "pawn_shelter_table", index);
+            print_parameter_single(ss, "defended_bishop_bonus", index);
+            print_parameter_single(ss, "defended_knight_bonus", index);
 
             const std::string filename =
                 "src/texel/results/parameters_" + std::to_string(epoch + 1) + ".elixir.parameters";
