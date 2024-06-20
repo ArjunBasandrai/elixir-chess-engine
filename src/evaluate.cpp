@@ -25,11 +25,14 @@ namespace elixir::eval {
     int piece_values[7] = {MP_PAWN, MP_KNIGHT, MP_BISHOP, MP_ROOK, MP_QUEEN, MP_KING, 0};
 
     EvalScore evaluate_pawns(const Board &board, const Color side) {
-        const Bitboard ours = board.color_occupancy(side);
-        Bitboard pawns      = board.pawns() & ours;
-        Bitboard our_pawns  = pawns;
-        EvalScore score     = 0;
-        I8 icolor           = static_cast<I8>(side);
+        const Bitboard ours        = board.color_occupancy(side);
+        Bitboard pawns             = board.pawns() & ours;
+        const Bitboard our_pawns   = pawns;
+        EvalScore score            = 0;
+        const I8 icolor            = static_cast<I8>(side);
+        const Color them           = static_cast<Color>(icolor ^ 1);
+        const Square our_king_sq   = board.get_king_square(side);
+        const Square their_king_sq = board.get_king_square(them);
         while (pawns) {
             const int sq_           = pop_bit(pawns);
             const int file          = get_file(sq(sq_));
@@ -44,6 +47,15 @@ namespace elixir::eval {
             if (! (masks::passed_pawn_masks[icolor][sq_] & board.pawns())) {
                 score += passed_pawn_bonus[relative_rank];
                 TRACE_INCREMENT(passed_pawn_bonus[relative_rank], icolor);
+
+                int our_king_distance   = get_square_distance(sq(sq_), our_king_sq);
+                int their_king_distance = get_square_distance(sq(sq_), their_king_sq);
+
+                score += our_king_pp_proximity[our_king_distance];
+                score += their_king_pp_proximity[their_king_distance];
+
+                TRACE_INCREMENT(our_king_pp_proximity[our_king_distance], icolor);
+                TRACE_INCREMENT(their_king_pp_proximity[their_king_distance], icolor);
             }
 
             if (! (masks::isolated_pawn_masks[file] & our_pawns)) {

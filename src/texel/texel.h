@@ -39,15 +39,16 @@ namespace elixir::texel {
     };
 
     struct TunerHyperParams {
-        double learning_rate  = 1;
-        double K              = 0.0;
-        int max_epochs        = 10000;
-        double momentum_coeff = 0.9;
-        double velocity_coeff = 0.999;
-        double epsilon        = 1e-8;
-        int early_stopping    = 12;
-        double lr_decay       = 0.8;
-        int lr_decay_interval = 10;
+        double learning_rate         = 1;
+        double K                     = 0.0;
+        int max_epochs               = 10000;
+        double momentum_coeff        = 0.9;
+        double velocity_coeff        = 0.999;
+        double epsilon               = 1e-8;
+        double early_stopping_margin = 1e-5;
+        int early_stopping           = 150;
+        double lr_decay              = 0.8;
+        int lr_decay_interval        = 10;
     };
 
     struct BestParams {
@@ -76,6 +77,8 @@ namespace elixir::texel {
         std::array<std::array<int, 2>, 8> king_semi_open_file_penalty;
         std::array<std::array<int, 2>, 24> pawn_shelter_table;
         std::array<std::array<int, 2>, 24> pawn_storm_table;
+        std::array<std::array<int, 2>, 8> our_king_pp_proximity;
+        std::array<std::array<int, 2>, 8> their_king_pp_proximity;
     };
 
     inline Trace trace;
@@ -147,6 +150,8 @@ namespace elixir::texel {
             get_coefficient_value_array<8>(position, trace.king_semi_open_file_penalty);
             get_coefficient_value_array<24>(position, trace.pawn_shelter_table);
             get_coefficient_value_array<24>(position, trace.pawn_storm_table);
+            get_coefficient_value_array<8>(position, trace.our_king_pp_proximity);
+            get_coefficient_value_array<8>(position, trace.their_king_pp_proximity);
         }
 
         void add_parameter_single(const EvalScore &param) {
@@ -237,6 +242,8 @@ namespace elixir::texel {
             print_parameter_array<8>(ss, "king_semi_open_file_penalty", index);
             print_parameter_array<24>(ss, "pawn_shelter_table", index);
             print_parameter_array<24>(ss, "pawn_storm_table", index);
+            print_parameter_array<8>(ss, "our_king_pp_proximity", index);
+            print_parameter_array<8>(ss, "their_king_pp_proximity", index);
 
             const std::string filename =
                 "src/texel/results/parameters_" + std::to_string(epoch + 1) + ".elixir.parameters";

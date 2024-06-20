@@ -148,6 +148,10 @@ namespace elixir {
         return static_cast<int>(sq) & 7;
     }
 
+    static inline int get_square_distance(Square a, Square b) {
+        return std::max(std::abs(get_rank(a) - get_rank(b)), std::abs(get_file(a) - get_file(b)));
+    }
+
     constexpr I32 INF        = 32001;
     constexpr I32 MATE       = 32000;
     constexpr I32 MATE_FOUND = MATE - MAX_PLY;
