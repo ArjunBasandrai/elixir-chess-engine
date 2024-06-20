@@ -28,7 +28,8 @@ namespace elixir {
         extern int piece_values[7];
         struct EvalInfo {
             EvalInfo(EvalScore score) : score(score) {}
-            EvalScore score = 0;
+            EvalScore score        = 0;
+            Bitboard king_zones[2] = {0ULL, 0ULL};
             void add_score(EvalScore s) { score += s; }
             Score opening_score() { return O(score); }
             Score endgame_score() { return E(score); }
