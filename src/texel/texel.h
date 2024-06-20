@@ -74,7 +74,8 @@ namespace elixir::texel {
         std::array<std::array<int, 2>, 8> pawn_duo_bonus;
         std::array<std::array<int, 2>, 8> king_open_file_penalty;
         std::array<std::array<int, 2>, 8> king_semi_open_file_penalty;
-        std::array<std::array<int, 2>, 12> pawn_shelter_table;
+        std::array<std::array<int, 2>, 24> pawn_shelter_table;
+        std::array<std::array<int, 2>, 24> pawn_storm_table;
     };
 
     inline Trace trace;
@@ -144,7 +145,8 @@ namespace elixir::texel {
             get_coefficient_value_array<8>(position, trace.pawn_duo_bonus);
             get_coefficient_value_array<8>(position, trace.king_open_file_penalty);
             get_coefficient_value_array<8>(position, trace.king_semi_open_file_penalty);
-            get_coefficient_value_array<12>(position, trace.pawn_shelter_table);
+            get_coefficient_value_array<24>(position, trace.pawn_shelter_table);
+            get_coefficient_value_array<24>(position, trace.pawn_storm_table);
         }
 
         void add_parameter_single(const EvalScore &param) {
@@ -233,7 +235,8 @@ namespace elixir::texel {
             print_parameter_array<8>(ss, "pawn_duo_bonus", index);
             print_parameter_array<8>(ss, "king_open_file_penalty", index);
             print_parameter_array<8>(ss, "king_semi_open_file_penalty", index);
-            print_parameter_array<12>(ss, "pawn_shelter_table", index);
+            print_parameter_array<24>(ss, "pawn_shelter_table", index);
+            print_parameter_array<24>(ss, "pawn_storm_table", index);
 
             const std::string filename =
                 "src/texel/results/parameters_" + std::to_string(epoch + 1) + ".elixir.parameters";

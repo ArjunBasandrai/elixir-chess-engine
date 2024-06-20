@@ -37,7 +37,8 @@ namespace elixir::texel {
         add_parameter_array<8>(eval::pawn_duo_bonus);
         add_parameter_array<8>(eval::king_open_file_penalty);
         add_parameter_array<8>(eval::king_semi_open_file_penalty);
-        add_parameter_array<12>(eval::pawn_shelter_table);
+        add_parameter_array<24>(eval::pawn_shelter_table);
+        add_parameter_array<24>(eval::pawn_storm_table);
     }
 
     void Tune::create_entry(Board &board, const std::string line) {

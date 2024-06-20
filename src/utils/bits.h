@@ -70,6 +70,10 @@ namespace elixir {
             clear_bit(bb, static_cast<Square>(index));
             return index;
         }
+
+        static inline Square relative_last_sq(const Bitboard bb, const Color side) {
+            return static_cast<Square>((side == Color::WHITE) ? lsb_index(bb) : msb_index(bb));
+        }
     }
     extern void print_bitboard(const Bitboard bitboard) noexcept;
 }
