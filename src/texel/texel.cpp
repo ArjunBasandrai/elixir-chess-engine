@@ -39,6 +39,8 @@ namespace elixir::texel {
         add_parameter_array<8>(eval::king_semi_open_file_penalty);
         add_parameter_array<24>(eval::pawn_shelter_table);
         add_parameter_array<24>(eval::pawn_storm_table);
+        add_parameter_array<8>(eval::our_king_pp_proximity);
+        add_parameter_array<8>(eval::their_king_pp_proximity);
     }
 
     void Tune::create_entry(Board &board, const std::string line) {
@@ -231,7 +233,7 @@ namespace elixir::texel {
             std::cout << "[" << time_spent() << "s]"
                       << " Epoch: " << epoch + 1 << " Error: " << error
                       << " Rate: " << hyper_parameters.learning_rate << std::endl;
-            if (error < best_params.error) {
+            if (error < best_params.error + hyper_parameters.early_stopping_margin) {
                 best_params.error  = error;
                 best_params.epoch  = epoch;
                 best_params.params = parameters;
