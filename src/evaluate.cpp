@@ -156,9 +156,9 @@ namespace elixir::eval {
     }
 
     EvalScore evaluate_kings(const Board &board, const Color side) {
-        const Bitboard ours = board.color_occupancy(side);
-        const Bitboard theirs =
-            board.color_occupancy(static_cast<Color>(static_cast<I8>(side) ^ 1));
+        const Color them           = static_cast<Color>(static_cast<I8>(side) ^ 1);
+        const Bitboard ours        = board.color_occupancy(side);
+        const Bitboard theirs      = board.color_occupancy(them);
         const Bitboard our_pawns   = board.pawns() & ours;
         const Bitboard their_pawns = board.pawns() & theirs;
         Bitboard kings             = board.king() & ours;
@@ -177,31 +177,28 @@ namespace elixir::eval {
             }
         }
 
-        Bitboard shelter_zone = attacks::get_king_attacks(sq_);
-        if (side == Color::WHITE) {
-            if (rank < 7)
-                shelter_zone |= (shelter_zone << 8);
-        } else {
-            if (rank > 0)
-                shelter_zone |= (shelter_zone >> 8);
-        }
+        Square their_king_square = board.get_king_square(them);
+        const int king_file      = get_file(sq_);
+        const int king_rank      = get_rank(sq_);
+        for (int safety_file = std::max<int>(FILE_A, king_file - 1);
+             safety_file <= std::min<int>(FILE_H, king_file + 1); safety_file++) {
+            const int file_index = (king_file == safety_file)                           ? 8
+                                   : (king_file >= FILE_E) == (king_file < safety_file) ? 0
+                                                                                        : 16;
 
-        shelter_zone &= ~bits::bit(sq_);
+            Bitboard pawn_mask = our_pawns & Files[safety_file];
+            int distance =
+                pawn_mask ? std::abs(get_rank(relative_last_sq(pawn_mask, side)) - king_rank) : 7;
 
-        Bitboard shelter_pawns = our_pawns & shelter_zone;
+            score += pawn_storm_table[file_index + distance];
+            TRACE_INCREMENT(pawn_storm_table[file_index + distance], static_cast<I8>(side));
 
-        while (shelter_pawns) {
-            const int pawn_sq_  = pop_bit(shelter_pawns);
-            const int pawn_file = get_file(sq(pawn_sq_));
-            const int pawn_rank = get_rank(sq(pawn_sq_));
+            pawn_mask = their_pawns & Files[safety_file];
+            distance =
+                pawn_mask ? std::abs(get_rank(relative_last_sq(pawn_mask, side)) - king_rank) : 7;
 
-            const int rank_diff = pawn_rank - rank;
-            const int file_diff = pawn_file - file;
-
-            const int idx = 7 - (rank_diff * 3 + file_diff) * color_offset[static_cast<I8>(side)];
-
-            score += eval::pawn_shelter_table[idx];
-            TRACE_INCREMENT(pawn_shelter_table[idx], static_cast<I8>(side));
+            score += pawn_shelter_table[file_index + distance];
+            TRACE_INCREMENT(pawn_shelter_table[file_index + distance], static_cast<I8>(side));
         }
 
         return (side == Color::WHITE) ? score : -score;
