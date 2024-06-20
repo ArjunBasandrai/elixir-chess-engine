@@ -41,6 +41,7 @@ namespace elixir::texel {
         add_parameter_array<24>(eval::pawn_storm_table);
         add_parameter_array<8>(eval::our_king_pp_proximity);
         add_parameter_array<8>(eval::their_king_pp_proximity);
+        add_parameter_single(eval::bishop_on_grand_diagonal);
     }
 
     void Tune::create_entry(Board &board, const std::string line) {

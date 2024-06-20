@@ -112,11 +112,16 @@ namespace elixir::eval {
             TRACE_INCREMENT(bishop_pair_bonus, static_cast<I8>(side));
         }
         while (bishops) {
-            int sq_ = pop_bit(bishops);
-            int mobility_count =
-                count_bits(attacks::get_bishop_attacks(sq(sq_), board.occupancy()) & ~ours);
+            int sq_                  = pop_bit(bishops);
+            const Bitboard b_attacks = attacks::get_bishop_attacks(sq(sq_), board.occupancy());
+            int mobility_count       = count_bits(b_attacks & ~ours);
             score += bishop_mobility[mobility_count];
             TRACE_INCREMENT(bishop_mobility[mobility_count], static_cast<I8>(side));
+
+            if (count_bits(b_attacks & CENTER_BB) > 1) {
+                score += bishop_on_grand_diagonal;
+                TRACE_INCREMENT(bishop_on_grand_diagonal, static_cast<I8>(side));
+            }
         }
 
         return (side == Color::WHITE) ? score : -score;

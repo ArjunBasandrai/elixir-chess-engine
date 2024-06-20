@@ -132,6 +132,8 @@ namespace elixir {
     constexpr Bitboard Ranks[8] = {Rank_1_BB, Rank_2_BB, Rank_3_BB, Rank_4_BB,
                                    Rank_5_BB, Rank_6_BB, Rank_7_BB, Rank_8_BB};
 
+    constexpr Bitboard CENTER_BB = 0x0000001818000000ULL;
+
     constexpr I8 MAX_DEPTH = 64;
     constexpr I8 MAX_PLY   = 64;
 
