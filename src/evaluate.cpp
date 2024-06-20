@@ -126,10 +126,11 @@ namespace elixir::eval {
         const Bitboard ours = board.color_occupancy(side);
         const Bitboard theirs =
             board.color_occupancy(static_cast<Color>(static_cast<I8>(side) ^ 1));
-        const Bitboard our_pawns   = board.pawns() & ours;
-        const Bitboard their_pawns = board.pawns() & theirs;
-        Bitboard rooks             = board.rooks() & ours;
-        EvalScore score            = 0;
+        const Bitboard our_pawns    = board.pawns() & ours;
+        const Bitboard their_pawns  = board.pawns() & theirs;
+        const Bitboard their_queens = board.queens() & theirs;
+        Bitboard rooks              = board.rooks() & ours;
+        EvalScore score             = 0;
         while (rooks) {
             int sq_  = pop_bit(rooks);
             int file = get_file(sq(sq_));
@@ -146,6 +147,11 @@ namespace elixir::eval {
                     score += rook_semi_open_file_bonus[file];
                     TRACE_INCREMENT(rook_semi_open_file_bonus[file], static_cast<I8>(side));
                 }
+            }
+
+            if (Files[file] & their_queens) {
+                score += rook_xray_queen;
+                TRACE_INCREMENT(rook_xray_queen, static_cast<I8>(side));
             }
         }
 
