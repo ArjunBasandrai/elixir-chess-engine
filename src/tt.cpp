@@ -26,6 +26,10 @@ namespace elixir {
         resize(size);
     }
 
+    void add_ttpv(TTFlag &flag) {
+        flag = static_cast<TTFlag>(static_cast<U8>(flag) | (1 << 2));
+    }
+
     bool TranspositionTable::probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta,
                                       TTFlag &flag) {
 
@@ -47,7 +51,7 @@ namespace elixir {
     }
 
     void TranspositionTable::store_tt(U64 key, int score, move::Move move, U8 depth, int ply,
-                                      TTFlag flag, search::PVariation pv) {
+                                      TTFlag flag, search::PVariation pv, bool tt_pv) {
         U32 index     = get_index(key);
         TTEntry entry = table[index];
 
@@ -69,6 +73,7 @@ namespace elixir {
         entry.move  = move;
         entry.depth = depth;
         entry.flag  = flag;
+        if (tt_pv) add_ttpv(entry.flag);
 
         table[index] = entry;
     }

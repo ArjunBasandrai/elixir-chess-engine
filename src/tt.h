@@ -22,7 +22,9 @@ namespace elixir {
             return key == other.key && score == other.score && depth == other.depth &&
                    flag == other.flag;
         }
-        bool operator==(const U64 &other) const { return key == other; }
+        
+        bool operator==(const U64 &other) const  { return key == other; }
+
     };
 
     struct ProbedEntry {
@@ -40,6 +42,8 @@ namespace elixir {
             flag      = entry.flag;
             return *this;
         }
+        
+        bool is_tt_pv() const { return static_cast<U8>(flag) & (1 << 2); }
     };
 
     class TranspositionTable {
@@ -49,7 +53,7 @@ namespace elixir {
         void clear_tt();
         void resize(U16 size);
         void store_tt(U64 key, int score, move::Move move, U8 depth, int ply, TTFlag flag,
-                      search::PVariation pv);
+                      search::PVariation pv, bool tt_pv = false);
         bool probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta, TTFlag &flag);
         U32 get_hashfull() {
             return static_cast<U32>(static_cast<F64>(entries) / static_cast<F64>(table.capacity()) *
