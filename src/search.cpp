@@ -241,19 +241,21 @@ namespace elixir::search {
         auto best_move = move::Move();
         ProbedEntry result;
         TTFlag tt_flag = TT_NONE;
+        bool tt_hit    = false;
 
-        const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta, tt_flag);
-        /*
-        | TT Cutoff (~130 ELO) : If we have already seen this position before and the |
-        | stored score is useful, we can use the previously stored score to avoid     |
-        | searching the same position again.                                          |
-        */
-        if (tt_hit && ! pv_node && result.depth >= depth &&
-            (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) ||
-             (tt_flag == TT_BETA && result.score >= beta))) {
-            return result.score;
+        if (ss->excluded_move == move::NO_MOVE) {
+            tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta, tt_flag);
+            /*
+            | TT Cutoff (~130 ELO) : If we have already seen this position before and the |
+            | stored score is useful, we can use the previously stored score to avoid     |
+            | searching the same position again.                                          |
+            */
+            if (tt_hit && ! pv_node && result.depth >= depth &&
+                (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) ||
+                 (tt_flag == TT_BETA && result.score >= beta))) {
+                return result.score;
+            }
         }
-
         /*
         | TT Move : Use the stored move from the transposition table for move ordering. |
         */
@@ -264,7 +266,7 @@ namespace elixir::search {
         | searching this node will likely take a lot of time, and this node is likely to be |
         | not very good. So, we save time by reducing the depth of the search.              |
         */
-        if (depth >= IIR_DEPTH && tt_move == move::NO_MOVE)
+        if (depth >= IIR_DEPTH && tt_move == move::NO_MOVE && ss->excluded_move == move::NO_MOVE)
             depth--;
 
         /*
@@ -276,9 +278,11 @@ namespace elixir::search {
             eval = ss->eval = INF;
 
         else
-            eval = ss->eval = (tt_hit) ? result.score : eval::evaluate(board);
+            eval = ss->eval = (tt_hit && ss->excluded_move == move::NO_MOVE)
+                                  ? result.score
+                                  : eval::evaluate(board);
 
-        if (! pv_node && ! in_check) {
+        if (! pv_node && ! in_check && ss->excluded_move == move::NO_MOVE) {
             /*
             | Razoring (~4 ELO) : If out position is way below alpha, do a verification |
             | quiescence search, if we still cant exceed alpha, then we cutoff.         |
@@ -344,6 +348,9 @@ namespace elixir::search {
 
         while ((move = mp.next_move()) != move::NO_MOVE) {
 
+            if (move == ss->excluded_move)
+                continue;
+
             const bool is_quiet_move = move.is_quiet();
 
             /*
@@ -385,6 +392,30 @@ namespace elixir::search {
                     continue;
             }
 
+            int extensions = 0;
+
+            if (! root_node && depth >= 8 && move == tt_move &&
+                ss->excluded_move == move::NO_MOVE) {
+                const bool is_good_score = result.depth >= 4 + depth && result.flag != TT_ALPHA &&
+                                           std::abs(result.score) < MATE_FOUND;
+
+                if (is_good_score) {
+                    ss->excluded_move = move;
+
+                    const int new_depth = (depth - 1) / 2;
+                    const int new_beta  = result.score - depth * 2;
+
+                    const int excluded_score =
+                        negamax(board, new_beta - 1, new_beta, new_depth, info, local_pv, ss);
+
+                    if (excluded_score < new_beta) {
+                        extensions++;
+                    }
+
+                    ss->excluded_move = move::NO_MOVE;
+                }
+            }
+
             if (! board.make_move(move))
                 continue;
 
@@ -399,12 +430,13 @@ namespace elixir::search {
             /*
             | Principal Variation Search and Late Move Reduction [PVS + LMR] (~40 ELO) |
             */
-            int score = 0;
+            int score     = 0;
+            int new_depth = depth + extensions;
             /*
             | Search with full depth if it's the first move |
             */
             if (legals == 1) {
-                score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
+                score = -negamax(board, -beta, -alpha, new_depth - 1, info, local_pv, ss + 1);
             } else {
                 /*
                 | Late Move Reductions [LMR] : Moves that appear later in the move list |
@@ -419,9 +451,9 @@ namespace elixir::search {
                 | to see if the move has potential to improve alpha. If it does, we perform a full |
                 | depth search.                                                                    |
                 */
-                score = -negamax(board, -alpha - 1, -alpha, depth - R, info, local_pv, ss + 1);
+                score = -negamax(board, -alpha - 1, -alpha, new_depth - R, info, local_pv, ss + 1);
                 if (score > alpha && (score < beta || R > 1)) {
-                    score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
+                    score = -negamax(board, -beta, -alpha, new_depth - 1, info, local_pv, ss + 1);
                 }
             }
 
@@ -465,7 +497,9 @@ namespace elixir::search {
             return board.is_in_check() ? -MATE + ss->ply : 0;
         }
 
-        tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv);
+        if (ss->excluded_move == move::NO_MOVE) {
+            tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv);
+        }
 
         return best_score;
     }

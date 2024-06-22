@@ -9,8 +9,9 @@
 
 namespace elixir::search {
     struct SearchStack {
-        move::Move move       = move::NO_MOVE;
-        move::Move killers[2] = {};
+        move::Move move          = move::NO_MOVE;
+        move::Move excluded_move = move::NO_MOVE;
+        move::Move killers[2]    = {};
         int eval;
         int ply;
     };
