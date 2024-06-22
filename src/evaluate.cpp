@@ -26,11 +26,13 @@ namespace elixir::eval {
 
     EvalScore evaluate_pawns(const Board &board, const Color side) {
         const Bitboard ours        = board.color_occupancy(side);
-        Bitboard pawns             = board.pawns() & ours;
-        const Bitboard our_pawns   = pawns;
-        EvalScore score            = 0;
         const I8 icolor            = static_cast<I8>(side);
         const Color them           = static_cast<Color>(icolor ^ 1);
+        const Bitboard theirs      = board.color_occupancy(them);
+        Bitboard pawns             = board.pawns() & ours;
+        const Bitboard our_pawns   = pawns;
+        const Bitboard their_pawns = board.pawns() & theirs;
+        EvalScore score            = 0;
         const Square our_king_sq   = board.get_king_square(side);
         const Square their_king_sq = board.get_king_square(them);
         while (pawns) {
@@ -71,6 +73,17 @@ namespace elixir::eval {
             if (masks::isolated_pawn_masks[file] & Ranks[rank] & our_pawns) {
                 score += pawn_duo_bonus[relative_rank];
                 TRACE_INCREMENT(pawn_duo_bonus[relative_rank], icolor);
+            }
+
+            const Bitboard forward_flank_pawns =
+                attacks::get_pawn_attacks(side, sq(sq_)) & our_pawns;
+            const Square stop_square = (side == Color::WHITE) ? sq(sq_ + 8) : sq(sq_ - 8);
+            const Bitboard enemy_attacker_on_stop_square =
+                attacks::get_pawn_attacks(side, stop_square) & their_pawns;
+
+            if (! forward_flank_pawns && enemy_attacker_on_stop_square) {
+                score -= backward_pawn_penalty[relative_rank];
+                TRACE_DECREMENT(backward_pawn_penalty[relative_rank], icolor);
             }
         }
 
