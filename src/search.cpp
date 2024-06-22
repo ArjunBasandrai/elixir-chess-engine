@@ -369,7 +369,7 @@ namespace elixir::search {
                 | we've already searched the most promising moves because they  |
                 | are likely to be bad.                                         |
                 */
-                if (is_quiet_move && legals >= LMP_BASE + LMP_MULTIPLIER * depth * depth / (improving ? 1 : 2)) {
+                if (is_quiet_move && legals >= (LMP_BASE + LMP_MULTIPLIER * depth * depth) / (improving ? 1 : 2)) {
                     skip_quiets = true;
                     continue;
                 }
