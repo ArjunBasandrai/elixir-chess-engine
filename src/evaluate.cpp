@@ -24,7 +24,18 @@ namespace elixir::eval {
     int MP_KING         = 20903;
     int piece_values[7] = {MP_PAWN, MP_KNIGHT, MP_BISHOP, MP_ROOK, MP_QUEEN, MP_KING, 0};
 
-    EvalScore evaluate_pawns(const Board &board, const Color side) {
+    void Evaluator::init_evaluator(const Board &board) {
+        const Square white_king_square = board.get_king_square(Color::WHITE);
+        const Square black_king_square = board.get_king_square(Color::BLACK);
+
+        const Bitboard white_king_attacks = attacks::get_king_attacks(white_king_square);
+        const Bitboard black_king_attacks = attacks::get_king_attacks(black_king_square);
+
+        e_info.king_zones[0] = white_king_attacks | (white_king_attacks << 8);
+        e_info.king_zones[1] = black_king_attacks | (black_king_attacks << 8);
+    }
+
+    void Evaluator::evaluate_pawns(const Board &board, const Color side) {
         const Bitboard ours        = board.color_occupancy(side);
         Bitboard pawns             = board.pawns() & ours;
         const Bitboard our_pawns   = pawns;
@@ -74,10 +85,10 @@ namespace elixir::eval {
             }
         }
 
-        return (side == Color::WHITE) ? score : -score;
+        e_info.add_score((side == Color::WHITE) ? score : -score);
     }
 
-    EvalScore evaluate_knights(const Board &board, const Color side) {
+    void Evaluator::evaluate_knights(const Board &board, const Color side) {
         const Bitboard ours = board.color_occupancy(side);
         const Bitboard theirs =
             board.color_occupancy(static_cast<Color>(static_cast<I8>(side) ^ 1));
@@ -100,10 +111,10 @@ namespace elixir::eval {
             }
         }
 
-        return (side == Color::WHITE) ? score : -score;
+        e_info.add_score((side == Color::WHITE) ? score : -score);
     }
 
-    EvalScore evaluate_bishops(const Board &board, const Color side) {
+    void Evaluator::evaluate_bishops(const Board &board, const Color side) {
         const Bitboard ours = board.color_occupancy(side);
         Bitboard bishops    = board.bishops() & ours;
         EvalScore score     = 0;
@@ -119,10 +130,10 @@ namespace elixir::eval {
             TRACE_INCREMENT(bishop_mobility[mobility_count], static_cast<I8>(side));
         }
 
-        return (side == Color::WHITE) ? score : -score;
+        e_info.add_score((side == Color::WHITE) ? score : -score);
     }
 
-    EvalScore evaluate_rooks(const Board &board, const Color side) {
+    void Evaluator::evaluate_rooks(const Board &board, const Color side) {
         const Bitboard ours = board.color_occupancy(side);
         const Bitboard theirs =
             board.color_occupancy(static_cast<Color>(static_cast<I8>(side) ^ 1));
@@ -149,10 +160,10 @@ namespace elixir::eval {
             }
         }
 
-        return (side == Color::WHITE) ? score : -score;
+        e_info.add_score((side == Color::WHITE) ? score : -score);
     }
 
-    EvalScore evaluate_queens(const Board &board, const Color side) {
+    void Evaluator::evaluate_queens(const Board &board, const Color side) {
         const Bitboard ours = board.color_occupancy(side);
         Bitboard queens     = board.queens() & ours;
         EvalScore score     = 0;
@@ -164,10 +175,10 @@ namespace elixir::eval {
             TRACE_INCREMENT(queen_mobility[mobility_count], static_cast<I8>(side));
         }
 
-        return (side == Color::WHITE) ? score : -score;
+        e_info.add_score((side == Color::WHITE) ? score : -score);
     }
 
-    EvalScore evaluate_kings(const Board &board, const Color side) {
+    void Evaluator::evaluate_kings(const Board &board, const Color side) {
         const Color them           = static_cast<Color>(static_cast<I8>(side) ^ 1);
         const Bitboard ours        = board.color_occupancy(side);
         const Bitboard theirs      = board.color_occupancy(them);
@@ -213,31 +224,34 @@ namespace elixir::eval {
             TRACE_INCREMENT(pawn_shelter_table[file_index + distance], static_cast<I8>(side));
         }
 
-        return (side == Color::WHITE) ? score : -score;
+        e_info.add_score((side == Color::WHITE) ? score : -score);
     }
 
-    int evaluate(Board &board) {
+    int Evaluator::evaluate(const Board &board) {
         Score score = 0, score_opening = 0, score_endgame = 0;
         Color side      = board.get_side_to_move();
-        EvalInfo e_info = EvalInfo(board.get_eval());
 
-        e_info.add_score(evaluate_pawns(board, Color::WHITE));
-        e_info.add_score(evaluate_pawns(board, Color::BLACK));
+        e_info = EvalInfo(board.get_eval());
 
-        e_info.add_score(evaluate_knights(board, Color::WHITE));
-        e_info.add_score(evaluate_knights(board, Color::BLACK));
+        init_evaluator(board);
 
-        e_info.add_score(evaluate_bishops(board, Color::WHITE));
-        e_info.add_score(evaluate_bishops(board, Color::BLACK));
+        evaluate_pawns(board, Color::WHITE);
+        evaluate_pawns(board, Color::BLACK);
 
-        e_info.add_score(evaluate_rooks(board, Color::WHITE));
-        e_info.add_score(evaluate_rooks(board, Color::BLACK));
+        evaluate_knights(board, Color::WHITE);
+        evaluate_knights(board, Color::BLACK);
 
-        e_info.add_score(evaluate_queens(board, Color::WHITE));
-        e_info.add_score(evaluate_queens(board, Color::BLACK));
+        evaluate_bishops(board, Color::WHITE);
+        evaluate_bishops(board, Color::BLACK);
 
-        e_info.add_score(evaluate_kings(board, Color::WHITE));
-        e_info.add_score(evaluate_kings(board, Color::BLACK));
+        evaluate_rooks(board, Color::WHITE);
+        evaluate_rooks(board, Color::BLACK);
+
+        evaluate_queens(board, Color::WHITE);
+        evaluate_queens(board, Color::BLACK);
+
+        evaluate_kings(board, Color::WHITE);
+        evaluate_kings(board, Color::BLACK);
 
         score_opening = e_info.opening_score();
         score_endgame = e_info.endgame_score();
@@ -245,4 +259,8 @@ namespace elixir::eval {
         score         = (score_opening * phase + score_endgame * (24 - phase)) / 24;
         return ((side == Color::WHITE) ? score : -score) + TEMPO;
     }
+
+    int evaluate(const Board &board) {
+        return evaluator.evaluate(board);
+    } 
 }
