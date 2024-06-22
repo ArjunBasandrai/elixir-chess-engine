@@ -396,7 +396,7 @@ namespace elixir::search {
 
             if (! root_node && depth >= 8 && move == tt_move &&
                 ss->excluded_move == move::NO_MOVE) {
-                const bool is_good_score = result.depth >= 4 + depth && result.flag != TT_ALPHA &&
+                const bool is_good_score = result.depth >= depth - 3 && result.flag != TT_ALPHA &&
                                            std::abs(result.score) < MATE_FOUND;
 
                 if (is_good_score) {
