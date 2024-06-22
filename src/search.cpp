@@ -278,6 +278,16 @@ namespace elixir::search {
         else
             eval = ss->eval = (tt_hit) ? result.score : eval::evaluate(board);
 
+        const bool improving = [&] {
+            if (in_check)
+                return false;
+            if (ss->ply > 1 && (ss - 2)->eval != -INF)
+                return ss->eval > (ss - 2)->eval;
+            if (ss->ply > 3 && (ss - 4)->eval != -INF)
+                return ss->eval > (ss - 4)->eval;
+            return true;
+        }();
+
         if (! pv_node && ! in_check) {
             /*
             | Razoring (~4 ELO) : If out position is way below alpha, do a verification |
@@ -359,7 +369,7 @@ namespace elixir::search {
                 | we've already searched the most promising moves because they  |
                 | are likely to be bad.                                         |
                 */
-                if (is_quiet_move && legals >= LMP_BASE + LMP_MULTIPLIER * depth * depth) {
+                if (is_quiet_move && legals >= LMP_BASE + LMP_MULTIPLIER * depth * depth / (improving ? 1 : 2)) {
                     skip_quiets = true;
                     continue;
                 }
