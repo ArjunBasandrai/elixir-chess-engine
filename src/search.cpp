@@ -425,7 +425,7 @@ namespace elixir::search {
                 if (is_quiet_move && depth >= LMR_DEPTH && legals > 1 + (pv_node ? 1 : 0)) {
                     R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
 
-                    if (improving) R = std::max(1, R - 1);
+                    if (!improving) R++;
                 }
                 /*
                 | Principal Variation Search [PVS] : Perform a null window search at reduced depth |
