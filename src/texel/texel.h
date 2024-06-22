@@ -79,6 +79,10 @@ namespace elixir::texel {
         std::array<std::array<int, 2>, 24> pawn_storm_table;
         std::array<std::array<int, 2>, 8> our_king_pp_proximity;
         std::array<std::array<int, 2>, 8> their_king_pp_proximity;
+        std::array<std::array<int, 2>, 8> knight_king_proximity_bonus;
+        std::array<std::array<int, 2>, 8> bishop_king_proximity_bonus;
+        std::array<std::array<int, 2>, 8> rook_king_proximity_bonus;
+        std::array<std::array<int, 2>, 8> queen_king_proximity_bonus;
     };
 
     inline Trace trace;
@@ -152,6 +156,10 @@ namespace elixir::texel {
             get_coefficient_value_array<24>(position, trace.pawn_storm_table);
             get_coefficient_value_array<8>(position, trace.our_king_pp_proximity);
             get_coefficient_value_array<8>(position, trace.their_king_pp_proximity);
+            get_coefficient_value_array<8>(position, trace.knight_king_proximity_bonus);
+            get_coefficient_value_array<8>(position, trace.bishop_king_proximity_bonus);
+            get_coefficient_value_array<8>(position, trace.rook_king_proximity_bonus);
+            get_coefficient_value_array<8>(position, trace.queen_king_proximity_bonus);
         }
 
         void add_parameter_single(const EvalScore &param) {
@@ -244,6 +252,10 @@ namespace elixir::texel {
             print_parameter_array<24>(ss, "pawn_storm_table", index);
             print_parameter_array<8>(ss, "our_king_pp_proximity", index);
             print_parameter_array<8>(ss, "their_king_pp_proximity", index);
+            print_parameter_array<8>(ss, "knight_king_proximity_bonus", index);
+            print_parameter_array<8>(ss, "bishop_king_proximity_bonus", index);
+            print_parameter_array<8>(ss, "rook_king_proximity_bonus", index);
+            print_parameter_array<8>(ss, "queen_king_proximity_bonus", index);
 
             const std::string filename =
                 "src/texel/results/parameters_" + std::to_string(epoch + 1) + ".elixir.parameters";

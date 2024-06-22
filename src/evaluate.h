@@ -37,20 +37,21 @@ namespace elixir {
         };
 
         class Evaluator {
-            public:
-                Evaluator() = default;
-                ~Evaluator() = default;
-                int evaluate(const Board &board);
-            private:
-                EvalInfo e_info;
+          public:
+            Evaluator()  = default;
+            ~Evaluator() = default;
+            int evaluate(const Board &board);
 
-                void init_evaluator(const Board &board);
-                void evaluate_pawns(const Board &board, const Color side);
-                void evaluate_knights(const Board &board, const Color side);
-                void evaluate_bishops(const Board &board, const Color side);
-                void evaluate_rooks(const Board &board, const Color side);
-                void evaluate_queens(const Board &board, const Color side);
-                void evaluate_kings(const Board &board, const Color side);
+          private:
+            EvalInfo e_info;
+
+            void init_evaluator(const Board &board);
+            void evaluate_pawns(const Board &board, const Color side);
+            void evaluate_knights(const Board &board, const Color side);
+            void evaluate_bishops(const Board &board, const Color side);
+            void evaluate_rooks(const Board &board, const Color side);
+            void evaluate_queens(const Board &board, const Color side);
+            void evaluate_kings(const Board &board, const Color side);
         };
 
         inline Evaluator evaluator;

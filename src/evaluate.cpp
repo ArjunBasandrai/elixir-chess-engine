@@ -96,10 +96,12 @@ namespace elixir::eval {
         Bitboard knights           = board.knights() & ours;
         EvalScore score            = 0;
         I8 icolor                  = static_cast<I8>(side);
+        I8 them                    = icolor ^ 1;
         while (knights) {
             const int sq_            = pop_bit(knights);
             const int file           = get_file(sq(sq_));
-            const int mobility_count = count_bits(attacks::get_knight_attacks(sq(sq_)) & ~ours);
+            const Bitboard attacks   = attacks::get_knight_attacks(sq(sq_));
+            const int mobility_count = count_bits(attacks & ~ours);
             score += knight_mobility[mobility_count];
             TRACE_INCREMENT(knight_mobility[mobility_count], static_cast<I8>(side));
 
@@ -108,6 +110,13 @@ namespace elixir::eval {
                 const int colored_sq = (icolor == 0) ? sq_ ^ 56 : sq_;
                 score += knight_outpost_bonus[colored_sq];
                 TRACE_INCREMENT(knight_outpost_bonus[colored_sq], icolor);
+            }
+
+            const Bitboard in_king_zone = attacks & e_info.king_zones[them];
+            if (in_king_zone) {
+                const int idx = std::min(7, count_bits(in_king_zone));
+                score += knight_king_proximity_bonus[idx];
+                TRACE_INCREMENT(knight_king_proximity_bonus[idx], icolor);
             }
         }
 
@@ -118,16 +127,25 @@ namespace elixir::eval {
         const Bitboard ours = board.color_occupancy(side);
         Bitboard bishops    = board.bishops() & ours;
         EvalScore score     = 0;
+        I8 icolor           = static_cast<I8>(side);
+        I8 them             = icolor ^ 1;
         if (count_bits(ours & board.bishops()) >= 2) {
             score += bishop_pair_bonus;
             TRACE_INCREMENT(bishop_pair_bonus, static_cast<I8>(side));
         }
         while (bishops) {
-            int sq_ = pop_bit(bishops);
-            int mobility_count =
-                count_bits(attacks::get_bishop_attacks(sq(sq_), board.occupancy()) & ~ours);
+            int sq_                = pop_bit(bishops);
+            const Bitboard attacks = attacks::get_bishop_attacks(sq(sq_), board.occupancy());
+            int mobility_count     = count_bits(attacks & ~ours);
             score += bishop_mobility[mobility_count];
             TRACE_INCREMENT(bishop_mobility[mobility_count], static_cast<I8>(side));
+
+            const Bitboard in_king_zone = attacks & e_info.king_zones[them];
+            if (in_king_zone) {
+                const int idx = std::min(7, count_bits(in_king_zone));
+                score += bishop_king_proximity_bonus[idx];
+                TRACE_INCREMENT(bishop_king_proximity_bonus[idx], icolor);
+            }
         }
 
         e_info.add_score((side == Color::WHITE) ? score : -score);
@@ -141,11 +159,13 @@ namespace elixir::eval {
         const Bitboard their_pawns = board.pawns() & theirs;
         Bitboard rooks             = board.rooks() & ours;
         EvalScore score            = 0;
+        I8 icolor                  = static_cast<I8>(side);
+        I8 them                    = icolor ^ 1;
         while (rooks) {
-            int sq_  = pop_bit(rooks);
-            int file = get_file(sq(sq_));
-            int mobility_count =
-                count_bits(attacks::get_rook_attacks(sq(sq_), board.occupancy()) & ~ours);
+            int sq_                = pop_bit(rooks);
+            int file               = get_file(sq(sq_));
+            const Bitboard attacks = attacks::get_rook_attacks(sq(sq_), board.occupancy());
+            int mobility_count     = count_bits(attacks & ~ours);
             score += rook_mobility[mobility_count];
             TRACE_INCREMENT(rook_mobility[mobility_count], static_cast<I8>(side));
 
@@ -158,6 +178,13 @@ namespace elixir::eval {
                     TRACE_INCREMENT(rook_semi_open_file_bonus[file], static_cast<I8>(side));
                 }
             }
+
+            const Bitboard in_king_zone = attacks & e_info.king_zones[them];
+            if (in_king_zone) {
+                const int idx = std::min(7, count_bits(in_king_zone));
+                score += rook_king_proximity_bonus[idx];
+                TRACE_INCREMENT(rook_king_proximity_bonus[idx], icolor);
+            }
         }
 
         e_info.add_score((side == Color::WHITE) ? score : -score);
@@ -167,12 +194,21 @@ namespace elixir::eval {
         const Bitboard ours = board.color_occupancy(side);
         Bitboard queens     = board.queens() & ours;
         EvalScore score     = 0;
+        I8 icolor           = static_cast<I8>(side);
+        I8 them             = icolor ^ 1;
         while (queens) {
-            int sq_ = pop_bit(queens);
-            int mobility_count =
-                count_bits(attacks::get_queen_attacks(sq(sq_), board.occupancy()) & ~ours);
+            int sq_                = pop_bit(queens);
+            const Bitboard attacks = attacks::get_queen_attacks(sq(sq_), board.occupancy());
+            int mobility_count     = count_bits(attacks & ~ours);
             score += queen_mobility[mobility_count];
             TRACE_INCREMENT(queen_mobility[mobility_count], static_cast<I8>(side));
+
+            const Bitboard in_king_zone = attacks & e_info.king_zones[them];
+            if (in_king_zone) {
+                const int idx = std::min(7, count_bits(in_king_zone));
+                score += queen_king_proximity_bonus[idx];
+                TRACE_INCREMENT(queen_king_proximity_bonus[idx], icolor);
+            }
         }
 
         e_info.add_score((side == Color::WHITE) ? score : -score);
@@ -229,7 +265,7 @@ namespace elixir::eval {
 
     int Evaluator::evaluate(const Board &board) {
         Score score = 0, score_opening = 0, score_endgame = 0;
-        Color side      = board.get_side_to_move();
+        Color side = board.get_side_to_move();
 
         e_info = EvalInfo(board.get_eval());
 
@@ -262,5 +298,5 @@ namespace elixir::eval {
 
     int evaluate(const Board &board) {
         return evaluator.evaluate(board);
-    } 
+    }
 }
