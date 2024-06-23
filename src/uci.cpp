@@ -29,7 +29,7 @@ namespace elixir::uci {
 
         time -= DEFAULT_MOVE_OVERHEAD;
 
-        double base_time;
+        double base_time, soft_bound, hard_bound;
 
         if (movestogo != -1) {
             base_time = time / movestogo;
@@ -38,8 +38,13 @@ namespace elixir::uci {
         }
         const auto max_bound = 0.76 * time;
 
-        const auto soft_bound = std::min(0.76 * base_time, max_bound);
-        const auto hard_bound = std::min(2.50 * base_time, max_bound);
+        if (time < inc) {
+            soft_bound = 0.65 * time;
+            hard_bound = 0.75 * time;
+        } else {
+            soft_bound = std::min(0.76 * base_time, max_bound);
+            hard_bound = std::min(2.50 * base_time, max_bound);
+        }
 
         info = search::SearchInfo(MAX_DEPTH, start_time, soft_bound, hard_bound);
     }
