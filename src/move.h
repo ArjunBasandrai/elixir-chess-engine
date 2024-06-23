@@ -75,6 +75,9 @@ namespace elixir::move {
         [[nodiscard]] constexpr bool is_quiet() const noexcept {
             return ! (is_capture() || is_en_passant());
         }
+        [[nodiscard]] constexpr bool is_noisy() const noexcept {
+            return (is_capture() || is_en_passant() || is_promotion());
+        }
 
         bool operator==(const Move &other) const noexcept { return m_move == other.m_move; }
 

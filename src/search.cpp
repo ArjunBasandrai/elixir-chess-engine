@@ -258,6 +258,7 @@ namespace elixir::search {
         | TT Move : Use the stored move from the transposition table for move ordering. |
         */
         const auto tt_move = result.best_move;
+        const auto tt_noisy = tt_move != move::NO_MOVE && tt_move.is_noisy();
 
         /*
         | Internal Iterative Reduction (~6 ELO) : If no TT move is found for this position, |
@@ -413,6 +414,7 @@ namespace elixir::search {
                 int R = 1;
                 if (is_quiet_move && depth >= LMR_DEPTH && legals > 1 + (pv_node ? 1 : 0)) {
                     R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
+                    R += (tt_noisy ? 1 : 0);
                 }
                 /*
                 | Principal Variation Search [PVS] : Perform a null window search at reduced depth |
