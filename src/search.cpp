@@ -278,6 +278,16 @@ namespace elixir::search {
         else
             eval = ss->eval = (tt_hit) ? result.score : eval::evaluate(board);
 
+        const bool improving = [&] {
+			if (in_check)
+				return false;
+			if (ss->ply > 1 && (ss- 2)->eval != -INF)
+				return ss->eval > (ss - 2)->eval;
+			if (ss->ply > 3 && (ss - 4)->eval != -INF)
+				return ss->eval > (ss - 4)->eval;
+			return true;
+		}();
+
         if (! pv_node && ! in_check) {
             /*
             | Razoring (~4 ELO) : If out position is way below alpha, do a verification |
@@ -293,7 +303,7 @@ namespace elixir::search {
             | Reverse Futility Pruning (~45 ELO) : If our position is so good, that we are |
             | confident that we will not fall below beta anytime soon, then we cutoff.     |
             */
-            if (depth <= RFP_DEPTH && eval - RFP_MARGIN * depth >= beta) {
+            if (depth <= RFP_DEPTH && eval - RFP_MARGIN * depth + 60 * improving >= beta) {
                 return eval;
             }
 
