@@ -37,11 +37,12 @@ namespace elixir::eval {
 
     void Evaluator::evaluate_pawns(const Board &board, const Color side) {
         const Bitboard ours        = board.color_occupancy(side);
-        Bitboard pawns             = board.pawns() & ours;
-        const Bitboard our_pawns   = pawns;
-        EvalScore score            = 0;
         const I8 icolor            = static_cast<I8>(side);
         const Color them           = static_cast<Color>(icolor ^ 1);
+        Bitboard pawns             = board.pawns() & ours;
+        const Bitboard our_pawns   = pawns;
+        const Bitboard their_pawns = board.pawns() & board.color_occupancy(them);
+        EvalScore score            = 0;
         const Square our_king_sq   = board.get_king_square(side);
         const Square their_king_sq = board.get_king_square(them);
         while (pawns) {
@@ -82,6 +83,13 @@ namespace elixir::eval {
             if (masks::isolated_pawn_masks[file] & Ranks[rank] & our_pawns) {
                 score += pawn_duo_bonus[relative_rank];
                 TRACE_INCREMENT(pawn_duo_bonus[relative_rank], icolor);
+            }
+
+            const Bitboard attackers = attacks::get_pawn_attacks(side, sq(sq_)) & their_pawns;
+            const Bitboard defenders = attacks::get_pawn_attacks(them, sq(sq_)) & our_pawns;
+            if (attackers && ! defenders) {
+                score -= hanging_pawn_penalty;
+                TRACE_DECREMENT(hanging_pawn_penalty, icolor);
             }
         }
 
