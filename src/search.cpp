@@ -411,7 +411,7 @@ namespace elixir::search {
                 | are likely to be bad, so we reduce their depth.                       |
                 */
                 int R = 1;
-                if (is_quiet_move && depth >= LMR_DEPTH && legals > 1 + (pv_node ? 1 : 0)) {
+                if (is_quiet_move && depth >= LMR_DEPTH && legals > 1 + 3 * (pv_node ? 1 : 0)) {
                     R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
                 }
                 /*
