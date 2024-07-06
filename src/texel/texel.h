@@ -83,6 +83,7 @@ namespace elixir::texel {
         std::array<std::array<int, 2>, 8> bishop_king_proximity_bonus;
         std::array<std::array<int, 2>, 8> rook_king_proximity_bonus;
         std::array<std::array<int, 2>, 8> queen_king_proximity_bonus;
+        std::array<int, 2> pawn_minor_threat;
     };
 
     inline Trace trace;
@@ -160,6 +161,7 @@ namespace elixir::texel {
             get_coefficient_value_array<8>(position, trace.bishop_king_proximity_bonus);
             get_coefficient_value_array<8>(position, trace.rook_king_proximity_bonus);
             get_coefficient_value_array<8>(position, trace.queen_king_proximity_bonus);
+            get_coefficient_value_single(position, trace.pawn_minor_threat);
         }
 
         void add_parameter_single(const EvalScore &param) {
@@ -256,6 +258,7 @@ namespace elixir::texel {
             print_parameter_array<8>(ss, "bishop_king_proximity_bonus", index);
             print_parameter_array<8>(ss, "rook_king_proximity_bonus", index);
             print_parameter_array<8>(ss, "queen_king_proximity_bonus", index);
+            print_parameter_single(ss, "pawn_minor_threat", index);
 
             const std::string filename =
                 "src/texel/results/parameters_" + std::to_string(epoch + 1) + ".elixir.parameters";

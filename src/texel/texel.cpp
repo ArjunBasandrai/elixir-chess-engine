@@ -45,6 +45,7 @@ namespace elixir::texel {
         add_parameter_array<8>(eval::bishop_king_proximity_bonus);
         add_parameter_array<8>(eval::rook_king_proximity_bonus);
         add_parameter_array<8>(eval::queen_king_proximity_bonus);
+        add_parameter_single(eval::pawn_minor_threat);
     }
 
     void Tune::create_entry(Board &board, const std::string line) {
