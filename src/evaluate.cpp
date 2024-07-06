@@ -89,6 +89,11 @@ namespace elixir::eval {
                 score += pawn_minor_threat;
                 TRACE_INCREMENT(pawn_minor_threat, icolor);
             }
+
+            if (attacks::get_pawn_attacks(side, sq(sq_)) & board.majors() & theirs) {
+                score += pawn_major_threat;
+                TRACE_INCREMENT(pawn_major_threat, icolor);
+            }
         }
 
         e_info.add_score((side == Color::WHITE) ? score : -score);
