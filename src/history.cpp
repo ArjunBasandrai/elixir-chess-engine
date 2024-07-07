@@ -28,9 +28,10 @@ namespace elixir {
         int ifrom  = static_cast<int>(from);
         int ito    = static_cast<int>(to);
         int &score = history[ifrom][ito];
-        score += scale_bonus(score, depth * depth);
+        int bonus = scale_bonus(score, depth * depth);
+        score += bonus;
 
-        const int penalty = -depth * depth;
+        const int penalty = -bonus;
         for (const auto &move : bad_quiets) {
             const int bfrom = static_cast<int>(move.get_from());
             const int bto   = static_cast<int>(move.get_to());
