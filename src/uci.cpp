@@ -9,6 +9,7 @@
 #include "bench/bench.h"
 #include "evaluate.h"
 #include "history.h"
+#include "movegen.h"
 #include "movepicker.h"
 #include "search.h"
 #include "spsa.h"
@@ -187,6 +188,12 @@ namespace elixir::uci {
                 break;
             } else if (input == "print") {
                 board.print_board();
+            } else if (input == "legals") {
+                auto moves = movegen::generate_moves<false>(board);
+                for (auto move : moves) {
+                    move.print_uci();
+                    std::cout << std::endl;
+                }
             } else if (input.substr(0, 9) == "position ") {
                 parse_position(input, board);
             } else if (input.substr(0, 2) == "go") {
