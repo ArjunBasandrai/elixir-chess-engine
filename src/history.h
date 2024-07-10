@@ -27,8 +27,7 @@ namespace elixir {
         int get_chs(move::Move& move, const search::SearchStack *ss) const;
 
         int get_history(move::Move& move, const search::SearchStack *ss) const {
-          return get_quiet_history(move.get_from(), move.get_to()) +
-                 2 * (get_chs(move, ss - 1) + get_chs(move, ss - 2));
+          return 2 * get_quiet_history(move.get_from(), move.get_to()) + (get_chs(move, ss - 1) + get_chs(move, ss - 2));
         }
 
         ContHistArray cont_hist = {0};
