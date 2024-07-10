@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "history.h"
 #include "defs.h"
 #include "move.h"
@@ -28,7 +30,7 @@ namespace elixir {
         int ifrom  = static_cast<int>(from);
         int ito    = static_cast<int>(to);
         int &score = history[ifrom][ito];
-        int bonus = scale_bonus(score, depth * depth);
+        int bonus = scale_bonus(score, history_bonus(depth));
         score += bonus;
 
         const int penalty = -bonus;
