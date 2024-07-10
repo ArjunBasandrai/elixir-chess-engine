@@ -133,14 +133,14 @@ namespace elixir::search {
         alpha = std::max(alpha, best_score);
 
         MovePicker mp;
-        mp.init_mp(board, tt_move, ss, true);
+        mp.setup_mp(board, tt_move, ss, true);
         move::Move move;
         TTFlag flag = TT_ALPHA;
 
         if (! ss->ply)
             info.best_root_move = mp.first_move();
 
-        while ((move = mp.next_move()) != move::NO_MOVE) {
+        while ((move = mp.next(board, ss)) != move::NO_MOVE) {
 
             /*
             | Q-Search Static Exchange Evaluation [SEE] Pruning (~55 ELO) : Skip moves that |
@@ -341,7 +341,7 @@ namespace elixir::search {
         | Initialize MovePicker, generate all moves and use TT Move for move ordering. |
         */
         MovePicker mp;
-        mp.init_mp(board, tt_move, ss, false);
+        mp.setup_mp(board, tt_move, ss, false);
         if (root_node)
             info.best_root_move = mp.first_move();
 
@@ -354,7 +354,7 @@ namespace elixir::search {
         */
         MoveList bad_quiets;
 
-        while ((move = mp.next_move()) != move::NO_MOVE) {
+        while ((move = mp.next(board, ss)) != move::NO_MOVE) {
 
             const bool is_quiet_move = move.is_quiet();
 

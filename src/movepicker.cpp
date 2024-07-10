@@ -12,9 +12,108 @@ namespace elixir {
 
     int MP_SEE = 109;
 
+    void MovePicker::setup_mp(const Board& board, move::Move tt_move, search::SearchStack *ss, bool skip_quiets) {
+        stage = STAGE::HASH_MOVE;
+        no_quiets = skip_quiets;
+        noisy_size = 0;
+        quiet_size = 0;
+        hash_move = tt_move;
+        killers[0] = (ss->killers[0] != tt_move) ? ss->killers[0] : move::NO_MOVE; 
+        killers[1] = (ss->killers[1] != tt_move) ? ss->killers[1] : move::NO_MOVE;
+    }
+
+    move::Move MovePicker::next(Board& board, search::SearchStack *ss) {
+        move::Move best_move = move::NO_MOVE;
+
+        switch (stage) {
+            case STAGE::HASH_MOVE:
+                stage = STAGE::GEN_NOISY;
+                if (board.is_psuedo_legal(hash_move)) {
+                    return hash_move;
+                }
+            case STAGE::GEN_NOISY:
+                moves = movegen::generate_moves<true>(board);
+                score_moves(board, hash_move, ss);
+                noisy_size = moves.size();
+                stage = STAGE::NOISY;
+            case STAGE::NOISY:
+                if (noisy_size > 0) {
+                    int best_idx = 0;
+                    for (int i = 1; i < noisy_size; i++) {
+                        if (scores[i] > scores[best_idx]) {
+                            best_idx = i;
+                        }
+                    }
+                    best_move = moves[best_idx];
+
+                    noisy_size--;
+                    std::swap(moves[best_idx], moves[noisy_size]);
+                    std::swap(scores[best_idx], scores[noisy_size]);
+
+                    if (best_move == hash_move) {
+                        return next(board, ss);
+                    }
+
+                    if (best_move == killers[0]) { killers[0] = move::NO_MOVE; }
+                    if (best_move == killers[1]) { killers[1] = move::NO_MOVE; }
+
+                    return best_move;
+                }
+
+                if (no_quiets) {
+                    stage = STAGE::END;
+                    return move::NO_MOVE;
+                } else {
+                    stage = STAGE::KILLER_1;
+                }
+            case STAGE::KILLER_1:
+                stage = STAGE::KILLER_2;
+                if (killers[0] != move::NO_MOVE && board.is_psuedo_legal(killers[0])) {
+                    return killers[0];
+                }
+            case STAGE::KILLER_2:
+                stage = STAGE::GEN_QUIET;
+                if (killers[1] != move::NO_MOVE && board.is_psuedo_legal(killers[1])) {
+                    return killers[1];
+                }
+            case STAGE::GEN_QUIET:
+                moves = movegen::generate_moves<false>(board);
+                score_moves(board, hash_move, ss);
+                quiet_size = moves.size();
+                stage = STAGE::QUIET;
+            case STAGE::QUIET:
+                if (quiet_size > 0) {
+                    int best_idx = 0;
+                    for (int i = 1; i < quiet_size; i++) {
+                        if (scores[i] > scores[best_idx]) {
+                            best_idx = i;
+                        }
+                    }
+                    best_move = moves[best_idx];
+
+                    quiet_size--;
+                    std::swap(moves[best_idx], moves[quiet_size]);
+                    std::swap(scores[best_idx], scores[quiet_size]);
+
+                    if (best_move == hash_move || best_move == killers[0] || best_move == killers[1]) {
+                        return next(board, ss);
+                    }
+
+                    return best_move;
+                }
+                stage = STAGE::END;
+            case STAGE::END:
+                return move::NO_MOVE;
+            default:
+                assert(0);
+                return move::NO_MOVE;
+        }
+    }
+
     void MovePicker::score_moves(const Board &board, const move::Move &tt_move,
                                  const search::SearchStack *ss) {
         scores.resize(moves.size());
+        scores.fill(0);
 
         int value;
         Square from, to;

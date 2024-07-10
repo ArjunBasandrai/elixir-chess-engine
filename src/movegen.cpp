@@ -442,7 +442,7 @@ namespace elixir::movegen {
         if (noisy) {
             generate_noisy_moves(board, moves);
         } else {
-            generate_noisy_moves(board, moves);
+            // generate_noisy_moves(board, moves);
             generate_quiet_moves(board, moves);
         }
 
