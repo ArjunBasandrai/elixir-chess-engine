@@ -50,6 +50,10 @@ namespace elixir {
                     std::swap(moves[best_idx], moves[noisy_size]);
                     std::swap(scores[best_idx], scores[noisy_size]);
 
+                    if (!search::SEE(board, best_move, -MP_SEE)) {
+                        return next(board, ss);
+                    }
+
                     if (best_move == hash_move) {
                         return next(board, ss);
                     }
@@ -61,7 +65,7 @@ namespace elixir {
                 }
 
                 if (no_quiets) {
-                    stage = STAGE::END;
+                    stage = STAGE::GEN_BAD_CAPTURES;
                     return move::NO_MOVE;
                 } else {
                     stage = STAGE::KILLER_1;
@@ -101,7 +105,36 @@ namespace elixir {
 
                     return best_move;
                 }
-                stage = STAGE::END;
+                stage = STAGE::GEN_BAD_CAPTURES;
+            case STAGE::GEN_BAD_CAPTURES:
+                moves = movegen::generate_moves<true>(board);
+                score_moves(board, hash_move, ss);
+                noisy_size = moves.size();
+                stage = STAGE::BAD_CAPTURES;
+            case STAGE::BAD_CAPTURES:
+                if (noisy_size > 0) {
+                    int best_idx = 0;
+                    for (int i = 1; i < noisy_size; i++) {
+                        if (scores[i] > scores[best_idx]) {
+                            best_idx = i;
+                        }
+                    }
+                    best_move = moves[best_idx];
+
+                    noisy_size--;
+                    std::swap(moves[best_idx], moves[noisy_size]);
+                    std::swap(scores[best_idx], scores[noisy_size]);
+
+                    if (search::SEE(board, best_move, -MP_SEE)) {
+                        return next(board, ss);
+                    }
+
+                    if (best_move == hash_move || best_move == killers[0] || best_move == killers[1]) {
+                        return next(board, ss);
+                    }
+
+                    return best_move;
+                }
             case STAGE::END:
                 return move::NO_MOVE;
             default:
@@ -127,12 +160,8 @@ namespace elixir {
             from = move.get_from();
             to   = move.get_to();
 
-            // TT Move Ordering(~180 ELO)
-            if (move == tt_move) {
-                value = INT_MAX;
-            }
             // Move Ordering (~450 ELO)
-            else if (move.is_promotion()) {
+            if (move.is_promotion()) {
                 switch (move.get_promotion()) {
                     case move::Promotion::QUEEN:
                         value = 2000000001;
@@ -156,10 +185,6 @@ namespace elixir {
                         : static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
                 value = eval::piece_values[captured_piece];
                 value += search::SEE(board, move, -MP_SEE) ? 1000000000 : -1000000;
-            } else if (move == ss->killers[0]) {
-                value = 800000000;
-            } else if (move == ss->killers[1]) {
-                value = 700000000;
             } else if (move == board.history.get_countermove(board.get_side_to_move(),
                                                              (ss - 1)->move.get_from(),
                                                              (ss - 1)->move.get_to())) {

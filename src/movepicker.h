@@ -15,6 +15,8 @@ namespace elixir {
         KILLER_2,
         GEN_QUIET,
         QUIET,
+        GEN_BAD_CAPTURES,
+        BAD_CAPTURES,
         END
     };
     extern int MP_SEE;
