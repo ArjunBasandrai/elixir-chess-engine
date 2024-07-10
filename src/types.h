@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 
 namespace elixir {
@@ -23,4 +24,7 @@ namespace elixir {
     using EvalScore = std::int32_t;
     using Score     = std::int16_t;
     using PhaseType = std::uint8_t;
+
+    using ContHistEntry = std::array<std::array<int, 64>, 12>;
+    using ContHistArray = std::array<std::array<ContHistEntry, 64>, 12>;
 }

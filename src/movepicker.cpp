@@ -6,6 +6,7 @@
 #include "movegen.h"
 #include "movepicker.h"
 #include "search.h"
+#include "ss.h"
 
 namespace elixir {
 
@@ -66,7 +67,7 @@ namespace elixir {
                 value = 600000000;
             } else {
                 // Butterfly History Move Ordering (~45 ELO)
-                value = board.history.get_history(from, to);
+                value = board.history.get_history(move, ss);
             }
 
             scores[i] = value;
