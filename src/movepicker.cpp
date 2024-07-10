@@ -50,11 +50,18 @@ namespace elixir {
                     std::swap(moves[best_idx], moves[noisy_size]);
                     std::swap(scores[best_idx], scores[noisy_size]);
 
-                    if (!search::SEE(board, best_move, -MP_SEE)) {
-                        return next(board, ss);
+                    bool is_inferior_promotion = best_move.is_promotion() && (best_move.get_promotion() == move::Promotion::ROOK || best_move.get_promotion() == move::Promotion::BISHOP);
+                    bool is_bad_capture = !search::SEE(board, best_move, -MP_SEE);
+
+                    if (is_bad_capture) {
+                        bad_captures.push(best_move);
                     }
 
-                    if (best_move == hash_move) {
+                    if (is_inferior_promotion) {
+                        bad_promotions.push(best_move);
+                    }
+
+                    if (best_move == hash_move || is_bad_capture || is_inferior_promotion) {
                         return next(board, ss);
                     }
 
@@ -107,7 +114,7 @@ namespace elixir {
                 }
                 stage = STAGE::GEN_BAD_CAPTURES;
             case STAGE::GEN_BAD_CAPTURES:
-                moves = movegen::generate_moves<true>(board);
+                moves = bad_captures;
                 score_moves(board, hash_move, ss);
                 noisy_size = moves.size();
                 stage = STAGE::BAD_CAPTURES;
@@ -135,6 +142,33 @@ namespace elixir {
 
                     return best_move;
                 }
+                stage = STAGE::GEN_BAD_PROMOTION;
+            case STAGE::GEN_BAD_PROMOTION:
+                moves = bad_promotions;
+                score_moves(board, hash_move, ss);
+                noisy_size = moves.size();
+                stage = STAGE::BAD_PROMOTION;
+            case STAGE::BAD_PROMOTION:
+                if (noisy_size > 0) {
+                    int best_idx = 0;
+                    for (int i = 1; i < noisy_size; i++) {
+                        if (scores[i] > scores[best_idx]) {
+                            best_idx = i;
+                        }
+                    }
+                    best_move = moves[best_idx];
+
+                    noisy_size--;
+                    std::swap(moves[best_idx], moves[noisy_size]);
+                    std::swap(scores[best_idx], scores[noisy_size]);
+
+                    if (best_move == hash_move || best_move == killers[0] || best_move == killers[1]) {
+                        return next(board, ss);
+                    }
+
+                    return best_move;
+                }
+                stage = STAGE::END;
             case STAGE::END:
                 return move::NO_MOVE;
             default:

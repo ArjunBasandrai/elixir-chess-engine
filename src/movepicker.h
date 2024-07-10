@@ -17,6 +17,8 @@ namespace elixir {
         QUIET,
         GEN_BAD_CAPTURES,
         BAD_CAPTURES,
+        GEN_BAD_PROMOTION,
+        BAD_PROMOTION,
         END
     };
     extern int MP_SEE;
@@ -40,6 +42,9 @@ namespace elixir {
         StaticVector<int, 256> noisy_scores;
         MoveList quiet_moves;
         StaticVector<int, 256> quiet_scores;
+
+        MoveList bad_captures;
+        MoveList bad_promotions;
 
         STAGE stage;
         bool no_quiets;
