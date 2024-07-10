@@ -3,6 +3,7 @@
 #include "move.h"
 #include "movegen.h"
 #include "search.h"
+#include "ss.h"
 #include "utils/static_vector.h"
 
 namespace elixir {

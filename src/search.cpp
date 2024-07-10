@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "search.h"
+#include "ss.h"
 
 #include "board/board.h"
 #include "evaluate.h"
@@ -320,6 +321,7 @@ namespace elixir::search {
                 | multiple null move searching in a row.                       |
                 */
                 ss->move = move::NO_MOVE;
+                ss->cont_hist = nullptr;
 
                 board.make_null_move();
                 int score = -negamax(board, -beta, -beta + 1, depth - R, info, local_pv, ss + 1);
@@ -402,6 +404,7 @@ namespace elixir::search {
             | Add the current move to search stack. |
             */
             ss->move = move;
+            ss->cont_hist = board.history.get_cont_hist_entry(move);
 
             legals++;
             info.nodes++;
@@ -457,6 +460,7 @@ namespace elixir::search {
                                                              (ss - 1)->move.get_to(), move);
                             board.history.update_history(move.get_from(), move.get_to(), depth,
                                                          bad_quiets);
+                            board.history.update_chs(move, ss, bad_quiets, depth);
                         }
                         flag = TT_BETA;
                         break;

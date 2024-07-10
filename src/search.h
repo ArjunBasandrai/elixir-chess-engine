@@ -8,13 +8,6 @@
 #include "move.h"
 
 namespace elixir::search {
-    struct SearchStack {
-        move::Move move       = move::NO_MOVE;
-        move::Move killers[2] = {};
-        int eval = -INF;
-        int ply;
-    };
-
     class SearchInfo {
       public:
         SearchInfo() = default;
