@@ -100,7 +100,7 @@ namespace elixir::search {
             info.seldepth = ss->ply;
 
         // Three-Fold Repetition Detection (~50 ELO)
-        if (board.is_repetition())
+        if (board.is_repetition() || board.is_material_draw())
             return 0;
 
         int best_score, eval = eval::evaluate(board);
@@ -219,7 +219,7 @@ namespace elixir::search {
             | 3-Fold Repetition Detection (~50 ELO) : If the position has been repeated 3 times, |
             | then the position is a draw.                                                       |
             */
-            if (board.is_repetition())
+            if (board.is_repetition() || board.is_material_draw())
                 return 0;
 
             if (ss->ply >= MAX_DEPTH - 1)
@@ -280,14 +280,14 @@ namespace elixir::search {
             eval = ss->eval = (tt_hit) ? result.score : eval::evaluate(board);
 
         const bool improving = [&] {
-			if (in_check)
-				return false;
-			if (ss->ply > 1 && (ss- 2)->eval != -INF)
-				return ss->eval > (ss - 2)->eval;
-			if (ss->ply > 3 && (ss - 4)->eval != -INF)
-				return ss->eval > (ss - 4)->eval;
-			return true;
-		}();
+            if (in_check)
+                return false;
+            if (ss->ply > 1 && (ss - 2)->eval != -INF)
+                return ss->eval > (ss - 2)->eval;
+            if (ss->ply > 3 && (ss - 4)->eval != -INF)
+                return ss->eval > (ss - 4)->eval;
+            return true;
+        }();
 
         if (! pv_node && ! in_check) {
             /*
@@ -320,7 +320,7 @@ namespace elixir::search {
                 | Set current move to a null move in the search stack to avoid |
                 | multiple null move searching in a row.                       |
                 */
-                ss->move = move::NO_MOVE;
+                ss->move      = move::NO_MOVE;
                 ss->cont_hist = nullptr;
 
                 board.make_null_move();
@@ -403,7 +403,7 @@ namespace elixir::search {
             /*
             | Add the current move to search stack. |
             */
-            ss->move = move;
+            ss->move      = move;
             ss->cont_hist = board.history.get_cont_hist_entry(move);
 
             legals++;
