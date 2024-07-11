@@ -34,7 +34,7 @@ namespace elixir {
         int bonus = scale_bonus(score, history_bonus(depth));
         score += bonus;
 
-        const int penalty = -bonus;
+        const int penalty = history_malus(depth);
         for (const auto &move : bad_quiets) {
             const int bfrom = static_cast<int>(move.get_from());
             const int bto   = static_cast<int>(move.get_to());
@@ -75,7 +75,7 @@ namespace elixir {
     void History::update_single_chs(move::Move& move, search::SearchStack *ss, int depth, bool is_bad_quiet) {
         if (ss->move == move::NO_MOVE || ss->cont_hist == nullptr) return;
         int &score = (*(ss)->cont_hist)[static_cast<int>(move.get_piece())][static_cast<int>(move.get_to())];
-        int bonus = scale_bonus(score, depth * depth) * (is_bad_quiet ? -1 : 1);
+        int bonus = (is_bad_quiet) ? history_malus(depth) : history_bonus(depth);
         score += scale_bonus(score, bonus);
     }
 }
