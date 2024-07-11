@@ -36,6 +36,10 @@ namespace elixir {
         int history_bonus(int depth) {
             return std::min(300 * depth - 150, 4000);
         }
+
+        int history_malus(int depth) {
+            return -std::min(600 * depth - 300, 8000);
+        }
         int scale_bonus(int score, int bonus);
         int history[64][64]                 = {0};
         move::Move counter_moves[2][64][64] = {move::NO_MOVE};
