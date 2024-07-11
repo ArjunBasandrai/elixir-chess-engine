@@ -116,7 +116,6 @@ namespace elixir {
         fullmove_number    = 0;
         hash_key           = 0ULL;
         eval               = 0;
-        history.clear();
     }
 
     void Board::set_piece(const Square sq, const PieceType piece, const Color color) {
