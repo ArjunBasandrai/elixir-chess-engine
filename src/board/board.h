@@ -221,6 +221,7 @@ namespace elixir {
         bool play_uci_move(const std::string move);
 
         bool is_repetition() const;
+        bool is_material_draw() const;
 
         int get_phase() const {
             int phase = bits::count_bits(minors()) + 2 * bits::count_bits(rooks()) +
