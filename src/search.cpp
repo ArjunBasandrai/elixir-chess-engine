@@ -201,15 +201,14 @@ namespace elixir::search {
             info.seldepth = ss->ply;
 
         /*
-        | Check Extension (~25 ELO) : If we are in check, extend the search depth and avoid dropping
-        to qsearch. |
+        | Check Extension (~25 ELO) : If we are in check, extend the search depth and avoid dropping |
+        | to qsearch.                                                                                |
         */
         if (in_check)
             depth++;
 
         /*
-        | Quiescence Search : Perform a quiescence search at leaf nodes to avoid the horizon effect.
-        |
+        | Quiescence Search : Perform a quiescence search at leaf nodes to avoid the horizon effect. |
         */
         if (depth <= 0)
             return qsearch(board, alpha, beta, info, pv, ss);
@@ -270,9 +269,8 @@ namespace elixir::search {
             depth--;
 
         /*
-        | Initialize the evaluation score. If we are in check, we set the evaluation score to INF. |
-        | Otherwise, if we have a TT hit, we use the stored score. If not, we evaluate the position.
-        |
+        | Initialize the evaluation score. If we are in check, we set the evaluation score to INF.   |
+        | Otherwise, if we have a TT hit, we use the stored score. If not, we evaluate the position. |
         */
         if (in_check)
             eval = ss->eval = INF;
