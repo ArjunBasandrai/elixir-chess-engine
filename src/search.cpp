@@ -11,6 +11,7 @@
 #include "movegen.h"
 #include "movepicker.h"
 #include "tt.h"
+#include "history.h"
 #include "utils/bits.h"
 #include "utils/static_vector.h"
 
@@ -409,6 +410,8 @@ namespace elixir::search {
             legals++;
             info.nodes++;
 
+            const int history_score = board.history.get_history(move, ss);
+
             /*
             | Principal Variation Search and Late Move Reduction [PVS + LMR] (~40 ELO) |
             */
@@ -426,6 +429,7 @@ namespace elixir::search {
                 int R = 1;
                 if (is_quiet_move && depth >= LMR_DEPTH && legals > 1 + (pv_node ? 1 : 0)) {
                     R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
+                    R -= history_score / HISTORY_GRAVITY;
                 }
                 /*
                 | Principal Variation Search [PVS] : Perform a null window search at reduced depth |
