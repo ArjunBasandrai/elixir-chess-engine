@@ -141,7 +141,7 @@ namespace elixir::search {
         if (! ss->ply)
             info.best_root_move = mp.first_move();
 
-        while ((move = mp.next_move()) != move::NO_MOVE) {
+        while ((move = mp.next_move())) {
 
             /*
             | Q-Search Static Exchange Evaluation [SEE] Pruning (~55 ELO) : Skip moves that |
@@ -265,7 +265,7 @@ namespace elixir::search {
         | searching this node will likely take a lot of time, and this node is likely to be |
         | not very good. So, we save time by reducing the depth of the search.              |
         */
-        if (depth >= IIR_DEPTH && tt_move == move::NO_MOVE)
+        if (depth >= IIR_DEPTH && !tt_move)
             depth--;
 
         /*
@@ -311,7 +311,7 @@ namespace elixir::search {
             | Null Move Pruning (~60 ELO) : If our position is so good, we give our |
             | opponent an extra move to see if we are still better.                 |
             */
-            if (depth >= NMP_DEPTH && (ss - 1)->move != move::NO_MOVE && eval >= beta) {
+            if (depth >= NMP_DEPTH && (ss - 1)->move && eval >= beta) {
                 int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR;
                 R     = std::min(R, depth);
 
@@ -353,7 +353,7 @@ namespace elixir::search {
         */
         MoveList bad_quiets;
 
-        while ((move = mp.next_move()) != move::NO_MOVE) {
+        while ((move = mp.next_move())) {
 
             const bool is_quiet_move = move.is_quiet();
 
@@ -632,7 +632,7 @@ namespace elixir::search {
             auto end      = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-            if (print_info && pv.line[0] != move::NO_MOVE) {
+            if (print_info && pv.line[0]) {
                 int time_ms = duration.count();
                 int nps     = info.nodes * 1000 / (time_ms + 1);
                 if (score > -MATE && score < -MATE_FOUND) {
@@ -667,7 +667,7 @@ namespace elixir::search {
 
         if (print_info) {
             std::cout << "bestmove ";
-            (pv.line[0] != move::NO_MOVE) ? pv.line[0].print_uci()
+            (pv.line[0]) ? pv.line[0].print_uci()
                                           : info.best_root_move.print_uci();
             std::cout << std::endl;
         }

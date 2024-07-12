@@ -68,12 +68,12 @@ namespace elixir {
     }
 
     int History::get_chs(move::Move& move, const search::SearchStack *ss) const {
-        if (ss->move == move::NO_MOVE || ss->cont_hist == nullptr) return 0;
+        if (!ss->move || ss->cont_hist == nullptr) return 0;
         return (*(ss)->cont_hist)[static_cast<int>(move.get_piece())][static_cast<int>(move.get_to())];
     }
 
     void History::update_single_chs(move::Move& move, search::SearchStack *ss, int depth, bool is_bad_quiet) {
-        if (ss->move == move::NO_MOVE || ss->cont_hist == nullptr) return;
+        if (!ss->move || ss->cont_hist == nullptr) return;
         int &score = (*(ss)->cont_hist)[static_cast<int>(move.get_piece())][static_cast<int>(move.get_to())];
         int bonus = (is_bad_quiet) ? history_malus(depth) : history_bonus(depth);
         score += scale_bonus(score, bonus);
