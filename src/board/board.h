@@ -203,6 +203,9 @@ namespace elixir {
         }
 
         void clear_board() noexcept;
+        void clear_histories() noexcept {
+            history.clear();
+        }
         void from_fen(const std::string fen);
         void to_startpos();
 
