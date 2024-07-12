@@ -11,6 +11,7 @@
 #include "movegen.h"
 #include "movepicker.h"
 #include "tt.h"
+#include "history.h"
 #include "utils/bits.h"
 #include "utils/static_vector.h"
 
@@ -100,7 +101,7 @@ namespace elixir::search {
             info.seldepth = ss->ply;
 
         // Three-Fold Repetition Detection (~50 ELO)
-        if (board.is_repetition())
+        if (board.is_repetition() || board.is_material_draw())
             return 0;
 
         int best_score, eval = eval::evaluate(board);
@@ -200,15 +201,14 @@ namespace elixir::search {
             info.seldepth = ss->ply;
 
         /*
-        | Check Extension (~25 ELO) : If we are in check, extend the search depth and avoid dropping
-        to qsearch. |
+        | Check Extension (~25 ELO) : If we are in check, extend the search depth and avoid dropping |
+        | to qsearch.                                                                                |
         */
         if (in_check)
             depth++;
 
         /*
-        | Quiescence Search : Perform a quiescence search at leaf nodes to avoid the horizon effect.
-        |
+        | Quiescence Search : Perform a quiescence search at leaf nodes to avoid the horizon effect. |
         */
         if (depth <= 0)
             return qsearch(board, alpha, beta, info, pv, ss);
@@ -219,7 +219,7 @@ namespace elixir::search {
             | 3-Fold Repetition Detection (~50 ELO) : If the position has been repeated 3 times, |
             | then the position is a draw.                                                       |
             */
-            if (board.is_repetition())
+            if (board.is_repetition() || board.is_material_draw())
                 return 0;
 
             if (ss->ply >= MAX_DEPTH - 1)
@@ -269,9 +269,8 @@ namespace elixir::search {
             depth--;
 
         /*
-        | Initialize the evaluation score. If we are in check, we set the evaluation score to INF. |
-        | Otherwise, if we have a TT hit, we use the stored score. If not, we evaluate the position.
-        |
+        | Initialize the evaluation score. If we are in check, we set the evaluation score to INF.   |
+        | Otherwise, if we have a TT hit, we use the stored score. If not, we evaluate the position. |
         */
         if (in_check)
             eval = ss->eval = INF;
@@ -280,14 +279,14 @@ namespace elixir::search {
             eval = ss->eval = (tt_hit) ? result.score : eval::evaluate(board);
 
         const bool improving = [&] {
-			if (in_check)
-				return false;
-			if (ss->ply > 1 && (ss- 2)->eval != -INF)
-				return ss->eval > (ss - 2)->eval;
-			if (ss->ply > 3 && (ss - 4)->eval != -INF)
-				return ss->eval > (ss - 4)->eval;
-			return true;
-		}();
+            if (in_check)
+                return false;
+            if (ss->ply > 1 && (ss - 2)->eval != -INF)
+                return ss->eval > (ss - 2)->eval;
+            if (ss->ply > 3 && (ss - 4)->eval != -INF)
+                return ss->eval > (ss - 4)->eval;
+            return true;
+        }();
 
         if (! pv_node && ! in_check) {
             /*
@@ -320,7 +319,7 @@ namespace elixir::search {
                 | Set current move to a null move in the search stack to avoid |
                 | multiple null move searching in a row.                       |
                 */
-                ss->move = move::NO_MOVE;
+                ss->move      = move::NO_MOVE;
                 ss->cont_hist = nullptr;
 
                 board.make_null_move();
@@ -403,11 +402,13 @@ namespace elixir::search {
             /*
             | Add the current move to search stack. |
             */
-            ss->move = move;
+            ss->move      = move;
             ss->cont_hist = board.history.get_cont_hist_entry(move);
 
             legals++;
             info.nodes++;
+
+            const int history_score = board.history.get_history(move, ss);
 
             /*
             | Principal Variation Search and Late Move Reduction [PVS + LMR] (~40 ELO) |
@@ -426,6 +427,7 @@ namespace elixir::search {
                 int R = 1;
                 if (is_quiet_move && depth >= LMR_DEPTH && legals > 1 + (pv_node ? 1 : 0)) {
                     R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
+                    R -= history_score / HISTORY_GRAVITY;
                 }
                 /*
                 | Principal Variation Search [PVS] : Perform a null window search at reduced depth |

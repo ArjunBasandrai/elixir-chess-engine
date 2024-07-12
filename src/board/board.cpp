@@ -593,4 +593,21 @@ namespace elixir {
         }
         return false;
     }
+
+    bool Board::is_material_draw() const {
+        using namespace bits;
+        const int board_piece_count = count_bits(occupancy());
+        if (board_piece_count == 2) {
+            return true;
+        } else if (board_piece_count == 3 && (count_bits(minors()) == 1)) {
+            return true;
+        } else if (board_piece_count == 4) {
+            if (count_bits(knights()) == 2) {
+                return true;
+            } else if (count_bits(white_bishops()) == 1 && count_bits(black_bishops()) == 1) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -37,6 +37,7 @@ Alternatively, you can download pre-compiled binaries from the [Releases](https:
   - Aspiration Windows Search
   - Check Extension
   - Repetition Draw Detection
+  - Insufficient Material Draw Detection
   - Mate Distance Pruning
   - Transpotition Table (TT) cutoff 
   - Internal Iterative Reduction
@@ -47,20 +48,33 @@ Alternatively, you can download pre-compiled binaries from the [Releases](https:
   - Futility Pruning
   - Static Exchange Evaluation (SEE) Pruning
   - Late Move Reductions
+  - Improving Heuristic
 - **Move Ordering**
   - TT Move ordering
   - Good and Bad Captures ordering using SEE
   - Killer Move Ordering
   - Counter Move History
+  - Continuation History
+    - 1-ply Continuation History
+    - 2-ply Continuation History
   - Butterfly History Move Ordering with maluses
 - **Evaluation** : Hand Crafted Evaluation (HCE) using texel-tuned values
   - Tapered Evaluation
   - Material + Piece Square Table Evaluation
   - Piece Mobility Evaluation
+  - Supported Pawn Bonus
+  - Pawn Duo Bonus
+  - Pawn Bonus attacking opponenet Majors & Minors
   - Stacked Pawn Penalty
+  - Isolated Pawn Penalty
+  - Knight Outpost Bonus
   - Bishop Pair Bonus
   - Passed Pawn Bonus
   - Rook Open & Semi-Open File Bonus
+  - King Open & Semi-Open File Penalty
+  - King Zone Attacker Bonus
+  - Pawn Shelter Bonus
+  - Pawn Storm Penalty
   - Tempo Bonus
 
 ## Acknowledgements
