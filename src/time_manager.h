@@ -14,7 +14,13 @@ namespace elixir {
         extern double move_stability_scale[5];
         class TimeManager {
           public:
-            TimeManager() { nodes.fill(0); }
+            void clear_tm_for_search() noexcept {
+                prev_best_move   = move::NO_MOVE;
+                best_move_stability = 0;
+                nodes.fill(0);
+            }
+
+            TimeManager() { clear_tm_for_search(); }
             
             void optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo,
                               std::chrono::high_resolution_clock::time_point start_time);

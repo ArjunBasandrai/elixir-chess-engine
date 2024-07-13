@@ -565,6 +565,7 @@ namespace elixir::search {
         auto start = std::chrono::high_resolution_clock::now();
         PVariation pv;
         move::Move best_move;
+        time_manager.clear_tm_for_search();
 
         for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
             info.seldepth = 0;
