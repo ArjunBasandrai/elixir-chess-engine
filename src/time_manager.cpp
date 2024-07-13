@@ -60,7 +60,7 @@ namespace elixir::time_management {
         }
 
         const auto percent_searched       = nodes_spent(best_move) / std::max<U32>(1u, info.nodes);
-        const double percent_scale_factor = (1.52 - percent_searched) * 1.2;
+        const double percent_scale_factor = (1.2 - percent_searched) * 1.2;
         const double stability_scale      = move_stability_scale[best_move_stability];
         const F64 optimal_time =
             std::min<F64>(info.soft_limit * percent_scale_factor * stability_scale,
