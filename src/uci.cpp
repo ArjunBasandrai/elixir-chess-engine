@@ -15,6 +15,7 @@
 #include "spsa.h"
 #include "tests/see_test.h"
 #include "tt.h"
+#include "time_manager.h"
 #include "utils/perft.h"
 #include "utils/str_utils.h"
 #include "utils/test_fens.h"
@@ -22,29 +23,6 @@
 #define version "1.0"
 
 namespace elixir::uci {
-
-    void optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo,
-                      std::chrono::high_resolution_clock::time_point start_time) {
-        if (time < 0)
-            time = 1000;
-
-        time -= DEFAULT_MOVE_OVERHEAD;
-
-        double base_time;
-
-        if (movestogo != -1) {
-            base_time = time / movestogo;
-        } else {
-            base_time = time * 0.054 + inc * 0.6;
-        }
-        const auto max_bound = 0.76 * time;
-
-        const auto soft_bound = std::min(0.76 * base_time, max_bound);
-        const auto hard_bound = std::min(2.50 * base_time, max_bound);
-
-        info = search::SearchInfo(MAX_DEPTH, start_time, soft_bound, hard_bound);
-    }
-
     void parse_position(std::string input, Board &board) {
         if (input.substr(9, 8) == "startpos") {
             board.from_fen(start_position);
@@ -129,7 +107,7 @@ namespace elixir::uci {
         }
 
         if (time != 0) {
-            optimum_time(info, time, inc, movestogo, start_time);
+            time_manager.optimum_time(info, time, inc, movestogo, start_time);
         } else {
             info = search::SearchInfo(depth);
         }

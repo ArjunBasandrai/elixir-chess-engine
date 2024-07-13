@@ -11,6 +11,7 @@
 #include "movegen.h"
 #include "movepicker.h"
 #include "tt.h"
+#include "time_manager.h"
 #include "history.h"
 #include "utils/bits.h"
 #include "utils/static_vector.h"
@@ -65,36 +66,13 @@ namespace elixir::search {
         }
     }
 
-    bool should_stop(SearchInfo &info) {
-        if (info.timed && ! (info.nodes & 1023) &&
-            std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::high_resolution_clock::now() - info.start_time)
-                    .count() > info.hard_limit) {
-            info.stopped = true;
-            return true;
-        }
-        return false;
-    }
-
-    bool should_stop_early(SearchInfo &info) {
-        if (info.timed && std::chrono::duration_cast<std::chrono::milliseconds>(
-                              std::chrono::high_resolution_clock::now() - info.start_time)
-                                  .count() > info.soft_limit) {
-            info.stopped = true;
-            return true;
-        }
-        return false;
-    }
-
     // (~20 ELO)
     int qsearch(Board &board, int alpha, int beta, SearchInfo &info, PVariation &pv,
                 SearchStack *ss) {
 
         pv.length = 0;
 
-        if (should_stop(info))
-            return 0;
-        if (info.stopped)
+        if (time_manager.should_stop(info) || info.stopped)
             return 0;
 
         if (ss->ply > info.seldepth)
@@ -192,9 +170,7 @@ namespace elixir::search {
         bool in_check  = board.is_in_check();
         int eval;
 
-        if (! root_node && should_stop(info))
-            return 0;
-        if (! root_node && info.stopped)
+        if (! root_node && (time_manager.should_stop(info) || info.stopped))
             return 0;
 
         if (ss->ply > info.seldepth)
@@ -582,6 +558,8 @@ namespace elixir::search {
     void search(Board &board, SearchInfo &info, bool print_info) {
         auto start = std::chrono::high_resolution_clock::now();
         PVariation pv;
+        move::Move best_move;
+
         for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
             info.seldepth = 0;
             int score = 0, alpha = -INF, beta = INF, delta = INITIAL_ASP_DELTA;
@@ -620,14 +598,15 @@ namespace elixir::search {
 
                 delta *= ASP_MULTIPLIER;
 
-                if (should_stop(info))
-                    break;
-                if (info.stopped)
+                if (time_manager.should_stop(info) || info.stopped)
                     break;
             }
 
             auto end      = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+            best_move = (pv.line[0]) ? pv.line[0]
+                                          : info.best_root_move;
 
             if (print_info && pv.line[0]) {
                 int time_ms = duration.count();
@@ -656,16 +635,13 @@ namespace elixir::search {
                 std::cout << std::endl;
             }
 
-            if (should_stop_early(info))
-                break;
-            if (info.stopped)
+            if (time_manager.should_stop_early(info, current_depth, best_move) || info.stopped)
                 break;
         }
 
         if (print_info) {
             std::cout << "bestmove ";
-            (pv.line[0]) ? pv.line[0].print_uci()
-                                          : info.best_root_move.print_uci();
+            best_move.print_uci();
             std::cout << std::endl;
         }
     }
