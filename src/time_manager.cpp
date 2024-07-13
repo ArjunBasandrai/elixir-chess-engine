@@ -66,6 +66,11 @@ namespace elixir::time_management {
             std::min<F64>(info.soft_limit * percent_scale_factor * stability_scale,
                           info.hard_limit);
 
-        return time_elapsed(info) >= optimal_time;
+        if (time_elapsed(info) >= optimal_time) {
+            info.stopped = true;
+            return true;
+        }
+
+        return false;
     }
 }

@@ -14,6 +14,8 @@ namespace elixir {
         extern double move_stability_scale[5];
         class TimeManager {
           public:
+            TimeManager() { nodes.fill(0); }
+            
             void optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo,
                               std::chrono::high_resolution_clock::time_point start_time);
             bool should_stop(search::SearchInfo &info);
@@ -36,5 +38,5 @@ namespace elixir {
         };
     }
 
-    inline time_management::TimeManager time_manager;
+    inline time_management::TimeManager time_manager = time_management::TimeManager();
 }
