@@ -64,7 +64,8 @@ Alternatively, you can download pre-compiled binaries from the [Releases](https:
   - Piece Mobility Evaluation
   - Supported Pawn Bonus
   - Pawn Duo Bonus
-  - Pawn Bonus attacking opponenet Majors & Minors
+  - Pawn Bonus attacking opponent Majors & Minors
+  - Pawn Bonus if opponent has no Majors
   - Stacked Pawn Penalty
   - Isolated Pawn Penalty
   - Knight Outpost Bonus
