@@ -66,6 +66,11 @@ namespace elixir::eval {
                 score += our_king_pp_proximity[our_king_distance];
                 score += their_king_pp_proximity[their_king_distance];
 
+                if (count_bits(board.majors() & theirs) == 0) {
+                    score += passed_pawn_no_threat;
+                    TRACE_INCREMENT(passed_pawn_no_threat, icolor);
+                }
+
                 TRACE_INCREMENT(our_king_pp_proximity[our_king_distance], icolor);
                 TRACE_INCREMENT(their_king_pp_proximity[their_king_distance], icolor);
             }
