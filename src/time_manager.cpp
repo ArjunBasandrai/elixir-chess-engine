@@ -7,11 +7,8 @@
 #include "spsa.h"
 #include "types.h"
 
-
 namespace elixir::time_management {
-    double move_stability_scale[5] = {
-        2.43, 1.35, 1.09, 0.88, 0.68
-    };
+    double move_stability_scale[5] = {2.43, 1.35, 1.09, 0.88, 0.68};
 
     void TimeManager::optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo,
                                    std::chrono::high_resolution_clock::time_point start_time) {
@@ -62,8 +59,10 @@ namespace elixir::time_management {
             best_move_stability++;
         }
 
+        const auto percent_searched = nodes_spent(best_move) / std::max<U32>(1u, info.nodes);
+        const double percent_scale_factor = (1.52 - percent_searched) * 1.74;
         const double stability_scale = move_stability_scale[best_move_stability];
-        const F64 optimal_time = std::min<F64>(info.soft_limit * stability_scale, info.hard_limit);
+        const F64 optimal_time = std::min<F64>(info.soft_limit * percent_scale_factor * stability_scale, info.hard_limit);
 
         return time_elapsed(info) >= optimal_time;
     }

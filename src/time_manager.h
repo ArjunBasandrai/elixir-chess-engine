@@ -17,7 +17,10 @@ namespace elixir {
             void optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo,
                               std::chrono::high_resolution_clock::time_point start_time);
             bool should_stop(search::SearchInfo &info);
-            bool should_stop_early(search::SearchInfo &info, const int depth, const move::Move best_move);
+            bool should_stop_early(search::SearchInfo &info, const int depth,
+                                   const move::Move best_move);
+
+            U32 &nodes_spent(move::Move move) { return nodes[move.get_move() & 4095]; }
 
           private:
             F64 time_elapsed(search::SearchInfo &info) {
@@ -25,8 +28,10 @@ namespace elixir {
                            std::chrono::high_resolution_clock::now() - info.start_time)
                     .count();
             }
-            move::Move prev_best_move = move::NO_MOVE;
-            int best_move_stability = 0;
+
+            move::Move prev_best_move   = move::NO_MOVE;
+            int best_move_stability     = 0;
+            std::array<U32, 4096> nodes = {0};
         };
     }
 

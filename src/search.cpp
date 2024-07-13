@@ -384,6 +384,8 @@ namespace elixir::search {
             legals++;
             info.nodes++;
 
+            const int prev_nodes = info.nodes;
+
             const int history_score = board.history.get_history(move, ss);
 
             /*
@@ -414,6 +416,11 @@ namespace elixir::search {
             }
 
             board.unmake_move(move, true);
+
+            if (root_node) {
+                U32 &nodes_spent = time_manager.nodes_spent(move);
+                nodes_spent += info.nodes - prev_nodes;
+            }
 
             if (info.stopped)
                 return 0;
