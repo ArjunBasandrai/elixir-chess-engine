@@ -414,30 +414,27 @@ namespace elixir::search {
             | Principal Variation Search and Late Move Reduction [PVS + LMR] (~40 ELO) |
             */
             int score = 0;
-            /*
-            | Search with full depth if it's the first move |
-            */
-            if (legals == 1) {
-                score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
-            } else {
-                /*
-                | Late Move Reductions [LMR] : Moves that appear later in the move list |
-                | are likely to be bad, so we reduce their depth.                       |
-                */
-                int R = 1;
-                if (is_quiet_move && depth >= LMR_DEPTH && legals > 1 + (pv_node ? 1 : 0)) {
-                    R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
-                    R -= history_score / HISTORY_GRAVITY;
+            const int new_depth = depth - 1;
+
+            int R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
+            R -= (is_quiet_move ? history_score / HISTORY_GRAVITY : 0);
+            
+            if (depth > 1 && legals > 1) {
+                R = std::clamp(R, 1, new_depth);
+                int lmr_depth = new_depth - R + 1;
+                score = -negamax(board, -alpha - 1, -alpha, lmr_depth, info, local_pv, ss + 1);
+
+                if (score > alpha && R > 0) {
+                    score = -negamax(board, -alpha - 1, -alpha, new_depth, info, local_pv, ss + 1);
                 }
-                /*
-                | Principal Variation Search [PVS] : Perform a null window search at reduced depth |
-                | to see if the move has potential to improve alpha. If it does, we perform a full |
-                | depth search.                                                                    |
-                */
-                score = -negamax(board, -alpha - 1, -alpha, depth - R, info, local_pv, ss + 1);
-                if (score > alpha && (score < beta || R > 1)) {
-                    score = -negamax(board, -beta, -alpha, depth - 1, info, local_pv, ss + 1);
-                }
+            }
+
+            else if (!pv_node || legals > 1) {
+                score = -negamax(board, -alpha - 1, -alpha, new_depth, info, local_pv, ss + 1);
+            }
+
+            if (pv_node && (legals == 1 || (score > alpha && (root_node || score < beta)))) {
+                score = -negamax(board, -beta, -alpha, new_depth, info, local_pv, ss + 1);
             }
 
             board.unmake_move(move, true);
