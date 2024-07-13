@@ -21,6 +21,7 @@ namespace elixir {
                                    const move::Move best_move);
 
             U32 &nodes_spent(move::Move move) { return nodes[move.get_move() & 4095]; }
+            void add_nodes(move::Move move, U32 n) { nodes[move.get_move() & 4095] += n; }
 
           private:
             F64 time_elapsed(search::SearchInfo &info) {

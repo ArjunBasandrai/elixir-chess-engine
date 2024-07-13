@@ -418,8 +418,7 @@ namespace elixir::search {
             board.unmake_move(move, true);
 
             if (root_node) {
-                U32 &nodes_spent = time_manager.nodes_spent(move);
-                nodes_spent += info.nodes - prev_nodes;
+                time_manager.add_nodes(move, info.nodes - prev_nodes);
             }
 
             if (info.stopped)
