@@ -28,7 +28,7 @@ namespace elixir {
             bool should_stop_early(search::SearchInfo &info, const int depth,
                                    const move::Move best_move);
 
-            U32 &nodes_spent(move::Move move) { return nodes[move.get_move() & 4095]; }
+            U64 &nodes_spent(move::Move move) { return nodes[move.get_move() & 4095]; }
             void add_nodes(move::Move move, U32 n) { nodes[move.get_move() & 4095] += n; }
 
           private:
@@ -40,7 +40,7 @@ namespace elixir {
 
             move::Move prev_best_move   = move::NO_MOVE;
             int best_move_stability     = 0;
-            std::array<U32, 4096> nodes = {0};
+            std::array<U64, 4096> nodes = {0};
         };
     }
 
