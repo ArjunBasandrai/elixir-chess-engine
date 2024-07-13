@@ -558,6 +558,8 @@ namespace elixir::search {
     void search(Board &board, SearchInfo &info, bool print_info) {
         auto start = std::chrono::high_resolution_clock::now();
         PVariation pv;
+        move::Move best_move;
+
         for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
             info.seldepth = 0;
             int score = 0, alpha = -INF, beta = INF, delta = INITIAL_ASP_DELTA;
@@ -603,6 +605,9 @@ namespace elixir::search {
             auto end      = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
+            best_move = (pv.line[0]) ? pv.line[0]
+                                          : info.best_root_move;
+
             if (print_info && pv.line[0]) {
                 int time_ms = duration.count();
                 int nps     = info.nodes * 1000 / (time_ms + 1);
@@ -630,14 +635,13 @@ namespace elixir::search {
                 std::cout << std::endl;
             }
 
-            if (time_manager.should_stop_early(info) || info.stopped)
+            if (time_manager.should_stop_early(info, current_depth, best_move) || info.stopped)
                 break;
         }
 
         if (print_info) {
             std::cout << "bestmove ";
-            (pv.line[0]) ? pv.line[0].print_uci()
-                                          : info.best_root_move.print_uci();
+            best_move.print_uci();
             std::cout << std::endl;
         }
     }
