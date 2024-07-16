@@ -32,16 +32,16 @@ tune: __tune_compile
 texel: __texel_compile __texel_run
 
 __compile:
-	$(CXX) -Ofast -march=native -DNDEBUG -DEVALFILE=\"nnue.bin\" -std=c++20 $(STACK) -o $(EXE_NAME) elixir.cpp $(SRC)
+	g++ -Ofast -march=native -DNDEBUG -DEVALFILE=\"nnue.bin\" -std=c++20 $(STACK) -o $(EXE_NAME) elixir.cpp $(SRC)
 
 __tune_compile:
-	$(CXX) -Ofast -march=native -DNDEBUG -DUSE_TUNE -DEVALFILE=\"nnue.bin\" -std=c++20 $(STACK) -o $(EXE_NAME) elixir.cpp $(SRC)
+	g++ -Ofast -march=native -DNDEBUG -DUSE_TUNE -DEVALFILE=\"nnue.bin\" -std=c++20 $(STACK) -o $(EXE_NAME) elixir.cpp $(SRC)
 
 __texel_compile:
-	$(CXX) -Ofast -march=native -DNDEBUG -DTEXEL -DEVALFILE=\"nnue.bin\" -std=c++20 $(STACK) -o $(EXE_NAME) elixir.cpp $(SRC)
+	g++ -Ofast -march=native -DNDEBUG -DTEXEL -DEVALFILE=\"nnue.bin\" -std=c++20 $(STACK) -o $(EXE_NAME) elixir.cpp $(SRC)
 
 __debug_compile:
-	$(CXX) -Og -g -DEVALFILE=\"nnue.bin\" -std=c++20 $(STACK) -o $(EXE_NAME) elixir.cpp $(SRC)
+	g++ -Og -g -DEVALFILE=\"nnue.bin\" -std=c++20 $(STACK) -o $(EXE_NAME) elixir.cpp $(SRC)
 
 __run:
 	./$(EXE_NAME)
