@@ -28,6 +28,7 @@ void init() {
 #ifdef USE_TUNE
     tune::init_tune();
 #endif
+    nn.init("nnue.bin");
 }
 
 int main(int argc, char *argv[]) {
@@ -58,8 +59,6 @@ int main(int argc, char *argv[]) {
 
     Board board;
     board.to_startpos();
-
-    nn.init("nnue.bin");
 
     uci::uci_loop(board);
     return 0;
