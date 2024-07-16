@@ -28,7 +28,7 @@ void init() {
 #ifdef USE_TUNE
     tune::init_tune();
 #endif
-    nn.init("nnue.bin");
+    nn.init("");
 }
 
 int main(int argc, char *argv[]) {

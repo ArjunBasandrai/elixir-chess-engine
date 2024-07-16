@@ -1,6 +1,6 @@
 SRC := $(wildcard src/*.cpp) $(wildcard src/**/*.cpp)
 
-CXX = clang++
+CXX = g++
 EXE = elixir
 
 SUFFIX = 
@@ -13,8 +13,13 @@ ifeq ($(UNAME_S), Darwin)
 else ifeq ($(UNAME_S), Linux)
 	STACK = -Wl,-zstack_size=0x1000000
 else ifeq ($(OS), Windows_NT)
-	STACK = -Wl,/STACK:16777216
+	ifeq ($(CXX), clang++)
+		STACK = -Wl,/STACK:16777216
+	else ifeq ($(CXX), g++)
+		STACK = -Wl,--stack,16777216
+	endif
 endif
+
 
 EXE_NAME = $(EXE)$(SUFFIX)
 
