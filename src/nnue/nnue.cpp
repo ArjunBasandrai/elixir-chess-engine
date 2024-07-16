@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "../defs.h"
 #include "../types.h"
 #include "../utils/bits.h"
