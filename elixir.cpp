@@ -12,6 +12,7 @@
 #include "src/tests/see_test.h"
 #include "src/texel/texel.h"
 #include "src/tt.h"
+#include "src/nnue/nnue.h"
 #include "src/types.h"
 #include "src/uci.h"
 #include "src/utils/masks.h"
@@ -57,6 +58,8 @@ int main(int argc, char *argv[]) {
 
     Board board;
     board.to_startpos();
+
+    nn.init("nnue.bin");
 
     uci::uci_loop(board);
     return 0;

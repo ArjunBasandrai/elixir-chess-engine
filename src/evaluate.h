@@ -26,35 +26,6 @@ namespace elixir {
         extern int MP_QUEEN;
         extern int MP_KING;
         extern int piece_values[7];
-        struct EvalInfo {
-            EvalInfo() = default;
-            EvalInfo(EvalScore score) : score(score) {}
-            EvalScore score = 0;
-            std::array<Bitboard, 2> king_zones;
-            void add_score(EvalScore s) { score += s; }
-            Score opening_score() { return O(score); }
-            Score endgame_score() { return E(score); }
-        };
-
-        class Evaluator {
-          public:
-            Evaluator()  = default;
-            ~Evaluator() = default;
-            int evaluate(const Board &board);
-
-          private:
-            EvalInfo e_info;
-
-            void init_evaluator(const Board &board);
-            void evaluate_pawns(const Board &board, const Color side);
-            void evaluate_knights(const Board &board, const Color side);
-            void evaluate_bishops(const Board &board, const Color side);
-            void evaluate_rooks(const Board &board, const Color side);
-            void evaluate_queens(const Board &board, const Color side);
-            void evaluate_kings(const Board &board, const Color side);
-        };
-
-        inline Evaluator evaluator;
 
         extern int evaluate(const Board &board);
     }
