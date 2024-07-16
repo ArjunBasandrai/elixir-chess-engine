@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <cstring>
 
 #include "../defs.h"
@@ -53,10 +54,9 @@ namespace elixir::nnue {
     }
 
     void NNUE::init(const std::string file) {
-        FILE *nn;
-        errno_t err =  fopen_s(&nn, file.c_str(), "rb");
+        FILE *nn = fopen(file.c_str(), "rb");
 
-        if (!err) {
+        if (nn) {
             // initialize an accumulator for every input of the second layer
             size_t read            = 0;
             size_t fileSize        = sizeof(Network);
