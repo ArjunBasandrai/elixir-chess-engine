@@ -53,7 +53,7 @@ namespace elixir {
 
                 NNUE() {
                     current_acc = 0;
-                    accumulators.reserve(MAX_PLY);
+                    accumulators.reserve(256);
                 }
 
                 void init(const std::string file);
