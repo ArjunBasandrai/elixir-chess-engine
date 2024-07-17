@@ -57,7 +57,7 @@ namespace elixir {
                 }
 
                 NNUE() {
-                    accumulators.reserve(256);
+                    accumulators.reserve(512);
                     reset();
                 }
 
