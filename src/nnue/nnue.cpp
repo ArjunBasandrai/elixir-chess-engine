@@ -21,7 +21,7 @@ namespace elixir::nnue {
         return clipped * clipped;
     }
 
-    Accumulator::Accumulator(const Board &board) {
+    void Accumulator::set_position(const Board &board) {
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             accumulator[0][i] = net.layer_1_biases[i];
         }
@@ -93,7 +93,11 @@ namespace elixir::nnue {
         }
     }
 
-    int NNUE::eval(const Accumulator &accumulator, Color side) {
+    void NNUE::set_position(const Board &board) {
+        accumulator.set_position(board);
+    }
+
+    int NNUE::eval(const Color side) {
         I8 icolor = static_cast<I8>(side);
         int eval  = 0;
 

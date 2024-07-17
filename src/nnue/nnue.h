@@ -25,13 +25,17 @@ namespace elixir {
 
         class Accumulator {
         public:
-            Accumulator(const Board& board);
+            void set_position(const Board& board);
+
+            Accumulator() = default;
+            Accumulator(const Board& board) {
+                set_position(board);
+            }
 
             std::array<std::array<I16, HIDDEN_SIZE>, 2> accumulator;
 
             std::array<I16, HIDDEN_SIZE> &operator[](size_t i) { return accumulator[i]; }
             const std::array<I16, HIDDEN_SIZE> &operator[](size_t i) const { return accumulator[i]; }
-
         };
         
         inline Network net;
@@ -39,7 +43,10 @@ namespace elixir {
         class NNUE {
             public:
                 void init(const std::string file);
-                int eval(const Accumulator &accumulator, Color side);
+                void set_position(const Board &board);
+
+                int eval(const Color side);
+                Accumulator accumulator;
         };
     }
     inline nnue::NNUE nn;
