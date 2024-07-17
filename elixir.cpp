@@ -12,6 +12,7 @@
 #include "src/tests/see_test.h"
 #include "src/texel/texel.h"
 #include "src/tt.h"
+#include "src/nnue/nnue.h"
 #include "src/types.h"
 #include "src/uci.h"
 #include "src/utils/masks.h"
@@ -27,6 +28,7 @@ void init() {
 #ifdef USE_TUNE
     tune::init_tune();
 #endif
+    nn.init("");
 }
 
 int main(int argc, char *argv[]) {
