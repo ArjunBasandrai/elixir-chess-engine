@@ -25,10 +25,6 @@ namespace elixir {
 
         ~Board() = default;
 
-        [[nodiscard]] PieceType piece_to_piecetype(Piece piece) const {
-            return static_cast<PieceType>(static_cast<int>(piece) / 2);
-        }
-
         [[nodiscard]] Bitboard color_occupancy(Color color) const noexcept {
             return b_occupancies[static_cast<I8>(color)];
         }
@@ -152,10 +148,6 @@ namespace elixir {
         [[nodiscard]] Piece piece_on(Square sq) const {
             assert(sq != Square::NO_SQ);
             return pieces[static_cast<I8>(sq)];
-        }
-
-        [[nodiscard]] Color piece_color(Piece piece) const noexcept {
-            return (static_cast<int>(piece) % 2 == 0) ? Color::WHITE : Color::BLACK;
         }
 
         constexpr void set_en_passant_square(Square sq) noexcept { en_passant_square = sq; }

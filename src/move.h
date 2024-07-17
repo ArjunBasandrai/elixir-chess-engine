@@ -45,6 +45,9 @@ namespace elixir::move {
         [[nodiscard]] constexpr Promotion get_promotion() const noexcept {
             return static_cast<Promotion>((m_move >> 19) & 0x3);
         }
+
+        [[nodiscard]] int get_promo_piece() const;
+        
         [[nodiscard]] constexpr Move_T get_move() const noexcept { return m_move; }
 
         void set_move(Move_T move) noexcept { m_move = move; }
@@ -81,6 +84,7 @@ namespace elixir::move {
         explicit operator bool() const noexcept { return m_move != 0; }
 
         void print_uci() const;
+
 
       private:
         Move_T m_move;

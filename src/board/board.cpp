@@ -11,6 +11,7 @@
 #include "../hashing/hash.h"
 #include "../texel/texel.h"
 #include "../types.h"
+#include "../nnue/nnue.h"
 #include "../utils/bits.h"
 #include "../utils/eval_terms.h"
 #include "../utils/state.h"
@@ -220,6 +221,9 @@ namespace elixir {
         kings[static_cast<I8>(Color::BLACK)] = static_cast<Square>(bits::lsb_index(black_king()));
 
         set_hash_key();
+
+        nn.get_acc().set_position(*this);
+        nn.reset();
     }
 
     void Board::to_startpos() {
@@ -227,6 +231,8 @@ namespace elixir {
     }
 
     void Board::unmake_move(const move::Move move, const bool from_make_move) {
+        nn.decrement_acc();
+
         const Square from     = move.get_from();
         const Square to       = move.get_to();
         const Piece piece     = move.get_piece();
@@ -323,6 +329,9 @@ namespace elixir {
     }
 
     bool Board::make_move(move::Move move) {
+        nn.increment_acc();
+        nn.get_acc().make_move(*this, move);
+
         const Square from               = move.get_from();
         const Square to                 = move.get_to();
         const Piece piece               = move.get_piece();
