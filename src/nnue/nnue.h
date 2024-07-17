@@ -51,9 +51,14 @@ namespace elixir {
                 std::vector<Accumulator> accumulators;
                 int current_acc;
 
-                NNUE() {
+                void reset() {
+                    accumulators.clear();
                     current_acc = 0;
+                }
+
+                NNUE() {
                     accumulators.reserve(256);
+                    reset();
                 }
 
                 void init(const std::string file);
