@@ -20,7 +20,7 @@
 #include "utils/str_utils.h"
 #include "utils/test_fens.h"
 
-#define version "1.0"
+#define version "2.0"
 
 namespace elixir::uci {
     void parse_position(std::string input, Board &board) {
