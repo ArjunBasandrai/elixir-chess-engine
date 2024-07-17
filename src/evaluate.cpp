@@ -26,7 +26,6 @@ namespace elixir::eval {
     int piece_values[7] = {MP_PAWN, MP_KNIGHT, MP_BISHOP, MP_ROOK, MP_QUEEN, MP_KING, 0};
 
     int evaluate(const Board &board) {
-        nn.set_position(board);
         return nn.eval(board.get_side_to_move());
     }
 }

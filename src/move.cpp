@@ -48,4 +48,21 @@ namespace elixir::move {
             }
         }
     }
+
+    [[nodiscard]] int Move::get_promo_piece() const {
+        switch (get_promotion()) {
+            case move::Promotion::QUEEN:
+                return 4;
+            case move::Promotion::ROOK:
+                return 3;
+            case move::Promotion::BISHOP:
+                return 2;
+            case move::Promotion::KNIGHT:
+                return 1;
+            default:
+                assert(false);
+                exit(1);
+                return -1;
+        }
+    }
 }

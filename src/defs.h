@@ -9,7 +9,15 @@ namespace elixir {
 
     enum class Piece { wP, bP, wN, bN, wB, bB, wR, bR, wQ, bQ, wK, bK, NO_PIECE };
 
+    [[nodiscard]] static inline Color piece_color(Piece piece) noexcept {
+        return (static_cast<int>(piece) % 2 == 0) ? Color::WHITE : Color::BLACK;
+    }
+
     enum class PieceType : I8 { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PIECE_TYPE };
+
+    [[nodiscard]] static inline PieceType piece_to_piecetype(Piece piece) {
+        return static_cast<PieceType>(static_cast<int>(piece) / 2);
+    }
 
     enum Rank { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, NO_RANK };
 

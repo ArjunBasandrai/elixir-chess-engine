@@ -2,9 +2,11 @@
 
 #include <array>
 #include <string>
+#include <vector>
 
 #include "../defs.h"
 #include "../types.h"
+#include "../move.h"
 #include "../board/board.h"
 #include "incbin.h"
 
@@ -36,17 +38,41 @@ namespace elixir {
 
             std::array<I16, HIDDEN_SIZE> &operator[](size_t i) { return accumulator[i]; }
             const std::array<I16, HIDDEN_SIZE> &operator[](size_t i) const { return accumulator[i]; }
+            
+            void add(const Piece piece, const Square sq);
+            void remove(const Piece piece, const Square sq);
+            void make_move(const Board& board, const move::Move& move);
         };
         
         inline Network net;
 
         class NNUE {
             public:
+                std::vector<Accumulator> accumulators;
+                int current_acc;
+
+                NNUE() {
+                    current_acc = 0;
+                    accumulators.reserve(MAX_PLY);
+                }
+
                 void init(const std::string file);
                 void set_position(const Board &board);
 
+                void increment_acc() {
+                    current_acc++;
+                    accumulators[current_acc] = accumulators[current_acc - 1];
+                }
+
+                void decrement_acc() {
+                    current_acc--;
+                }
+
+                Accumulator& get_acc() {
+                    return accumulators[current_acc];
+                }
+
                 int eval(const Color side);
-                Accumulator accumulator;
         };
     }
     inline nnue::NNUE nn;

@@ -459,23 +459,6 @@ namespace elixir::search {
         return best_score;
     }
 
-    int get_promo_piece(move::Move move) {
-        switch (move.get_promotion()) {
-            case move::Promotion::QUEEN:
-                return 4;
-            case move::Promotion::ROOK:
-                return 3;
-            case move::Promotion::BISHOP:
-                return 2;
-            case move::Promotion::KNIGHT:
-                return 1;
-            default:
-                assert(false);
-                exit(1);
-                return -1;
-        }
-    }
-
     bool SEE(const Board &board, const move::Move move, int threshold, const int see_values[7]) {
 
         if (move.is_promotion())
@@ -486,7 +469,7 @@ namespace elixir::search {
 
         int target_piece = move.is_en_passant()
                                ? 0
-                               : static_cast<int>(board.piece_to_piecetype(board.piece_on(to)));
+                               : static_cast<int>(piece_to_piecetype(board.piece_on(to)));
 
 
         int value = see_values[target_piece] - threshold;
@@ -494,7 +477,7 @@ namespace elixir::search {
         if (value < 0)
             return false;
 
-        int attacker_piece = static_cast<int>(board.piece_to_piecetype(board.piece_on(from)));
+        int attacker_piece = static_cast<int>(piece_to_piecetype(board.piece_on(from)));
 
         value -= see_values[attacker_piece];
         if (value >= 0)
@@ -512,7 +495,7 @@ namespace elixir::search {
         Bitboard bishops = board.bishops() | board.queens();
         Bitboard rooks   = board.rooks() | board.queens();
 
-        Color side = board.piece_color(board.piece_on(from));
+        Color side = piece_color(board.piece_on(from));
         side       = (side == Color::WHITE) ? Color::BLACK : Color::WHITE;
 
         while (true) {
@@ -552,7 +535,7 @@ namespace elixir::search {
             }
         }
 
-        return side != board.piece_color(board.piece_on(from));
+        return side != piece_color(board.piece_on(from));
     }
 
     void search(Board &board, SearchInfo &info, bool print_info) {
