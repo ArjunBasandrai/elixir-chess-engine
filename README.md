@@ -39,7 +39,7 @@ Alternatively, you can download pre-compiled binaries from the [Releases](https:
   - Repetition Draw Detection
   - Insufficient Material Draw Detection
   - Mate Distance Pruning
-  - Transpotition Table (TT) cutoff 
+  - Transposition Table (TT) cutoff 
   - Internal Iterative Reduction
   - Razoring
   - Reverse Futility Pruning
