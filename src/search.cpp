@@ -362,7 +362,7 @@ namespace elixir::search {
                 */
                 const int futility_margin = FP_BASE + FP_MULTIPLIER * depth;
                 if (depth <= FP_DEPTH && ! in_check && is_quiet_move &&
-                    eval + futility_margin < alpha) {
+                    ss->eval + futility_margin < alpha) {
                     skip_quiets = true;
                     continue;
                 }
