@@ -392,6 +392,9 @@ namespace elixir::search {
                 if (s_score < s_beta) {
                     extensions++;
                 }
+
+                else if (s_beta >= beta) 
+                    return s_beta;
             }
 
             if (! board.make_move(move))
