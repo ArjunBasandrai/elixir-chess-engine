@@ -98,7 +98,7 @@ namespace elixir::search {
     void init_lmr();
 
     int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv,
-                SearchStack *ss);
+                SearchStack *ss, bool cutnode);
     bool SEE(const Board &board, const move::Move move, int threshold,
              const int see_values[7] = see_pieces);
     void search(Board &board, SearchInfo &info, bool print_info = true);
