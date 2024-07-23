@@ -415,6 +415,7 @@ namespace elixir::search {
             int R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
             R -= (is_quiet_move ? history_score / HISTORY_GRAVITY : 0);
             R -= board.is_in_check();
+            R += cutnode;
             
             if (depth > 1 && legals > 1) {
                 R = std::clamp(R, 1, new_depth);
