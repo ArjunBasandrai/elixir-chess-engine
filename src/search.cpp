@@ -175,14 +175,7 @@ namespace elixir::search {
 
         if (ss->ply > info.seldepth)
             info.seldepth = ss->ply;
-
-        /*
-        | Check Extension (~25 ELO) : If we are in check, extend the search depth and avoid dropping |
-        | to qsearch.                                                                                |
-        */
-        if (in_check)
-            depth++;
-
+            
         /*
         | Quiescence Search : Perform a quiescence search at leaf nodes to avoid the horizon effect. |
         */
@@ -397,6 +390,8 @@ namespace elixir::search {
                     return s_beta;
             }
 
+            extensions += in_check;
+
             if (! board.make_move(move))
                 continue;
 
@@ -419,6 +414,7 @@ namespace elixir::search {
 
             int R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
             R -= (is_quiet_move ? history_score / HISTORY_GRAVITY : 0);
+            R -= board.is_in_check();            
             
             if (depth > 1 && legals > 1) {
                 R = std::clamp(R, 1, new_depth);
