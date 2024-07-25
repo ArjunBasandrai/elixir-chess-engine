@@ -4,6 +4,10 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <functional>
+#include <condition_variable>
+#include <mutex>
+#include <atomic>
 
 #include "uci.h"
 
@@ -24,12 +28,46 @@
 #define version "2.0"
 
 namespace elixir::uci {
+
     std::jthread main_search_thread;
+    std::condition_variable cv;
+    std::mutex mtx;
+    std::atomic<bool> ready{false};
+    std::atomic<bool> exit_thread{false};  
+    std::function<void()> task;
+
+    void search_thread_function() {
+        std::unique_lock<std::mutex> lock(mtx);
+        while (!exit_thread.load()) {
+            cv.wait(lock, [] { return ready.load() || exit_thread.load(); });
+
+            if (ready) {
+                if (task) {
+                    task();
+                }
+                ready = false;
+            }
+
+        }
+    }
+
+    void initiate_search(std::function<void()> search_task) {
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            task = std::move(search_task);
+            ready = true;
+        }
+        cv.notify_one();
+    }
 
     void stop_search_thread(search::SearchInfo &info) {
         info.stopped = true;
-        if (main_search_thread.joinable())
-            main_search_thread.request_stop();
+    }
+
+    void exit() {
+        exit_thread = true;
+        cv.notify_one();
+        main_search_thread.join();
     }
 
     void parse_position(std::string input, Board &board) {
@@ -121,9 +159,8 @@ namespace elixir::uci {
             info = search::SearchInfo(depth);
         }
 
-        main_search_thread = std::jthread([&]() {
-            search::search(board, info);
-        });
+        initiate_search([&]() { search::search(board, info); });
+
     }
 
     void parse_setoption(std::string input) {
@@ -149,6 +186,7 @@ namespace elixir::uci {
     }
 
     void uci_loop(Board &board) {
+        main_search_thread = std::jthread(search_thread_function);
         search::SearchInfo info;
         while (true) {
             std::string input;
@@ -167,6 +205,7 @@ namespace elixir::uci {
                 std::cout << "readyok" << std::endl;
             } else if (input == "quit") {
                 stop_search_thread(info);
+                exit();
                 break;
             } else if (input == "stop") {
                 stop_search_thread(info);
@@ -176,9 +215,11 @@ namespace elixir::uci {
                 tt->clear_tt();
             } else if (input == "bench") {
                 bench::bench();
+                exit();
                 break;
             } else if (input == "see") {
                 tests::see_test();
+                exit();
                 break;
             } else if (input == "print") {
                 board.print_board();
