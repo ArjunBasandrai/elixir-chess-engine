@@ -26,6 +26,9 @@ namespace elixir::eval {
     int piece_values[7] = {MP_PAWN, MP_KNIGHT, MP_BISHOP, MP_ROOK, MP_QUEEN, MP_KING, 0};
 
     int evaluate(const Board &board) {
-        return nn.eval(board.get_side_to_move());
+        const int eval =  nn.eval(board.get_side_to_move());
+        const int phase = 3 * count_bits(board.knights()) + 3 * count_bits(board.bishops()) + 5 * count_bits(board.rooks()) + 10 * count_bits(board.queens());
+        const int scaled_eval = eval * (phase + 206) / 256;
+        return scaled_eval;
     }
 }
