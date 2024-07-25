@@ -161,7 +161,7 @@ namespace elixir::search {
     }
 
     int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv,
-                SearchStack *ss) {
+                SearchStack *ss, bool cutnode) {
 
         pv.length = 0;
 
@@ -295,7 +295,7 @@ namespace elixir::search {
                 ss->cont_hist = nullptr;
 
                 board.make_null_move();
-                int score = -negamax(board, -beta, -beta + 1, depth - R, info, local_pv, ss + 1);
+                int score = -negamax(board, -beta, -beta + 1, depth - R, info, local_pv, ss + 1, !cutnode);
                 board.unmake_null_move();
 
                 /*
@@ -378,7 +378,7 @@ namespace elixir::search {
 
                 ss->excluded_move = move;
 
-                const int s_score = negamax(board, s_beta - 1, s_beta, s_depth, info, local_pv, ss);
+                const int s_score = negamax(board, s_beta - 1, s_beta, s_depth, info, local_pv, ss, cutnode);
 
                 ss->excluded_move = move::NO_MOVE;
 
@@ -414,24 +414,25 @@ namespace elixir::search {
 
             int R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
             R -= (is_quiet_move ? history_score / HISTORY_GRAVITY : 0);
-            R -= board.is_in_check();            
+            R -= board.is_in_check();
+            R += cutnode;
             
             if (depth > 1 && legals > 1) {
                 R = std::clamp(R, 1, new_depth);
                 int lmr_depth = new_depth - R + 1;
-                score = -negamax(board, -alpha - 1, -alpha, lmr_depth, info, local_pv, ss + 1);
+                score = -negamax(board, -alpha - 1, -alpha, lmr_depth, info, local_pv, ss + 1, true);
 
                 if (score > alpha && R > 0) {
-                    score = -negamax(board, -alpha - 1, -alpha, new_depth, info, local_pv, ss + 1);
+                    score = -negamax(board, -alpha - 1, -alpha, new_depth, info, local_pv, ss + 1, !cutnode);
                 }
             }
 
             else if (!pv_node || legals > 1) {
-                score = -negamax(board, -alpha - 1, -alpha, new_depth, info, local_pv, ss + 1);
+                score = -negamax(board, -alpha - 1, -alpha, new_depth, info, local_pv, ss + 1, !cutnode);
             }
 
             if (pv_node && (legals == 1 || (score > alpha && (root_node || score < beta)))) {
-                score = -negamax(board, -beta, -alpha, new_depth, info, local_pv, ss + 1);
+                score = -negamax(board, -beta, -alpha, new_depth, info, local_pv, ss + 1, false);
             }
 
             board.unmake_move(move, true);
@@ -589,7 +590,7 @@ namespace elixir::search {
 
             // aspiration windows
             while (1) {
-                score = negamax(board, alpha, beta, current_depth, info, pv, ss);
+                score = negamax(board, alpha, beta, current_depth, info, pv, ss, false);
 
                 if (score > alpha && score < beta)
                     break;
