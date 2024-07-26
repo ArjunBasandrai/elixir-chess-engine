@@ -373,7 +373,7 @@ namespace elixir::search {
             int extensions = 0;
 
             if (!root_node && depth >= 8 && move == tt_move && !ss->excluded_move && result.depth >= depth - 3 && tt_flag != TT_ALPHA) {
-                const auto s_beta = result.score - depth * 12 / 16;
+                const auto s_beta = result.score - depth * 2;
                 const auto s_depth = (depth - 1) / 2;
 
                 ss->excluded_move = move;
