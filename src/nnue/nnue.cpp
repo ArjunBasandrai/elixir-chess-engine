@@ -22,7 +22,7 @@ namespace elixir::nnue {
         return clipped * clipped;
     }
 
-    void Accumulator::set_position(const Board &board) {
+    void Accumulator::set_position(const Board &board, Network& net) {
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             accumulator[0][i] = net.layer_1_biases[i];
         }
@@ -54,7 +54,7 @@ namespace elixir::nnue {
         }
     }
 
-    void Accumulator::add(const Piece piece, const Square sq) {
+    void Accumulator::add(const Piece piece, const Square sq, Network& net) {
         const int color = static_cast<int>(piece_color(piece));
         const int piecetype = static_cast<int>(piece_to_piecetype(piece));
         const int white_sq = static_cast<int>(sq);
@@ -72,7 +72,7 @@ namespace elixir::nnue {
         }
     }
 
-    void Accumulator::remove(const Piece piece, const Square sq) {
+    void Accumulator::remove(const Piece piece, const Square sq, Network& net) {
         const int color = static_cast<int>(piece_color(piece));
         const int piecetype = static_cast<int>(piece_to_piecetype(piece));
         const int white_sq = static_cast<int>(sq);
@@ -90,7 +90,7 @@ namespace elixir::nnue {
         }
     }
 
-    void Accumulator::make_move(const Board& board, const move::Move& move) {
+    void Accumulator::make_move(const Board& board, const move::Move& move, Network& net) {
         const Square from = move.get_from();
         const Square to = move.get_to();
         const move::Flag flag = move.get_flag();
@@ -116,14 +116,14 @@ namespace elixir::nnue {
                 }
             } ();
 
-            remove(piece, from);
+            remove(piece, from, net);
 
             if (move.is_capture()) {
                 const auto captured = board.piece_on(to);
-                remove(captured, to);
+                remove(captured, to, net);
             }
 
-            add(promo, to);
+            add(promo, to, net);
 
             return;
         }
@@ -131,16 +131,16 @@ namespace elixir::nnue {
         if (move.is_en_passant()) {
             const int enpass_sq = static_cast<int>(board.get_en_passant_square());
             Square captured_square = static_cast<Square>(enpass_sq - 8 * color_offset[stm]);
-            remove(piece_color(piece) == Color::WHITE ? Piece::bP : Piece::wP, captured_square);
+            remove(piece_color(piece) == Color::WHITE ? Piece::bP : Piece::wP, captured_square, net);
         }
 
         if (move.is_capture()) {
             const auto captured = board.piece_on(to);
-            remove(captured, to);
+            remove(captured, to, net);
         }
 
-        remove(piece, from);
-        add(piece, to);
+        remove(piece, from, net);
+        add(piece, to, net);
 
         if (move.is_castling()) {
             const Square rook_from = [&] {
@@ -159,8 +159,8 @@ namespace elixir::nnue {
                 }
             } ();
 
-            remove(piece_color(piece) == Color::WHITE ? Piece::wR : Piece::bR, rook_from);
-            add(piece_color(piece) == Color::WHITE ? Piece::wR : Piece::bR, rook_to);
+            remove(piece_color(piece) == Color::WHITE ? Piece::wR : Piece::bR, rook_from, net);
+            add(piece_color(piece) == Color::WHITE ? Piece::wR : Piece::bR, rook_to, net);
         }
     }
 
@@ -205,7 +205,7 @@ namespace elixir::nnue {
     }
 
     void NNUE::set_position(const Board &board) {
-        accumulators[current_acc].set_position(board);
+        accumulators[current_acc].set_position(board, net);
     }
 
     int NNUE::eval(const Color side) {

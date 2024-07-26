@@ -222,7 +222,7 @@ namespace elixir {
 
         set_hash_key();
 
-        nn.get_acc().set_position(*this);
+        nn.set_position(*this);
         nn.reset();
     }
 
@@ -330,7 +330,7 @@ namespace elixir {
 
     bool Board::make_move(move::Move move) {
         nn.increment_acc();
-        nn.get_acc().make_move(*this, move);
+        nn.make_move(*this, move);
 
         const Square from               = move.get_from();
         const Square to                 = move.get_to();
