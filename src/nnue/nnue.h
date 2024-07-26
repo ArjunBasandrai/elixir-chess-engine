@@ -27,27 +27,23 @@ namespace elixir {
 
         class Accumulator {
         public:
-            void set_position(const Board& board);
+            void set_position(const Board& board, Network& net);
 
             Accumulator() = default;
-            Accumulator(const Board& board) {
-                set_position(board);
-            }
 
             std::array<std::array<I16, HIDDEN_SIZE>, 2> accumulator;
 
             std::array<I16, HIDDEN_SIZE> &operator[](size_t i) { return accumulator[i]; }
             const std::array<I16, HIDDEN_SIZE> &operator[](size_t i) const { return accumulator[i]; }
             
-            void add(const Piece piece, const Square sq);
-            void remove(const Piece piece, const Square sq);
-            void make_move(const Board& board, const move::Move& move);
+            void add(const Piece piece, const Square sq, Network& net);
+            void remove(const Piece piece, const Square sq, Network& net);
+            void make_move(const Board& board, const move::Move& move, Network& net);
         };
-        
-        inline Network net;
 
         class NNUE {
             public:
+                Network net;
                 std::vector<Accumulator> accumulators;
                 int current_acc;
 
@@ -75,6 +71,10 @@ namespace elixir {
 
                 Accumulator& get_acc() {
                     return accumulators[current_acc];
+                }
+
+                void make_move(const Board& board, const move::Move& move) {
+                    accumulators[current_acc].make_move(board, move, net);
                 }
 
                 int eval(const Color side);
