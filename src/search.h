@@ -11,14 +11,8 @@ namespace elixir::search {
     class SearchInfo {
       public:
         SearchInfo() = default;
-        SearchInfo(int depth)
-            : nodes(0), stopped(false), timed(false),
-              start_time(std::chrono::high_resolution_clock::now()), depth(depth), seldepth(0),
-              soft_limit(0), hard_limit(0), best_root_move(move::NO_MOVE) {}
-        SearchInfo(int depth, std::chrono::high_resolution_clock::time_point start_time,
-                   F64 soft_limit, F64 hard_limit)
-            : nodes(0), depth(depth), seldepth(0), stopped(false), timed(true),
-              start_time(start_time), soft_limit(soft_limit), hard_limit(hard_limit),
+        SearchInfo(int depth, bool timed)
+            : nodes(0), depth(depth), seldepth(0), stopped(false), timed(timed),
               best_root_move(move::NO_MOVE) {}
 
         ~SearchInfo() = default;
@@ -27,9 +21,6 @@ namespace elixir::search {
         int seldepth;
         bool stopped;
         bool timed;
-        std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
-        F64 soft_limit;
-        F64 hard_limit;
         move::Move best_root_move;
     };
 
