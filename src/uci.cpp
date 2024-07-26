@@ -130,7 +130,7 @@ namespace elixir::uci {
                 return;
             } else {
                 if (tokens[i] == "infinite") {
-                    search::SearchInfo info(MAX_DEPTH);
+                    search::SearchInfo info(MAX_DEPTH, false);
                 } else if ((tokens[i] == "wtime" || tokens[i] == "btime") &&
                            ++i < (int)tokens.size() &&
                            tokens[i - 1] ==
@@ -156,7 +156,7 @@ namespace elixir::uci {
         if (time != 0) {
             time_manager.optimum_time(info, time, inc, movestogo, start_time);
         } else {
-            info = search::SearchInfo(depth);
+            info = search::SearchInfo(depth, false);
         }
 
         initiate_search([&]() { search::search(board, info); });

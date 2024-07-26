@@ -14,7 +14,7 @@ namespace elixir::time_management {
     };
 
     void TimeManager::optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo,
-                                   std::chrono::high_resolution_clock::time_point start_time) {
+                                   std::chrono::high_resolution_clock::time_point start_time_point) {
         if (time < 0)
             time = 1000;
 
@@ -29,14 +29,16 @@ namespace elixir::time_management {
         }
         const auto max_bound = 0.76 * time;
 
-        const auto soft_bound = std::min(0.76 * base_time, max_bound);
-        const auto hard_bound = std::min(2.50 * base_time, max_bound);
+        soft_limit = std::min(0.76 * base_time, max_bound);
+        hard_limit = std::min(2.50 * base_time, max_bound);
 
-        info = search::SearchInfo(MAX_DEPTH, start_time, soft_bound, hard_bound);
+        info = search::SearchInfo(MAX_DEPTH, true);
+
+        start_time = start_time_point;
     }
 
     bool TimeManager::should_stop(search::SearchInfo &info) {
-        if (info.timed && ! (info.nodes & 1023) && time_elapsed(info) > info.hard_limit) {
+        if (info.timed && ! (info.nodes & 1023) && time_elapsed(info) > hard_limit) {
             info.stopped = true;
             return true;
         }
@@ -45,11 +47,11 @@ namespace elixir::time_management {
 
     bool TimeManager::should_stop_early(search::SearchInfo &info, const int depth,
                                         const move::Move best_move) {
-        if (! info.timed)
+        if (! info.timed) 
             return false;
 
         if (depth < 7) {
-            if (time_elapsed(info) > info.soft_limit) {
+            if (time_elapsed(info) > soft_limit) {
                 info.stopped = true;
                 return true;
             }
@@ -63,7 +65,7 @@ namespace elixir::time_management {
         }
 
         const double stability_scale = move_stability_scale[best_move_stability];
-        const F64 optimal_time = std::min<F64>(info.soft_limit * stability_scale, info.hard_limit);
+        const F64 optimal_time = std::min<F64>(soft_limit * stability_scale, hard_limit);
 
         return time_elapsed(info) >= optimal_time;
     }
