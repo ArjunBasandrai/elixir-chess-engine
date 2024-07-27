@@ -4,10 +4,13 @@
 
 #include "../defs.h"
 #include "../move.h"
-#include "../board/board.h"
 
 #include "arch.h"
 #include "weights.h"
+
+namespace elixir {
+    class Board;
+}
 
 namespace elixir::nnue {
     class Accumulator {

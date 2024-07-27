@@ -8,6 +8,8 @@
 
 #include "nnue.h"
 
+#include "../board/board.h"
+
 #if ! defined(_MSC_VER)
 INCBIN(EVAL, EVALFILE);
 #else
