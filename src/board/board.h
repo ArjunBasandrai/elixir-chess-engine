@@ -12,6 +12,7 @@
 #include "../utils/bits.h"
 #include "../utils/state.h"
 #include "../utils/static_vector.h"
+#include "../nnue/nnue.h"
 
 namespace elixir {
     extern const std::string square_str[64];
@@ -19,7 +20,7 @@ namespace elixir {
 
     class Board {
       public:
-        Board() { clear_board(); }
+        Board() { clear_board(); nn.init(""); }
 
         Board(std::string fen) { from_fen(fen); }
 
@@ -223,6 +224,7 @@ namespace elixir {
         }
 
         History history;
+        nnue::NNUE nn;
 
       private:
         std::array<Bitboard, 2> b_occupancies{};

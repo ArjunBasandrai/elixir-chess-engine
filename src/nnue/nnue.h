@@ -14,6 +14,7 @@
 #include "weights.h"
 
 namespace elixir {
+    class Board;
     namespace nnue {
         class NNUE {
             public:
@@ -54,5 +55,4 @@ namespace elixir {
                 int eval(const Color side);
         };
     }
-    inline nnue::NNUE nn;
 }
