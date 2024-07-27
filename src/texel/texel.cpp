@@ -62,7 +62,7 @@ namespace elixir::texel {
 
         TunerPosition position;
         position.eval =
-            eval::evaluate(board) * color_offset[static_cast<int>(board.get_side_to_move())];
+            board.evaluate() * color_offset[static_cast<int>(board.get_side_to_move())];
         position.phase   = phase;
         position.outcome = result;
         position.stm     = static_cast<int>(board.get_side_to_move());

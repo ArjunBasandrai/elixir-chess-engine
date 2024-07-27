@@ -82,7 +82,7 @@ namespace elixir::search {
         if (board.is_repetition() || board.is_material_draw())
             return 0;
 
-        int best_score, eval = eval::evaluate(board);
+        int best_score, eval = board.evaluate();
 
         if (ss->ply >= MAX_DEPTH - 1)
             return eval;
@@ -192,7 +192,7 @@ namespace elixir::search {
                 return 0;
 
             if (ss->ply >= MAX_DEPTH - 1)
-                return eval::evaluate(board);
+                return board.evaluate();
 
             /*
             | Mate Distance Pruning : If a forced mate is already found, cut the search and adjust |
@@ -247,7 +247,7 @@ namespace elixir::search {
                 eval = ss->eval = INF;
 
             else
-                eval = ss->eval = (tt_hit) ? result.score : eval::evaluate(board);
+                eval = ss->eval = (tt_hit) ? result.score : board.evaluate();
         }
 
         const bool improving = [&] {

@@ -226,6 +226,14 @@ namespace elixir {
         History history;
         nnue::NNUE nn;
 
+        int evaluate() {
+            using namespace bits;
+            const int eval =  nn.eval(side);
+            const int phase = 3 * count_bits(knights()) + 3 * count_bits(bishops()) + 5 * count_bits(rooks()) + 10 * count_bits(queens());
+            const int scaled_eval = eval * (phase + 206) / 256;
+            return scaled_eval;
+        }
+
       private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
