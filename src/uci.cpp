@@ -159,8 +159,7 @@ namespace elixir::uci {
             info = search::SearchInfo(depth, false);
         }
 
-        initiate_search([&]() { search::search(board, info); });
-
+        initiate_search([&]() { search::main_searcher.search(board, info); });
     }
 
     void parse_setoption(std::string input) {
