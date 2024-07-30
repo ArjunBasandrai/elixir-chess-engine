@@ -67,7 +67,7 @@ namespace elixir::search {
     }
 
     // (~20 ELO)
-    int qsearch(Board &board, int alpha, int beta, SearchInfo &info, PVariation &pv,
+    int Searcher::qsearch(Board &board, int alpha, int beta, SearchInfo &info, PVariation &pv,
                 SearchStack *ss) {
 
         pv.length = 0;
@@ -160,7 +160,7 @@ namespace elixir::search {
         return best_score;
     }
 
-    int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv,
+    int Searcher::negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv,
                 SearchStack *ss, bool cutnode) {
 
         pv.length = 0;
@@ -563,7 +563,7 @@ namespace elixir::search {
         return side != piece_color(board.piece_on(from));
     }
 
-    void search(Board &board, SearchInfo &info, bool print_info) {
+    void Searcher::search(Board &board, SearchInfo &info, bool print_info) {
         auto start = std::chrono::high_resolution_clock::now();
         PVariation pv;
         move::Move best_move;
