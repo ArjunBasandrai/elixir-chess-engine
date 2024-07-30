@@ -9,7 +9,20 @@ namespace elixir {
     extern int HISTORY_GRAVITY;
     class History {
       public:
-        History()  = default;
+        History()  {
+            cont_hist.resize(12);
+            for (auto &to_sq: cont_hist) {
+                to_sq.resize(64);
+                for (auto &entry: to_sq) {
+                    entry.resize(12);
+                    for (auto &from_sq: entry) {
+                        from_sq.resize(64);
+                    }
+                }
+            }
+
+            clear();
+        }
         ~History() = default;
 
         void clear();
@@ -30,7 +43,7 @@ namespace elixir {
           return 2 * get_quiet_history(move.get_from(), move.get_to()) + (get_chs(move, ss - 1) + get_chs(move, ss - 2));
         }
 
-        ContHistArray cont_hist = {0};
+        ContHistArray cont_hist;
 
       private:
         int history_bonus(int depth) {
