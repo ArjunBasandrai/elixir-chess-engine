@@ -1,8 +1,10 @@
 #pragma once
 
 #include <array>
+#include <vector>
 #include <chrono>
 #include <span>
+#include <thread>
 
 #include "board/board.h"
 #include "move.h"
@@ -99,6 +101,7 @@ namespace elixir::search {
             }
             ~ThreadData() = default;
 
+            int thread_idx = -1;
             Board board;
             SearchInfo info;
     };
@@ -116,17 +119,43 @@ namespace elixir::search {
 
     class ThreadManager {
         public:
-        ThreadManager() = default;
+        ThreadManager(int threads) {
+            num_threads = threads;
+            for (int i = 0; i < num_threads; i++) {
+                searchers.push_back(Searcher());
+            }
+        }
         ~ThreadManager() = default;
 
-        Searcher searcher = Searcher();
+        std::vector<Searcher> searchers;
 
-        void ucinewgame() {
-            searcher.clear_history();
+        std::vector<std::jthread> threads;
+        std::vector<ThreadData> thread_datas;
+
+        int num_threads = 1;
+
+        void ucinewgame() { 
+            for (int i = 0; i < num_threads; i++) {
+                searchers[i].clear_history();
+            }
+        }
+
+        void set_threads(int n) {
+            num_threads = n;
+            for (int i = 0; i < num_threads; i++) {
+                searchers.push_back(Searcher());
+            }
+            // threads.clear();
+            // thread_datas.clear();
+            // searchers.clear();
+            // for (int i = 0; i < num_threads; i++) {
+            //     thread_datas.push_back(ThreadData(Board(), SearchInfo()));
+            //     searchers.push_back(Searcher());
+            // }
         }
 
         void search(Board &board, SearchInfo &info, bool print_info = true);
     };
 
-    inline ThreadManager main_searcher;
+    inline ThreadManager main_searcher(1);
 }

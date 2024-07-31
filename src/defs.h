@@ -148,6 +148,10 @@ namespace elixir {
     constexpr int DEFAULT_HASH_SIZE = 64;
     constexpr int MAX_HASH          = 1024;
 
+    constexpr int MIN_THREADS = 1;
+    constexpr int DEFAULT_THREADS = 1;
+    constexpr int MAX_THREADS = 1024;
+
     static inline int get_rank(Square sq) {
         return (static_cast<int>(sq) >> 3) & 7;
     }

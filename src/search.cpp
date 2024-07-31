@@ -572,6 +572,7 @@ namespace elixir::search {
         auto &info  = td.info;
 
         for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
+            print_info &= td.thread_idx == 0;
             info.seldepth = 0;
             int score = 0, alpha = -INF, beta = INF, delta = INITIAL_ASP_DELTA;
             SearchStack stack[MAX_DEPTH + 4], *ss = stack + 4;
@@ -658,9 +659,33 @@ namespace elixir::search {
     }
 
     void ThreadManager::search(Board &board, SearchInfo &info, bool print_info) {
-        info.nodes = 0;
-        ThreadData td(board, info);
-        searcher.search(td, print_info);
-        info.nodes = td.info.nodes;
+        thread_datas.push_back(ThreadData(board, info));
+        thread_datas[0].thread_idx = 0;
+        for (int i = 1; i < num_threads; i++) {
+            thread_datas.push_back(ThreadData(board, info));
+            auto &td = thread_datas[i];
+            auto &searcher = searchers[i];
+            td.thread_idx = i;
+            threads.emplace_back(std::jthread(
+                [&td, &searcher, print_info]() { searcher.search(td, print_info); }
+            ));
+        }
+        searchers[0].search(thread_datas[0], print_info);
+
+        for (int i = 1; i < num_threads; i++) {
+            thread_datas[i].info.stopped = true;
+        }
+
+        for (auto &t : threads) {
+            t.join();
+        }
+
+        for (auto &td: thread_datas) {
+            info.nodes += td.info.nodes;
+        }
+
+        thread_datas.clear();
+        threads.clear();
     }
+
 }

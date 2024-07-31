@@ -176,6 +176,10 @@ namespace elixir::uci {
                 int tt_size = std::stoi(option_value);
                 tt_size     = std::clamp<int>(tt_size, MIN_HASH, MAX_HASH);
                 tt->resize(tt_size);
+            } else if (tokens[2] == "Threads") {
+                int thread_count = std::stoi(option_value);
+                thread_count     = std::clamp<int>(thread_count, MIN_THREADS, MAX_THREADS);
+                search::main_searcher.set_threads(thread_count);
             }
 
             else {
