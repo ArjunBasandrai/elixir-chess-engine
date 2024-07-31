@@ -23,12 +23,12 @@ namespace elixir {
                 int current_acc;
 
                 void reset() {
-                    accumulators.clear();
+                    accumulators.assign(accumulators.size(), Accumulator());
                     current_acc = 0;
                 }
 
                 NNUE() {
-                    accumulators.reserve(1024);
+                    accumulators.resize(1024);
                     reset();
                 }
 
