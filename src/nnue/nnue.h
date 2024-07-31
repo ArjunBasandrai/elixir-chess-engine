@@ -23,6 +23,7 @@ namespace elixir {
                 int current_acc;
 
                 void reset() {
+                    accumulators.assign(accumulators.size(), Accumulator());
                     current_acc = 0;
                 }
 
