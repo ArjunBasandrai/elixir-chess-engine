@@ -54,6 +54,7 @@ namespace elixir {
                 }
 
                 void make_move(const Board& board, const move::Move& move) {
+                    increment_acc();
                     accumulators[current_acc].make_move(board, move, net);
                 }
 

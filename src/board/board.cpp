@@ -9,14 +9,15 @@
 #include "../defs.h"
 #include "../evaluate.h"
 #include "../hashing/hash.h"
+#include "../nnue/nnue.h"
 #include "../texel/texel.h"
 #include "../types.h"
-#include "../nnue/nnue.h"
 #include "../utils/bits.h"
 #include "../utils/eval_terms.h"
 #include "../utils/state.h"
 #include "../utils/str_utils.h"
 #include "../utils/test_fens.h"
+
 
 namespace elixir {
     const int castling_update[64] = {13, 15, 15, 15, 12, 15, 15, 14, 15, 15, 15, 15, 15,
@@ -326,9 +327,9 @@ namespace elixir {
         return;
     }
 
-    bool Board::make_move(move::Move move) {
-        nn.increment_acc();
-        nn.make_move(*this, move);
+    bool Board::make_move(move::Move move, bool update_accumulator) {
+        if (update_accumulator)
+            nn.make_move(*this, move);
 
         const Square from               = move.get_from();
         const Square to                 = move.get_to();

@@ -210,7 +210,7 @@ namespace elixir {
         void print_castling_rights() const noexcept;
         void print_board() const;
 
-        bool make_move(move::Move move);
+        bool make_move(move::Move move, bool update_accumulator = true);
         void unmake_move(const move::Move move, const bool from_make_move);
         void make_null_move();
         void unmake_null_move();
