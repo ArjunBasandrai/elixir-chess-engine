@@ -35,6 +35,11 @@ namespace elixir {
                 void init(const std::string file);
                 void set_position(const Board &board);
 
+                void refresh(const Board &board) {
+                    reset();
+                    set_position(board);
+                }
+
                 void increment_acc() {
                     current_acc++;
                     accumulators[current_acc] = accumulators[current_acc - 1];

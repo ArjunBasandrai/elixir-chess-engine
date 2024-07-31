@@ -221,13 +221,11 @@ namespace elixir {
         kings[static_cast<I8>(Color::BLACK)] = static_cast<Square>(bits::lsb_index(black_king()));
 
         set_hash_key();
-
-        nn.reset();
-        nn.set_position(*this);
     }
 
     void Board::to_startpos() {
         from_fen(start_position);
+        nn.refresh(*this);
     }
 
     void Board::unmake_move(const move::Move move, const bool from_make_move) {
