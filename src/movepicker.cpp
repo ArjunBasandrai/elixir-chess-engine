@@ -13,7 +13,7 @@ namespace elixir {
     int MP_SEE = 109;
 
     void MovePicker::score_moves(const Board &board, const move::Move &tt_move,
-                                 const search::SearchStack *ss) {
+                                 const search::SearchStack *ss, const History &history) {
         scores.resize(moves.size());
 
         int value;
@@ -61,26 +61,26 @@ namespace elixir {
                 value = 800000000;
             } else if (move == ss->killers[1]) {
                 value = 700000000;
-            } else if (move == board.history.get_countermove(board.get_side_to_move(),
+            } else if (move == history.get_countermove(board.get_side_to_move(),
                                                              (ss - 1)->move.get_from(),
                                                              (ss - 1)->move.get_to())) {
                 value = 600000000;
             } else {
                 // Butterfly History Move Ordering (~45 ELO)
-                value = board.history.get_history(move, ss);
+                value = history.get_history(move, ss);
             }
 
             scores[i] = value;
         }
     }
 
-    void MovePicker::init_mp(const Board &board, move::Move tt_move, search::SearchStack *ss,
+    void MovePicker::init_mp(const Board &board, move::Move tt_move, search::SearchStack *ss, History &history,
                              bool for_qs) {
         if (for_qs)
             moves = movegen::generate_moves<true>(board);
         else
             moves = movegen::generate_moves<false>(board);
-        score_moves(board, tt_move, ss);
+        score_moves(board, tt_move, ss, history);
     }
 
     move::Move MovePicker::next_move() {

@@ -16,15 +16,15 @@
 namespace elixir {
     class Board;
     namespace nnue {
+        inline Network net;
         class NNUE {
             public:
-                Network net;
                 std::vector<Accumulator> accumulators;
                 int current_acc;
 
                 void reset() {
-                    accumulators.assign(accumulators.size(), Accumulator());
                     current_acc = 0;
+                    accumulators[current_acc] = Accumulator();
                 }
 
                 NNUE() {
@@ -32,8 +32,26 @@ namespace elixir {
                     reset();
                 }
 
+                // copy constructor
+                NNUE(const NNUE& nnue) {
+                    accumulators = nnue.accumulators;
+                    current_acc = nnue.current_acc;
+                }
+
+                // copy assignment
+                NNUE& operator=(const NNUE& nnue) {
+                    accumulators = nnue.accumulators;
+                    current_acc = nnue.current_acc;
+                    return *this;
+                }
+
                 void init(const std::string file);
                 void set_position(const Board &board);
+
+                void refresh(const Board &board) {
+                    reset();
+                    set_position(board);
+                }
 
                 void increment_acc() {
                     current_acc++;
@@ -49,6 +67,7 @@ namespace elixir {
                 }
 
                 void make_move(const Board& board, const move::Move& move) {
+                    increment_acc();
                     accumulators[current_acc].make_move(board, move, net);
                 }
 

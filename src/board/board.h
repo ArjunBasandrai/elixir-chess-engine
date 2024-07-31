@@ -8,11 +8,12 @@
 #include "../defs.h"
 #include "../history.h"
 #include "../move.h"
+#include "../nnue/nnue.h"
 #include "../types.h"
 #include "../utils/bits.h"
 #include "../utils/state.h"
 #include "../utils/static_vector.h"
-#include "../nnue/nnue.h"
+
 
 namespace elixir {
     extern const std::string square_str[64];
@@ -20,9 +21,15 @@ namespace elixir {
 
     class Board {
       public:
-        Board() { clear_board(); nn.init(""); }
+        Board() {
+            clear_board();
+            nn.init("");
+        }
 
-        Board(std::string fen) { from_fen(fen); }
+        Board(std::string fen) {
+            from_fen(fen);
+            nn.refresh(*this);
+        }
 
         ~Board() = default;
 
@@ -196,16 +203,13 @@ namespace elixir {
         }
 
         void clear_board() noexcept;
-        void clear_histories() noexcept {
-            history.clear();
-        }
         void from_fen(const std::string fen);
         void to_startpos();
 
         void print_castling_rights() const noexcept;
         void print_board() const;
 
-        bool make_move(move::Move move);
+        bool make_move(move::Move move, bool update_accumulator = true);
         void unmake_move(const move::Move move, const bool from_make_move);
         void make_null_move();
         void unmake_null_move();
@@ -223,13 +227,13 @@ namespace elixir {
             return phase;
         }
 
-        History history;
         nnue::NNUE nn;
 
         int evaluate() {
             using namespace bits;
-            const int eval =  nn.eval(side);
-            const int phase = 3 * count_bits(knights()) + 3 * count_bits(bishops()) + 5 * count_bits(rooks()) + 10 * count_bits(queens());
+            const int eval  = nn.eval(side);
+            const int phase = 3 * count_bits(knights()) + 3 * count_bits(bishops()) +
+                              5 * count_bits(rooks()) + 10 * count_bits(queens());
             const int scaled_eval = eval * (phase + 206) / 256;
             return scaled_eval;
         }

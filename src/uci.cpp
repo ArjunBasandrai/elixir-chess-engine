@@ -82,6 +82,7 @@ namespace elixir::uci {
                     }
                 }
             }
+            board.nn.refresh(board);
         } else if (input.substr(9, 3) == "fen" && input.length() > 13) {
             size_t fen_pos = input.find("fen");
             if (fen_pos != std::string::npos) {
@@ -102,6 +103,7 @@ namespace elixir::uci {
                     std::string fen = input.substr(fen_pos + 4);
                     board.from_fen(fen);
                 }
+                board.nn.refresh(board);
             }
         }
     }
@@ -209,8 +211,8 @@ namespace elixir::uci {
             } else if (input == "stop") {
                 stop_search_thread(info);
             } else if (input == "ucinewgame") {
-                board.clear_histories();
-                board.from_fen(start_position);
+                search::main_searcher.ucinewgame();
+                board.to_startpos();
                 tt->clear_tt();
             } else if (input == "bench") {
                 bench::bench();

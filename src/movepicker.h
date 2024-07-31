@@ -12,7 +12,7 @@ namespace elixir {
       public:
         MovePicker()  = default;
         ~MovePicker() = default;
-        void init_mp(const Board &board, move::Move tt_move, search::SearchStack *ss, bool for_qs);
+        void init_mp(const Board &board, move::Move tt_move, search::SearchStack *ss, History &history, bool for_qs);
         move::Move next_move();
         move::Move first_move() {
             if (moves.size() == 0)
@@ -24,6 +24,6 @@ namespace elixir {
         MoveList moves;
         StaticVector<int, 256> scores;
         void score_moves(const Board &board, const move::Move &tt_move,
-                         const search::SearchStack *ss);
+                         const search::SearchStack *ss, const History &history);
     };
 }
