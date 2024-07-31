@@ -222,8 +222,8 @@ namespace elixir {
 
         set_hash_key();
 
-        nn.set_position(*this);
         nn.reset();
+        nn.set_position(*this);
     }
 
     void Board::to_startpos() {
