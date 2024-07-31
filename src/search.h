@@ -91,14 +91,42 @@ namespace elixir::search {
     bool SEE(const Board &board, const move::Move move, int threshold,
              const int see_values[7] = see_pieces);
 
+    class ThreadData {
+        public:
+            ThreadData(Board &board, SearchInfo &info) {
+                this->board = board;
+                this->info = info;
+            }
+            ~ThreadData() = default;
+
+            Board board;
+            SearchInfo info;
+    };
+
     class Searcher {
+        History history;
         public:
         int qsearch(Board &board, int alpha, int beta, SearchInfo &info, PVariation &pv,
             SearchStack *ss);
         int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv,
                     SearchStack *ss, bool cutnode);
+        void search(ThreadData &td, bool print_info);
+        void clear_history() { history.clear(); }
+    };
+
+    class ThreadManager {
+        public:
+        ThreadManager() = default;
+        ~ThreadManager() = default;
+
+        Searcher searcher = Searcher();
+
+        void ucinewgame() {
+            searcher.clear_history();
+        }
+
         void search(Board &board, SearchInfo &info, bool print_info = true);
     };
 
-    inline Searcher main_searcher;
+    inline ThreadManager main_searcher;
 }

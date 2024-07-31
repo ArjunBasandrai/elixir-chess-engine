@@ -16,9 +16,9 @@
 namespace elixir {
     class Board;
     namespace nnue {
+        inline Network net;
         class NNUE {
             public:
-                Network net;
                 std::vector<Accumulator> accumulators;
                 int current_acc;
 
@@ -30,6 +30,19 @@ namespace elixir {
                 NNUE() {
                     accumulators.resize(1024);
                     reset();
+                }
+
+                // copy constructor
+                NNUE(const NNUE& nnue) {
+                    accumulators = nnue.accumulators;
+                    current_acc = nnue.current_acc;
+                }
+
+                // copy assignment
+                NNUE& operator=(const NNUE& nnue) {
+                    accumulators = nnue.accumulators;
+                    current_acc = nnue.current_acc;
+                    return *this;
                 }
 
                 void init(const std::string file);

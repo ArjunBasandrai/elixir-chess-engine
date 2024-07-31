@@ -112,7 +112,7 @@ namespace elixir::search {
         alpha = std::max(alpha, best_score);
 
         MovePicker mp;
-        mp.init_mp(board, tt_move, ss, true);
+        mp.init_mp(board, tt_move, ss, history, true);
         move::Move move;
         TTFlag flag = TT_ALPHA;
 
@@ -312,7 +312,7 @@ namespace elixir::search {
         | Initialize MovePicker, generate all moves and use TT Move for move ordering. |
         */
         MovePicker mp;
-        mp.init_mp(board, tt_move, ss, false);
+        mp.init_mp(board, tt_move, ss, history, false);
         if (root_node)
             info.best_root_move = mp.first_move();
 
@@ -399,12 +399,12 @@ namespace elixir::search {
             | Add the current move to search stack. |
             */
             ss->move      = move;
-            ss->cont_hist = board.history.get_cont_hist_entry(move);
+            ss->cont_hist = history.get_cont_hist_entry(move);
 
             legals++;
             info.nodes++;
 
-            const int history_score = board.history.get_history(move, ss);
+            const int history_score = history.get_history(move, ss);
 
             /*
             | Principal Variation Search and Late Move Reduction [PVS + LMR] (~40 ELO) |
@@ -452,12 +452,12 @@ namespace elixir::search {
                                 ss->killers[1] = ss->killers[0];
                                 ss->killers[0] = best_move;
                             }
-                            board.history.update_countermove(board.get_side_to_move(),
+                            history.update_countermove(board.get_side_to_move(),
                                                              (ss - 1)->move.get_from(),
                                                              (ss - 1)->move.get_to(), move);
-                            board.history.update_history(move.get_from(), move.get_to(), depth,
+                            history.update_history(move.get_from(), move.get_to(), depth,
                                                          bad_quiets);
-                            board.history.update_chs(move, ss, bad_quiets, depth);
+                            history.update_chs(move, ss, bad_quiets, depth);
                         }
                         flag = TT_BETA;
                         break;
@@ -563,10 +563,13 @@ namespace elixir::search {
         return side != piece_color(board.piece_on(from));
     }
 
-    void Searcher::search(Board &board, SearchInfo &info, bool print_info) {
+    void Searcher::search(ThreadData &td, bool print_info) {
         auto start = std::chrono::high_resolution_clock::now();
         PVariation pv;
         move::Move best_move;
+
+        auto &board = td.board;
+        auto &info  = td.info;
 
         for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
             info.seldepth = 0;
@@ -652,5 +655,12 @@ namespace elixir::search {
             best_move.print_uci();
             std::cout << std::endl;
         }
+    }
+
+    void ThreadManager::search(Board &board, SearchInfo &info, bool print_info) {
+        info.nodes = 0;
+        ThreadData td(board, info);
+        searcher.search(td, print_info);
+        info.nodes = td.info.nodes;
     }
 }

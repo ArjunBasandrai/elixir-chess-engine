@@ -211,8 +211,8 @@ namespace elixir::uci {
             } else if (input == "stop") {
                 stop_search_thread(info);
             } else if (input == "ucinewgame") {
-                board.clear_histories();
-                board.from_fen(start_position);
+                search::main_searcher.ucinewgame();
+                board.to_startpos();
                 tt->clear_tt();
             } else if (input == "bench") {
                 bench::bench();
