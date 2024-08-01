@@ -137,6 +137,14 @@ namespace elixir::search {
         int num_threads = 1;
         std::atomic<bool> in_search{false};
 
+        unsigned long long get_nodes() {
+            unsigned long long nodes = 0;
+            for (auto &td: thread_datas) {
+                nodes += td.info.nodes;
+            }
+            return nodes;
+        }
+
         void ucinewgame() { 
             for (int i = 0; i < num_threads; i++) {
                 searchers[i].clear_history();
