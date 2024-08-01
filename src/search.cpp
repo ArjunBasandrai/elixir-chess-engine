@@ -667,7 +667,7 @@ namespace elixir::search {
             thread_datas[i].thread_idx = i;
         }
 
-        for (int i = 0; i < num_threads; i++) {
+        for (int i = 1; i < num_threads; i++) {
             auto &td = thread_datas[i];
             auto &searcher = searchers[i];
             threads.emplace_back(std::jthread(
@@ -675,9 +675,7 @@ namespace elixir::search {
             ));
         }
 
-        while (searchers[0].searching) {
-            std::this_thread::sleep_for(std::chrono::microseconds(10));
-        }
+        searchers[0].search(thread_datas[0], print_info);
 
         for (int i = 1; i < num_threads; i++) {
             if (searchers[i].searching) 
