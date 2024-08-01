@@ -16,7 +16,7 @@ namespace elixir {
           public:
             void optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo,
                               std::chrono::high_resolution_clock::time_point start_time_point);
-            bool should_stop(search::SearchInfo &info);
+            bool should_stop(search::SearchInfo &info, std::atomic<unsigned long long>& nodes);
             bool should_stop_early(search::SearchInfo &info, const int depth, const move::Move best_move);
 
           private:

@@ -96,15 +96,19 @@ namespace elixir::search {
 
     class ThreadData {
         public:
-            ThreadData(Board &board, SearchInfo &info) {
+            ThreadData(Board& board, SearchInfo& info, int idx, std::atomic<unsigned long long>* nodes) {
                 this->board = board;
                 this->info = info;
+                this->thread_idx = idx;
+                this->nodes = nodes;
             }
             ~ThreadData() = default;
 
             int thread_idx = -1;
             Board board;
             SearchInfo info;
+
+            std::atomic<unsigned long long> *nodes = nullptr;
     };
 
     class Searcher {
@@ -136,6 +140,7 @@ namespace elixir::search {
 
         int num_threads = 1;
         std::atomic<bool> in_search{false};
+        std::atomic<unsigned long long> nodes{0};
 
         void ucinewgame() { 
             for (int i = 0; i < num_threads; i++) {

@@ -75,7 +75,7 @@ namespace elixir::search {
         auto &board = td.board;
         auto &info  = td.info;
 
-        if (time_manager.should_stop(info) || info.stopped)
+        if (time_manager.should_stop(info, (*td.nodes)) || info.stopped)
             return 0;
 
         if (ss->ply > info.seldepth)
@@ -135,7 +135,7 @@ namespace elixir::search {
                 continue;
 
             legals++;
-            info.nodes++;
+            (*td.nodes)++;
 
             int score = -qsearch(td, -beta, -alpha, local_pv, ss);
             board.unmake_move(move, true);
@@ -176,7 +176,7 @@ namespace elixir::search {
         bool in_check  = board.is_in_check();
         int eval;
 
-        if (! root_node && (time_manager.should_stop(info) || info.stopped))
+        if (! root_node && (time_manager.should_stop(info, (*td.nodes)) || info.stopped))
             return 0;
 
         if (ss->ply > info.seldepth)
@@ -407,7 +407,7 @@ namespace elixir::search {
             ss->cont_hist = history.get_cont_hist_entry(move);
 
             legals++;
-            info.nodes++;
+            (*td.nodes)++;
 
             const int history_score = history.get_history(move, ss);
 
@@ -574,7 +574,7 @@ namespace elixir::search {
         PVariation pv;
         move::Move best_move;
 
-        auto &info  = td.info;
+        auto &info = td.info;
 
         for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
             print_info &= td.thread_idx == 0;
@@ -615,7 +615,7 @@ namespace elixir::search {
 
                 delta *= ASP_MULTIPLIER;
 
-                if (time_manager.should_stop(info) || info.stopped)
+                if (time_manager.should_stop(info, (*td.nodes)) || info.stopped)
                     break;
             }
 
@@ -627,24 +627,24 @@ namespace elixir::search {
 
             if (print_info && pv.line[0]) {
                 int time_ms = duration.count();
-                int nps     = info.nodes * 1000 / (time_ms + 1);
+                int nps     = (*td.nodes)++ * 1000 / (time_ms + 1);
                 if (score > -MATE && score < -MATE_FOUND) {
                     std::cout << "info score mate " << -(score + MATE) / 2 << " depth "
                               << current_depth << " seldepth " << info.seldepth << " nodes "
-                              << info.nodes << " time " << time_ms << " nps " << nps << " hashfull "
+                              << (*td.nodes) << " time " << time_ms << " nps " << nps << " hashfull "
                               << tt->get_hashfull() << " pv ";
                 }
 
                 else if (score > MATE_FOUND && score < MATE) {
                     std::cout << "info score mate " << (MATE - score) / 2 + 1 << " depth "
                               << current_depth << " seldepth " << info.seldepth << " nodes "
-                              << info.nodes << " time " << time_ms << " nps " << nps << " hashfull "
+                              << (*td.nodes) << " time " << time_ms << " nps " << nps << " hashfull "
                               << tt->get_hashfull() << " pv ";
                 }
 
                 else {
                     std::cout << "info score cp " << score << " depth " << current_depth
-                              << " seldepth " << info.seldepth << " nodes " << info.nodes
+                              << " seldepth " << info.seldepth << " nodes " << (*td.nodes)
                               << " time " << time_ms << " nps " << nps << " hashfull "
                               << tt->get_hashfull() << " pv ";
                 }
@@ -665,9 +665,10 @@ namespace elixir::search {
     }
 
     void ThreadManager::search(Board &board, SearchInfo &info, bool print_info) {
+        nodes = 0;
         in_search = true;
         for (int i = 0; i < num_threads; i++) {
-            thread_datas.push_back(ThreadData(board, info));
+            thread_datas.push_back(ThreadData(board, info, i, &nodes));
             thread_datas[i].thread_idx = i;
         }
 

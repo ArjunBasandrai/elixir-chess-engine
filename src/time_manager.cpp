@@ -37,8 +37,8 @@ namespace elixir::time_management {
         start_time = start_time_point;
     }
 
-    bool TimeManager::should_stop(search::SearchInfo &info) {
-        if (info.timed && ! (info.nodes & 1023) && time_elapsed(info) > hard_limit) {
+    bool TimeManager::should_stop(search::SearchInfo &info, std::atomic<unsigned long long>& nodes) {
+        if (info.timed && ! (nodes & 1023) && time_elapsed(info) > hard_limit) {
             info.stopped = true;
             return true;
         }
