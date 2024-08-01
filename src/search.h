@@ -111,9 +111,9 @@ namespace elixir::search {
         History history;
         public:
         bool searching = false;
-        int qsearch(Board &board, int alpha, int beta, SearchInfo &info, PVariation &pv,
+        int qsearch(ThreadData &td, int alpha, int beta, PVariation &pv,
             SearchStack *ss);
-        int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv,
+        int negamax(ThreadData &td, int alpha, int beta, int depth, PVariation &pv,
                     SearchStack *ss, bool cutnode);
         void search(ThreadData &td, bool print_info);
         void clear_history() { history.clear(); }
