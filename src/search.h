@@ -145,13 +145,12 @@ namespace elixir::search {
             for (int i = 0; i < num_threads; i++) {
                 searchers.push_back(Searcher());
             }
-            // threads.clear();
-            // thread_datas.clear();
-            // searchers.clear();
-            // for (int i = 0; i < num_threads; i++) {
-            //     thread_datas.push_back(ThreadData(Board(), SearchInfo()));
-            //     searchers.push_back(Searcher());
-            // }
+            threads.clear();
+            thread_datas.clear();
+            searchers.clear();
+            for (int i = 0; i < num_threads; i++) {
+                searchers.push_back(Searcher());
+            }
         }
 
         void search(Board &board, SearchInfo &info, bool print_info = true);
