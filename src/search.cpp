@@ -663,13 +663,17 @@ namespace elixir::search {
         thread_datas[0].thread_idx = 0;
         for (int i = 1; i < num_threads; i++) {
             thread_datas.push_back(ThreadData(board, info));
+            thread_datas[i].thread_idx = i;
+        }
+
+        for (int i = 1; i < num_threads; i++) {
             auto &td = thread_datas[i];
             auto &searcher = searchers[i];
-            td.thread_idx = i;
             threads.emplace_back(std::jthread(
                 [&td, &searcher, print_info]() { searcher.search(td, print_info); }
             ));
         }
+
         searchers[0].search(thread_datas[0], print_info);
 
         for (int i = 1; i < num_threads; i++) {
