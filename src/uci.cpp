@@ -62,12 +62,14 @@ namespace elixir::uci {
     }
 
     void stop_search_thread(search::SearchInfo &info) {
+        search::main_searcher.stop_search();
         info.stopped = true;
     }
 
     void exit() {
         exit_thread = true;
         cv.notify_one();
+        search::main_searcher.stop_search();
         main_search_thread.join();
     }
 

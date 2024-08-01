@@ -5,6 +5,7 @@
 #include <chrono>
 #include <span>
 #include <thread>
+#include <atomic>
 
 #include "board/board.h"
 #include "move.h"
@@ -109,6 +110,7 @@ namespace elixir::search {
     class Searcher {
         History history;
         public:
+        bool searching = false;
         int qsearch(Board &board, int alpha, int beta, SearchInfo &info, PVariation &pv,
             SearchStack *ss);
         int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv,
@@ -133,6 +135,7 @@ namespace elixir::search {
         std::vector<ThreadData> thread_datas;
 
         int num_threads = 1;
+        std::atomic<bool> in_search{false};
 
         void ucinewgame() { 
             for (int i = 0; i < num_threads; i++) {
@@ -150,6 +153,16 @@ namespace elixir::search {
             searchers.clear();
             for (int i = 0; i < num_threads; i++) {
                 searchers.push_back(Searcher());
+            }
+        }
+
+        void stop_search() {
+            if (!in_search) return;
+            for (int i = 0; i < num_threads; i++) {
+                thread_datas[i].info.stopped = true;
+                while (searchers[i].searching) {
+                    std::this_thread::sleep_for(std::chrono::microseconds(1));
+                }
             }
         }
 

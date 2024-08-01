@@ -564,6 +564,7 @@ namespace elixir::search {
     }
 
     void Searcher::search(ThreadData &td, bool print_info) {
+        searching = true;
         auto start = std::chrono::high_resolution_clock::now();
         PVariation pv;
         move::Move best_move;
@@ -656,17 +657,17 @@ namespace elixir::search {
             best_move.print_uci();
             std::cout << std::endl;
         }
+        searching = false;
     }
 
     void ThreadManager::search(Board &board, SearchInfo &info, bool print_info) {
-        thread_datas.push_back(ThreadData(board, info));
-        thread_datas[0].thread_idx = 0;
-        for (int i = 1; i < num_threads; i++) {
+        in_search = true;
+        for (int i = 0; i < num_threads; i++) {
             thread_datas.push_back(ThreadData(board, info));
             thread_datas[i].thread_idx = i;
         }
 
-        for (int i = 1; i < num_threads; i++) {
+        for (int i = 0; i < num_threads; i++) {
             auto &td = thread_datas[i];
             auto &searcher = searchers[i];
             threads.emplace_back(std::jthread(
@@ -674,14 +675,13 @@ namespace elixir::search {
             ));
         }
 
-        searchers[0].search(thread_datas[0], print_info);
-
-        for (int i = 1; i < num_threads; i++) {
-            thread_datas[i].info.stopped = true;
+        while (searchers[0].searching) {
+            std::this_thread::sleep_for(std::chrono::microseconds(10));
         }
 
-        for (auto &t : threads) {
-            t.join();
+        for (int i = 1; i < num_threads; i++) {
+            if (searchers[i].searching) 
+                thread_datas[i].info.stopped = true;
         }
 
         for (auto &td: thread_datas) {
@@ -690,6 +690,8 @@ namespace elixir::search {
 
         thread_datas.clear();
         threads.clear();
+
+        in_search = false;
     }
 
 }
