@@ -134,6 +134,8 @@ namespace elixir::search {
             if (! board.make_move(move))
                 continue;
 
+            tt->prefetch(board.key_after(move));
+
             legals++;
             info.nodes++;
 
@@ -399,6 +401,9 @@ namespace elixir::search {
 
             if (! board.make_move(move))
                 continue;
+            
+
+            tt->prefetch(board.key_after(move));
 
             /*
             | Add the current move to search stack. |

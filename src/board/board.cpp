@@ -17,7 +17,8 @@
 #include "../utils/state.h"
 #include "../utils/str_utils.h"
 #include "../utils/test_fens.h"
-
+#include "../hashing/hash.h"
+#include "../tt.h"
 
 namespace elixir {
     const int castling_update[64] = {13, 15, 15, 15, 12, 15, 15, 14, 15, 15, 15, 15, 15,
@@ -505,6 +506,8 @@ namespace elixir {
         en_passant_square = Square::NO_SQ;
         hash_key ^= zobrist::side_key;
         side = static_cast<Color>(static_cast<int>(side) ^ 1);
+
+        tt->prefetch(hash_key);
     }
 
     void Board::unmake_null_move() {
@@ -617,5 +620,21 @@ namespace elixir {
             }
         }
         return false;
+    }
+
+    U64 Board::key_after(const move::Move move) const {
+        using namespace zobrist;
+        const Square from = move.get_from();
+        const Square to   = move.get_to();
+        const Piece piece = move.get_piece();
+        const Piece captured = piece_on(to);
+
+        U64 new_key = hash_key ^ side_key ^ piece_keys[static_cast<int>(piece)][static_cast<int>(from)] ^ piece_keys[static_cast<int>(piece)][static_cast<int>(to)];
+
+        if (captured != Piece::NO_PIECE) {
+            new_key ^= piece_keys[static_cast<int>(captured)][static_cast<int>(to)];
+        }
+
+        return new_key;
     }
 }
