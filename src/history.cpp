@@ -60,10 +60,12 @@ namespace elixir {
     void History::update_chs(move::Move& move, search::SearchStack *ss, MoveList &bad_quiets, int depth) {
         update_single_chs(move, ss - 1, depth, false);
         update_single_chs(move, ss - 2, depth, false);
+        update_single_chs(move, ss - 4, depth, false);
 
         for (auto& bad_quiet : bad_quiets) {
             update_single_chs(bad_quiet, ss - 1, depth, true);
             update_single_chs(bad_quiet, ss - 2, depth, true);
+            update_single_chs(bad_quiet, ss - 4, depth, true);
         }
     }
 
