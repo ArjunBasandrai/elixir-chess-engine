@@ -388,7 +388,8 @@ namespace elixir::search {
                 ss->excluded_move = move::NO_MOVE;
 
                 if (s_score < s_beta) {
-                    extensions++;
+                    const int double_margin = 300 * pv_node;
+                    extensions += 1 + (s_score < s_beta - double_margin);
                 }
 
                 else if (s_beta >= beta) 
