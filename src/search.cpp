@@ -428,7 +428,14 @@ namespace elixir::search {
                 score = -negamax(td, -alpha - 1, -alpha, lmr_depth, local_pv, ss + 1, true);
 
                 if (score > alpha && R > 0) {
-                    score = -negamax(td, -alpha - 1, -alpha, new_depth, local_pv, ss + 1, !cutnode);
+                    const bool do_deeper_search = score > (best_score + 35 + 2 * new_depth);
+                    const bool do_shallower_search = score < best_score + new_depth;
+
+                    const int updated_depth = new_depth + do_deeper_search - do_shallower_search;
+
+                    if (updated_depth > lmr_depth) {
+                        score = -negamax(td, -alpha - 1, -alpha, updated_depth, local_pv, ss + 1, !cutnode);
+                    }
                 }
             }
 
