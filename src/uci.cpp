@@ -1,13 +1,14 @@
 #include <algorithm>
-#include <chrono>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <thread>
-#include <functional>
-#include <condition_variable>
-#include <mutex>
 #include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <functional>
+#include <iostream>
+#include <mutex>
+#include <string>
+#include <thread>
+#include <vector>
+
 
 #include "uci.h"
 
@@ -19,11 +20,12 @@
 #include "search.h"
 #include "spsa.h"
 #include "tests/see_test.h"
-#include "tt.h"
 #include "time_manager.h"
+#include "tt.h"
 #include "utils/perft.h"
 #include "utils/str_utils.h"
 #include "utils/test_fens.h"
+
 
 #define version "2.0"
 
@@ -33,12 +35,12 @@ namespace elixir::uci {
     std::condition_variable cv;
     std::mutex mtx;
     std::atomic<bool> ready{false};
-    std::atomic<bool> exit_thread{false};  
+    std::atomic<bool> exit_thread{false};
     std::function<void()> task;
 
     void search_thread_function() {
         std::unique_lock<std::mutex> lock(mtx);
-        while (!exit_thread.load()) {
+        while (! exit_thread.load()) {
             cv.wait(lock, [] { return ready.load() || exit_thread.load(); });
 
             if (ready) {
@@ -47,26 +49,27 @@ namespace elixir::uci {
                 }
                 ready = false;
             }
-
         }
     }
 
     void initiate_search(std::function<void()> search_task) {
         {
             std::lock_guard<std::mutex> lock(mtx);
-            task = std::move(search_task);
+            task  = std::move(search_task);
             ready = true;
         }
         cv.notify_one();
     }
 
     void stop_search_thread(search::SearchInfo &info) {
+        search::main_searcher.stop_search();
         info.stopped = true;
     }
 
     void exit() {
         exit_thread = true;
         cv.notify_one();
+        search::main_searcher.stop_search();
         main_search_thread.join();
     }
 
@@ -110,8 +113,8 @@ namespace elixir::uci {
 
     void parse_go(std::string input, Board &board, search::SearchInfo &info) {
         std::vector<std::string> tokens = str_utils::split(input, ' ');
-        info = search::SearchInfo();
-        const auto start_time = std::chrono::high_resolution_clock::now();
+        info                            = search::SearchInfo();
+        const auto start_time           = std::chrono::high_resolution_clock::now();
         int depth = MAX_DEPTH, movestogo = -1;
         F64 time = 0, inc = 0;
         // If there are no tokens after "go" command, return
@@ -176,6 +179,10 @@ namespace elixir::uci {
                 int tt_size = std::stoi(option_value);
                 tt_size     = std::clamp<int>(tt_size, MIN_HASH, MAX_HASH);
                 tt->resize(tt_size);
+            } else if (tokens[2] == "Threads") {
+                int thread_count = std::stoi(option_value);
+                thread_count     = std::clamp<int>(thread_count, MIN_THREADS, MAX_THREADS);
+                search::main_searcher.set_threads(thread_count);
             }
 
             else {
@@ -197,7 +204,8 @@ namespace elixir::uci {
                 std::cout << "id author Arjun Basandrai" << std::endl;
                 std::cout << "option name Hash type spin default " << DEFAULT_HASH_SIZE << " min "
                           << MIN_HASH << " max " << MAX_HASH << std::endl;
-                std::cout << "option name Threads type spin default 1 min 1 max 1" << std::endl;
+                std::cout << "option name Threads type spin default " << DEFAULT_THREADS << " min "
+                          << MIN_THREADS << " max " << MAX_THREADS << std::endl;
 #ifdef USE_TUNE
                 tune::tuner.print_info();
 #endif

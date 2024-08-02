@@ -1,8 +1,11 @@
 #pragma once
 
 #include <array>
+#include <vector>
 #include <chrono>
 #include <span>
+#include <thread>
+#include <atomic>
 
 #include "board/board.h"
 #include "move.h"
@@ -99,6 +102,7 @@ namespace elixir::search {
             }
             ~ThreadData() = default;
 
+            int thread_idx = -1;
             Board board;
             SearchInfo info;
     };
@@ -106,9 +110,10 @@ namespace elixir::search {
     class Searcher {
         History history;
         public:
-        int qsearch(Board &board, int alpha, int beta, SearchInfo &info, PVariation &pv,
+        bool searching = false;
+        int qsearch(ThreadData &td, int alpha, int beta, PVariation &pv,
             SearchStack *ss);
-        int negamax(Board &board, int alpha, int beta, int depth, SearchInfo &info, PVariation &pv,
+        int negamax(ThreadData &td, int alpha, int beta, int depth, PVariation &pv,
                     SearchStack *ss, bool cutnode);
         void search(ThreadData &td, bool print_info);
         void clear_history() { history.clear(); }
@@ -116,17 +121,61 @@ namespace elixir::search {
 
     class ThreadManager {
         public:
-        ThreadManager() = default;
+        ThreadManager(int threads) {
+            num_threads = threads;
+            for (int i = 0; i < num_threads; i++) {
+                searchers.push_back(Searcher());
+            }
+        }
         ~ThreadManager() = default;
 
-        Searcher searcher = Searcher();
+        std::vector<Searcher> searchers;
 
-        void ucinewgame() {
-            searcher.clear_history();
+        std::vector<std::jthread> threads;
+        std::vector<ThreadData> thread_datas;
+
+        int num_threads = 1;
+        std::atomic<bool> in_search{false};
+
+        unsigned long long get_nodes() {
+            unsigned long long nodes = 0;
+            for (auto &td: thread_datas) {
+                nodes += td.info.nodes;
+            }
+            return nodes;
+        }
+
+        void ucinewgame() { 
+            for (int i = 0; i < num_threads; i++) {
+                searchers[i].clear_history();
+            }
+        }
+
+        void set_threads(int n) {
+            num_threads = n;
+            for (int i = 0; i < num_threads; i++) {
+                searchers.push_back(Searcher());
+            }
+            threads.clear();
+            thread_datas.clear();
+            searchers.clear();
+            for (int i = 0; i < num_threads; i++) {
+                searchers.push_back(Searcher());
+            }
+        }
+
+        void stop_search() {
+            if (!in_search) return;
+            for (int i = 0; i < num_threads; i++) {
+                thread_datas[i].info.stopped = true;
+                while (searchers[i].searching) {
+                    std::this_thread::sleep_for(std::chrono::microseconds(1));
+                }
+            }
         }
 
         void search(Board &board, SearchInfo &info, bool print_info = true);
     };
 
-    inline ThreadManager main_searcher;
+    inline ThreadManager main_searcher(1);
 }
