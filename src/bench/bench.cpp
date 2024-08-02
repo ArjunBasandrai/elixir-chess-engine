@@ -71,11 +71,10 @@ namespace elixir::bench {
         int c = 0;
         for (auto &fen : fens) {
             tt->clear_tt();
-            info.nodes = 0;
             board.from_fen(fen);
             board.nn.refresh(board);
             search::main_searcher.search(board, info, false);
-            nodes += info.nodes;
+            nodes += search::main_searcher.nodes;
         }
         auto end_time = std::chrono::high_resolution_clock::now();
         auto time =
