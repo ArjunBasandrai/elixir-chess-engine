@@ -666,8 +666,9 @@ namespace elixir::search {
 
     void ThreadManager::search(Board &board, SearchInfo &info, bool print_info) {
         in_search = true;
+        SearchInfo non_main_info = SearchInfo(MAX_DEPTH, false);
         for (int i = 0; i < num_threads; i++) {
-            thread_datas.push_back(ThreadData(board, info));
+            thread_datas.push_back(ThreadData(board, i ? non_main_info : info));
             thread_datas[i].thread_idx = i;
         }
 
