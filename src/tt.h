@@ -56,6 +56,11 @@ namespace elixir {
                                     1000.0);
         }
 
+        void prefetch(const U64 key) const {
+            const U32 index = get_index(key);
+            __builtin_prefetch(&table[index]);
+        }
+
       private:
         U32 get_index(U64 key) const { return key % table.size(); }
         std::size_t entries;
