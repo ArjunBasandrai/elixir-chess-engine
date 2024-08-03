@@ -134,7 +134,7 @@ namespace elixir::search {
             if (! board.make_move(move))
                 continue;
 
-            tt->prefetch(board.key_after(move));
+            tt->prefetch(board.get_hash_key());
 
             legals++;
             info.nodes++;
@@ -403,7 +403,7 @@ namespace elixir::search {
                 continue;
             
 
-            tt->prefetch(board.key_after(move));
+            tt->prefetch(board.get_hash_key());
 
             /*
             | Add the current move to search stack. |

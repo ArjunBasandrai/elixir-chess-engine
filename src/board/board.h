@@ -238,8 +238,6 @@ namespace elixir {
             return scaled_eval;
         }
 
-        U64 key_after(const move::Move move) const;
-
       private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
