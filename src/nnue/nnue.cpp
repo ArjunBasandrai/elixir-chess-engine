@@ -7,6 +7,7 @@
 #include "../utils/bits.h"
 
 #include "nnue.h"
+#include "simd.h"
 
 #include "../board/board.h"
 
@@ -214,6 +215,38 @@ namespace elixir::nnue {
         I8 icolor = static_cast<I8>(side);
         int eval  = 0;
 
+#if defined(USE_SIMD)
+        vepi32 sum = zero_epi32();
+        constexpr int chunk_size = sizeof(vepi16) / sizeof(int16_t);
+
+        for (int i = 0; i < HIDDEN_SIZE; i += chunk_size) {
+            const vepi16 accumulator_data = load_epi16(&accumulators[current_acc][icolor][i]);
+            const vepi16 weights = load_epi16(&net.output_weights[0][i]);
+
+            const vepi16 clipped_accumulator = clip(accumulator_data, L1Q);
+
+            const vepi16 intermediate = multiply_epi16(clipped_accumulator, weights);
+
+            const vepi32 result = multiply_add_epi16(intermediate, clipped_accumulator);
+
+            sum = add_epi32(sum, result);
+        }
+
+        for (int i = 0; i < HIDDEN_SIZE; i += chunk_size) {
+            const vepi16 accumulator_data = load_epi16(&accumulators[current_acc][icolor ^ 1][i]);
+            const vepi16 weights = load_epi16(&net.output_weights[1][i]);
+
+            const vepi16 clipped_accumulator = clip(accumulator_data, L1Q);
+
+            const vepi16 intermediate = multiply_epi16(clipped_accumulator, weights);
+
+            const vepi32 result = multiply_add_epi16(intermediate, clipped_accumulator);
+
+            sum = add_epi32(sum, result);
+        }
+
+        eval = reduce_add_epi32(sum);
+#else
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             eval += screlu(accumulators[current_acc][icolor][i]) * net.output_weights[0][i];
         }
@@ -222,6 +255,7 @@ namespace elixir::nnue {
             eval += screlu(accumulators[current_acc][icolor ^ 1][i]) * net.output_weights[1][i];
         }
 
+#endif
         eval /= L1Q;
         eval += net.output_bias;
         eval = (eval * SCALE) / (L1Q * OutputQ);
