@@ -28,4 +28,5 @@ namespace elixir {
 
     using ContHistEntry = std::vector<std::vector<int>>;
     using ContHistArray = std::vector<std::vector<ContHistEntry>>;
+    using CorrHistArray = std::vector<std::vector<I64>>;
 }

@@ -21,6 +21,11 @@ namespace elixir {
                 }
             }
 
+            corr_hist.resize(2);
+            for (auto &entry: corr_hist) {
+                entry.resize(16384);
+            }
+
             clear();
         }
         ~History() = default;
@@ -43,7 +48,11 @@ namespace elixir {
           return 2 * get_quiet_history(move.get_from(), move.get_to()) + (get_chs(move, ss - 1) + get_chs(move, ss - 2));
         }
 
+        void update_corrhist(const Color side, const U64& pawn_hash, int depth, int score, int static_eval);
+        int correct_eval(const Color side, const U64& pawn_hash, int uncorrected_eval) const;
+
         ContHistArray cont_hist;
+        CorrHistArray corr_hist;
 
       private:
         int history_bonus(int depth) {
@@ -53,7 +62,7 @@ namespace elixir {
         int history_malus(int depth) {
             return -std::min(600 * depth - 300, 8000);
         }
-        int scale_bonus(int score, int bonus);
+        int scale_bonus(int score, int bonus, int gravity = HISTORY_GRAVITY);
         int history[64][64]                 = {0};
         move::Move counter_moves[2][64][64] = {move::NO_MOVE};
 
