@@ -257,8 +257,7 @@ namespace elixir::search {
 
             else
                 eval = ss->eval =
-                    history.correct_eval(board.get_side_to_move(), board.get_pawn_hash(),
-                                         (tt_hit) ? result.score : board.evaluate());
+                    (tt_hit) ? result.score : history.correct_eval(board.get_side_to_move(), board.get_pawn_hash(), board.evaluate());
         }
 
         const bool improving = [&] {
