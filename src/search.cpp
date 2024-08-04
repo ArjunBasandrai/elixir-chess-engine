@@ -575,6 +575,7 @@ namespace elixir::search {
     }
 
     void Searcher::search(ThreadData &td, bool print_info) {
+        print_info &= td.thread_idx == 0;
         searching = true;
         auto start = std::chrono::high_resolution_clock::now();
         PVariation pv;
@@ -583,7 +584,6 @@ namespace elixir::search {
         auto &info  = td.info;
 
         for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
-            print_info &= td.thread_idx == 0;
             info.seldepth = 0;
             int score = 0, alpha = -INF, beta = INF, delta = INITIAL_ASP_DELTA;
             SearchStack stack[MAX_DEPTH + 4], *ss = stack + 4;
