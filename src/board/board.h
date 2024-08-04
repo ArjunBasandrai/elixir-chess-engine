@@ -172,6 +172,7 @@ namespace elixir {
         [[nodiscard]] I8 get_fifty_move_counter() const noexcept { return fifty_move_counter; }
         [[nodiscard]] I16 get_fullmove_number() const noexcept { return fullmove_number; }
         [[nodiscard]] U64 get_hash_key() const noexcept { return hash_key; }
+        [[nodiscard]] U64 get_pawn_hash() const noexcept { return pawn_hash; }
         [[nodiscard]] EvalScore get_eval() const noexcept { return eval; }
 
         [[nodiscard]] Square get_king_square(Color c) const noexcept {
@@ -250,6 +251,7 @@ namespace elixir {
         I8 fifty_move_counter;
         I16 fullmove_number;
         U64 hash_key;
+        U64 pawn_hash;
         EvalScore eval;
     };
 }
