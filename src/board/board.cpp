@@ -11,14 +11,14 @@
 #include "../hashing/hash.h"
 #include "../nnue/nnue.h"
 #include "../texel/texel.h"
+#include "../tt.h"
 #include "../types.h"
 #include "../utils/bits.h"
 #include "../utils/eval_terms.h"
 #include "../utils/state.h"
 #include "../utils/str_utils.h"
 #include "../utils/test_fens.h"
-#include "../hashing/hash.h"
-#include "../tt.h"
+
 
 namespace elixir {
     const int castling_update[64] = {13, 15, 15, 15, 12, 15, 15, 14, 15, 15, 15, 15, 15,
@@ -137,6 +137,11 @@ namespace elixir {
         using namespace texel;
         TRACE_INCREMENT(material_score[static_cast<I8>(piece)], static_cast<I8>(color));
         TRACE_INCREMENT(psqt[static_cast<I8>(piece)][square], static_cast<I8>(color));
+
+        if (piece == PieceType::PAWN) {
+            pawn_hash ^= zobrist::piece_keys[static_cast<int>(piece) + static_cast<int>(color) * 6]
+                                            [static_cast<int>(sq)];
+        }
     }
 
     void Board::remove_piece(const Square sq, const PieceType piece, const Color color) {
@@ -157,6 +162,11 @@ namespace elixir {
         using namespace texel;
         TRACE_DECREMENT(material_score[static_cast<I8>(piece)], static_cast<I8>(color));
         TRACE_DECREMENT(psqt[static_cast<I8>(piece)][square], static_cast<I8>(color));
+
+        if (piece == PieceType::PAWN) {
+            pawn_hash ^= zobrist::piece_keys[static_cast<int>(piece) + static_cast<int>(color) * 6]
+                                            [static_cast<int>(sq)];
+        }
     }
 
     void Board::from_fen(const std::string fen) {
@@ -278,6 +288,7 @@ namespace elixir {
 
         State s              = undo_stack[undo_stack.size() - 1];
         hash_key             = s.hash_key;
+        pawn_hash            = s.pawn_hash;
         castling_rights      = s.castling_rights;
         en_passant_square    = s.enpass;
         fifty_move_counter   = s.fifty_move_counter;
@@ -357,7 +368,7 @@ namespace elixir {
         assert(piece_color(piece_) == side);
 
         Piece captured_piece = piece_on(to);
-        State s = State(hash_key, castling_rights, en_passant_square, fifty_move_counter,
+        State s = State(hash_key, pawn_hash, castling_rights, en_passant_square, fifty_move_counter,
                         captured_piece, eval);
         undo_stack.push(s);
 
@@ -496,8 +507,8 @@ namespace elixir {
     }
 
     void Board::make_null_move() {
-        const State s = State(hash_key, castling_rights, en_passant_square, fifty_move_counter,
-                              Piece::NO_PIECE, eval);
+        const State s = State(hash_key, pawn_hash, castling_rights, en_passant_square,
+                              fifty_move_counter, Piece::NO_PIECE, eval);
         undo_stack.push(s);
         fifty_move_counter++;
         if (en_passant_square != Square::NO_SQ) {
@@ -514,6 +525,7 @@ namespace elixir {
         const State s = undo_stack[undo_stack.size() - 1];
         undo_stack.pop_back();
         hash_key           = s.hash_key;
+        pawn_hash          = s.pawn_hash;
         fifty_move_counter = s.fifty_move_counter;
         en_passant_square  = s.enpass;
         castling_rights    = s.castling_rights;
