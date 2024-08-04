@@ -103,9 +103,14 @@ namespace elixir::search {
         bool can_cutoff =
             tt_hit && (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) ||
                        (tt_flag == TT_BETA && result.score >= beta));
+        
 
         if (ss->ply && can_cutoff) {
             return result.score;
+        }
+
+        if (tt_hit) {
+            best_score = result.score;
         }
 
         if (best_score >= beta) {
