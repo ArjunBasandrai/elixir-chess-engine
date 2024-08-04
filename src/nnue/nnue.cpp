@@ -68,10 +68,18 @@ namespace elixir::nnue {
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             accumulator[0][i] += net.layer_1_weights[white_input_index][i];
+            if (i < HIDDEN_SIZE - 1) {
+                __builtin_prefetch(&accumulator[0][i + 1], 1);
+                __builtin_prefetch(&net.layer_1_weights[white_input_index][i + 1]);
+            }
         }
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             accumulator[1][i] += net.layer_1_weights[black_input_index][i];
+            if (i < HIDDEN_SIZE - 1) {
+                __builtin_prefetch(&accumulator[1][i + 1], 1);
+                __builtin_prefetch(&net.layer_1_weights[black_input_index][i + 1]);
+            }
         }
     }
 
@@ -230,6 +238,11 @@ namespace elixir::nnue {
             const vepi32 result = multiply_add_epi16(intermediate, clipped_accumulator);
 
             sum = add_epi32(sum, result);
+
+            if (i + chunk_size < HIDDEN_SIZE) {
+                __builtin_prefetch(&accumulators[current_acc][icolor][i + 1]);
+                __builtin_prefetch(&net.output_weights[0][i + 1]);
+            }
         }
 
         for (int i = 0; i < HIDDEN_SIZE; i += chunk_size) {
@@ -243,16 +256,31 @@ namespace elixir::nnue {
             const vepi32 result = multiply_add_epi16(intermediate, clipped_accumulator);
 
             sum = add_epi32(sum, result);
+
+            if (i + chunk_size < HIDDEN_SIZE) {
+                __builtin_prefetch(&accumulators[current_acc][icolor ^ 1][i + 1]);
+                __builtin_prefetch(&net.output_weights[1][i + 1]);
+            }
         }
 
         eval = reduce_add_epi32(sum);
 #else
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             eval += screlu(accumulators[current_acc][icolor][i]) * net.output_weights[0][i];
+
+            if (i < HIDDEN_SIZE - 1) {
+                __builtin_prefetch(&accumulators[current_acc][icolor][i + 1]);
+                __builtin_prefetch(&net.output_weights[0][i + 1]);
+            }
         }
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             eval += screlu(accumulators[current_acc][icolor ^ 1][i]) * net.output_weights[1][i];
+
+            if (i < HIDDEN_SIZE - 1) {
+                __builtin_prefetch(&accumulators[current_acc][icolor ^ 1][i + 1]);
+                __builtin_prefetch(&net.output_weights[1][i + 1]);
+            }
         }
 
 #endif
