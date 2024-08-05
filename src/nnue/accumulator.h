@@ -23,6 +23,8 @@ namespace elixir::nnue {
 
             std::array<I16, HIDDEN_SIZE> &operator[](size_t i) { return accumulator[i]; }
             const std::array<I16, HIDDEN_SIZE> &operator[](size_t i) const { return accumulator[i]; }
+
+            U8 king_bucket = 0;
             
             void add(const Piece piece, const Square sq, Network& net);
             void remove(const Piece piece, const Square sq, Network& net);

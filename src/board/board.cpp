@@ -340,8 +340,12 @@ namespace elixir {
     }
 
     bool Board::make_move(move::Move move, bool update_accumulator) {
-        if (update_accumulator)
+        bool needs_refresh = false;
+        if (update_accumulator) {
+            const int bucket = nn.get_acc().king_bucket;
             nn.make_move(*this, move);
+            needs_refresh = bucket != calculate_buckets();
+        }
 
         const Square from               = move.get_from();
         const Square to                 = move.get_to();
@@ -503,6 +507,11 @@ namespace elixir {
         hash_key ^= zobrist::castle_keys[castling_rights];
 
         hash_key ^= zobrist::side_key;
+
+        if (needs_refresh) {
+            nn.set_position(*this);
+        }
+
         return true;
     }
 

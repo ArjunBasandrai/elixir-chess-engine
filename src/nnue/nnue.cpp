@@ -26,6 +26,8 @@ namespace elixir::nnue {
     }
 
     void Accumulator::set_position(const Board &board, Network& net) {
+        king_bucket = board.calculate_buckets();
+
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             accumulator[0][i] = net.layer_1_biases[i];
         }
@@ -46,11 +48,11 @@ namespace elixir::nnue {
                     const int black_input_index = (color ^ 1) * 384 + piece * 64 + black_sq;
 
                     for (int i = 0; i < HIDDEN_SIZE; i++) {
-                        accumulator[0][i] += net.layer_1_weights[white_input_index][i];
+                        accumulator[0][i] += net.layer_1_weights[king_bucket][white_input_index][i];
                     }
 
                     for (int i = 0; i < HIDDEN_SIZE; i++) {
-                        accumulator[1][i] += net.layer_1_weights[black_input_index][i];
+                        accumulator[1][i] += net.layer_1_weights[king_bucket][black_input_index][i];
                     }
                 }
             }
@@ -67,11 +69,11 @@ namespace elixir::nnue {
         const int black_input_index = (color ^ 1) * 384 + piecetype * 64 + black_sq;
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulator[0][i] += net.layer_1_weights[white_input_index][i];
+            accumulator[0][i] += net.layer_1_weights[king_bucket][white_input_index][i];
         }
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulator[1][i] += net.layer_1_weights[black_input_index][i];
+            accumulator[1][i] += net.layer_1_weights[king_bucket][black_input_index][i];
         }
     }
 
@@ -85,11 +87,11 @@ namespace elixir::nnue {
         const int black_input_index = (color ^ 1) * 384 + piecetype * 64 + black_sq;
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulator[0][i] -= net.layer_1_weights[white_input_index][i];
+            accumulator[0][i] -= net.layer_1_weights[king_bucket][white_input_index][i];
         }
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulator[1][i] -= net.layer_1_weights[black_input_index][i];
+            accumulator[1][i] -= net.layer_1_weights[king_bucket][black_input_index][i];
         }
     }
 
@@ -178,7 +180,7 @@ namespace elixir::nnue {
             size_t fileSize        = sizeof(Network);
             size_t objectsExpected = fileSize / sizeof(I16);
 
-            read += fread(net.layer_1_weights, sizeof(I16), INPUT_WEIGHTS * HIDDEN_SIZE, nn);
+            read += fread(net.layer_1_weights, sizeof(I16), KING_BUCKETS * INPUT_WEIGHTS * HIDDEN_SIZE, nn);
             read += fread(net.layer_1_biases, sizeof(I16), HIDDEN_SIZE, nn);
             read += fread(net.output_weights, sizeof(I16), HIDDEN_SIZE * 2, nn);
             read += fread(untransposed_output_weights, sizeof(I16), HIDDEN_SIZE * OUTPUT_BUCKETS * 2, nn);
@@ -197,8 +199,8 @@ namespace elixir::nnue {
             uint64_t memoryIndex = 0;
 
             std::memcpy(net.layer_1_weights, &gEVALData[memoryIndex],
-                        INPUT_WEIGHTS * HIDDEN_SIZE * sizeof(I16));
-            memoryIndex += INPUT_WEIGHTS * HIDDEN_SIZE * sizeof(I16);
+                        KING_BUCKETS * INPUT_WEIGHTS * HIDDEN_SIZE * sizeof(I16));
+            memoryIndex += KING_BUCKETS * INPUT_WEIGHTS * HIDDEN_SIZE * sizeof(I16);
 
             std::memcpy(net.layer_1_biases, &gEVALData[memoryIndex], HIDDEN_SIZE * sizeof(I16));
             memoryIndex += HIDDEN_SIZE * sizeof(I16);

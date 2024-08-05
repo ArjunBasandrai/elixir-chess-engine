@@ -230,7 +230,7 @@ namespace elixir {
 
         nnue::NNUE nn;
 
-        int calculate_buckets() {
+        int calculate_buckets() const {
             int active_neurons = 0;
             for (int i = 0; i < 6; i++) {
                 active_neurons += bits::count_bits(b_pieces[i]);
