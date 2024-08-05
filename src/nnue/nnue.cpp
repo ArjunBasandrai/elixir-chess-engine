@@ -25,8 +25,8 @@ namespace elixir::nnue {
         return clipped * clipped;
     }
 
-    void Accumulator::set_position(const Board &board, Network& net) {
-        king_bucket = board.calculate_buckets();
+    void Accumulator::set_position(const Board &board, Network& net, const U8 bucket) {
+        king_bucket = bucket;
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             accumulator[0][i] = net.layer_1_biases[i];
@@ -221,7 +221,7 @@ namespace elixir::nnue {
     }
 
     void NNUE::set_position(const Board &board) {
-        accumulators[current_acc].set_position(board, net);
+        accumulators[current_acc].set_position(board, net, get_king_bucket(board.get_side_to_move(), board.get_king_square(board.get_side_to_move())));
     }
 
     int NNUE::eval(const Color side, const int bucket) {

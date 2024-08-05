@@ -71,6 +71,16 @@ namespace elixir {
                     accumulators[current_acc].make_move(board, move, net);
                 }
 
+                auto get_king_bucket(const Color side, const Square king_sq) {
+                    const U8 sq = static_cast<U8>(king_sq);
+                    const U8 color = static_cast<U8>(side);
+                    return KING_BUCKET_SCHEME[sq ^ (56 * color)];
+                }
+
+                bool needs_refresh(const int previous_bucket, const Color side, const Square king_sq) {
+                    return get_king_bucket(side, king_sq) != previous_bucket;
+                }
+
                 int eval(const Color side, const int bucket);
         };
     }

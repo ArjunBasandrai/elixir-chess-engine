@@ -506,7 +506,7 @@ namespace elixir {
 
         hash_key ^= zobrist::side_key;
 
-        if (bucket != calculate_buckets()) {
+        if (nn.needs_refresh(bucket, side, kings[static_cast<I8>(side)])) {
             nn.set_position(*this);
         }
 

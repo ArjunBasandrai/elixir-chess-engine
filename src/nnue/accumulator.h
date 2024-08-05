@@ -15,7 +15,7 @@ namespace elixir {
 namespace elixir::nnue {
     class Accumulator {
         public:
-            void set_position(const Board& board, Network& net);
+            void set_position(const Board& board, Network& net, const U8 bucket);
 
             Accumulator() = default;
 
