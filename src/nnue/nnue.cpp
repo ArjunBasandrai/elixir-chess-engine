@@ -170,6 +170,8 @@ namespace elixir::nnue {
     void NNUE::init(const std::string file) {
         FILE *nn = fopen(file.c_str(), "rb");
 
+        I16 untransposed_output_weights[2][HIDDEN_SIZE][OUTPUT_BUCKETS];
+
         if (nn) {
             // initialize an accumulator for every input of the second layer
             size_t read            = 0;
@@ -179,7 +181,8 @@ namespace elixir::nnue {
             read += fread(net.layer_1_weights, sizeof(I16), INPUT_WEIGHTS * HIDDEN_SIZE, nn);
             read += fread(net.layer_1_biases, sizeof(I16), HIDDEN_SIZE, nn);
             read += fread(net.output_weights, sizeof(I16), HIDDEN_SIZE * 2, nn);
-            read += fread(&net.output_bias, sizeof(I16), 1, nn);
+            read += fread(untransposed_output_weights, sizeof(I16), HIDDEN_SIZE * OUTPUT_BUCKETS * 2, nn);
+            read += fread(net.output_bias, sizeof(I16), OUTPUT_BUCKETS, nn);
 
             if (read != objectsExpected) {
                 std::cout << "Error loading the net, aborting ";
@@ -200,10 +203,18 @@ namespace elixir::nnue {
             std::memcpy(net.layer_1_biases, &gEVALData[memoryIndex], HIDDEN_SIZE * sizeof(I16));
             memoryIndex += HIDDEN_SIZE * sizeof(I16);
 
-            std::memcpy(net.output_weights, &gEVALData[memoryIndex], HIDDEN_SIZE * sizeof(I16) * 2);
+            std::memcpy(untransposed_output_weights, &gEVALData[memoryIndex], HIDDEN_SIZE * OUTPUT_BUCKETS * sizeof(I16) * 2);
 
-            memoryIndex += HIDDEN_SIZE * sizeof(I16) * 2;
-            std::memcpy(&net.output_bias, &gEVALData[memoryIndex], 1 * sizeof(I16));
+            memoryIndex += HIDDEN_SIZE * OUTPUT_BUCKETS * sizeof(I16) * 2;
+            std::memcpy(net.output_bias, &gEVALData[memoryIndex], OUTPUT_BUCKETS * sizeof(I16));
+        }
+
+        for (int stm = 0; stm < 2; stm++) {
+            for (int weight = 0; weight < HIDDEN_SIZE; weight++) {
+                for (int bucket = 0; bucket < OUTPUT_BUCKETS; bucket++) {
+                    net.output_weights[bucket][stm][weight] = untransposed_output_weights[stm][weight][bucket];
+                }
+            }
         }
     }
 
@@ -211,17 +222,17 @@ namespace elixir::nnue {
         accumulators[current_acc].set_position(board, net);
     }
 
-    int NNUE::eval(const Color side) {
+    int NNUE::eval(const Color side, const int bucket) {
         I8 icolor = static_cast<I8>(side);
         int eval  = 0;
-
+        
 #if defined(USE_SIMD)
         vepi32 sum = zero_epi32();
         constexpr int chunk_size = sizeof(vepi16) / sizeof(int16_t);
 
         for (int i = 0; i < HIDDEN_SIZE; i += chunk_size) {
             const vepi16 accumulator_data = load_epi16(&accumulators[current_acc][icolor][i]);
-            const vepi16 weights = load_epi16(&net.output_weights[0][i]);
+            const vepi16 weights = load_epi16(&net.output_weights[bucket][0][i]);
 
             const vepi16 clipped_accumulator = clip(accumulator_data, L1Q);
 
@@ -234,7 +245,7 @@ namespace elixir::nnue {
 
         for (int i = 0; i < HIDDEN_SIZE; i += chunk_size) {
             const vepi16 accumulator_data = load_epi16(&accumulators[current_acc][icolor ^ 1][i]);
-            const vepi16 weights = load_epi16(&net.output_weights[1][i]);
+            const vepi16 weights = load_epi16(&net.output_weights[bucket][1][i]);
 
             const vepi16 clipped_accumulator = clip(accumulator_data, L1Q);
 
@@ -248,16 +259,16 @@ namespace elixir::nnue {
         eval = reduce_add_epi32(sum);
 #else
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            eval += screlu(accumulators[current_acc][icolor][i]) * net.output_weights[0][i];
+            eval += screlu(accumulators[current_acc][icolor][i]) * net.output_weights[bucket][0][i];
         }
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            eval += screlu(accumulators[current_acc][icolor ^ 1][i]) * net.output_weights[1][i];
+            eval += screlu(accumulators[current_acc][icolor ^ 1][i]) * net.output_weights[bucket][1][i];
         }
 
 #endif
         eval /= L1Q;
-        eval += net.output_bias;
+        eval += net.output_bias[bucket];
         eval = (eval * SCALE) / (L1Q * OutputQ);
 
         return eval;

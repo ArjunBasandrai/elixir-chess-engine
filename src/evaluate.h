@@ -26,7 +26,5 @@ namespace elixir {
         extern int MP_QUEEN;
         extern int MP_KING;
         extern int piece_values[7];
-
-        extern int evaluate(Board &board);
     }
 }
