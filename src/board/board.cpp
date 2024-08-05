@@ -340,7 +340,7 @@ namespace elixir {
     }
 
     bool Board::make_move(move::Move move, bool update_accumulator) {
-        const auto bucket = nn.get_acc().king_bucket;
+        const auto buckets = nn.get_acc().king_buckets;
         if (update_accumulator)
             nn.make_move(*this, move);
 
@@ -506,7 +506,7 @@ namespace elixir {
 
         hash_key ^= zobrist::side_key;
 
-        if (nn.needs_refresh(bucket, side, kings[static_cast<I8>(side)])) {
+        if (nn.needs_refresh(buckets, kings)) {
             nn.set_position(*this);
         }
 

@@ -25,8 +25,8 @@ namespace elixir::nnue {
         return clipped * clipped;
     }
 
-    void Accumulator::set_position(const Board &board, Network& net, const U8 bucket) {
-        king_bucket = bucket;
+    void Accumulator::set_position(const Board &board, Network& net, const U8 white_bucket, const U8 black_bucket) {
+        king_buckets = {white_bucket, black_bucket};
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             accumulator[0][i] = net.layer_1_biases[i];
@@ -48,11 +48,11 @@ namespace elixir::nnue {
                     const int black_input_index = (color ^ 1) * 384 + piece * 64 + black_sq;
 
                     for (int i = 0; i < HIDDEN_SIZE; i++) {
-                        accumulator[0][i] += net.layer_1_weights[king_bucket][white_input_index][i];
+                        accumulator[0][i] += net.layer_1_weights[king_buckets[0]][white_input_index][i];
                     }
 
                     for (int i = 0; i < HIDDEN_SIZE; i++) {
-                        accumulator[1][i] += net.layer_1_weights[king_bucket][black_input_index][i];
+                        accumulator[1][i] += net.layer_1_weights[king_buckets[1]][black_input_index][i];
                     }
                 }
             }
@@ -69,11 +69,11 @@ namespace elixir::nnue {
         const int black_input_index = (color ^ 1) * 384 + piecetype * 64 + black_sq;
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulator[0][i] += net.layer_1_weights[king_bucket][white_input_index][i];
+            accumulator[0][i] += net.layer_1_weights[king_buckets[0]][white_input_index][i];
         }
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulator[1][i] += net.layer_1_weights[king_bucket][black_input_index][i];
+            accumulator[1][i] += net.layer_1_weights[king_buckets[1]][black_input_index][i];
         }
     }
 
@@ -87,11 +87,11 @@ namespace elixir::nnue {
         const int black_input_index = (color ^ 1) * 384 + piecetype * 64 + black_sq;
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulator[0][i] -= net.layer_1_weights[king_bucket][white_input_index][i];
+            accumulator[0][i] -= net.layer_1_weights[king_buckets[0]][white_input_index][i];
         }
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulator[1][i] -= net.layer_1_weights[king_bucket][black_input_index][i];
+            accumulator[1][i] -= net.layer_1_weights[king_buckets[1]][black_input_index][i];
         }
     }
 
@@ -221,7 +221,9 @@ namespace elixir::nnue {
     }
 
     void NNUE::set_position(const Board &board) {
-        accumulators[current_acc].set_position(board, net, get_king_bucket(board.get_side_to_move(), board.get_king_square(board.get_side_to_move())));
+        const int white_bucket = get_king_bucket(Color::WHITE, board.get_king_square(Color::WHITE));
+        const int black_bucket = get_king_bucket(Color::BLACK, board.get_king_square(Color::BLACK));
+        accumulators[current_acc].set_position(board, net, white_bucket, black_bucket);
     }
 
     int NNUE::eval(const Color side, const int bucket) {
