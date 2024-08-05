@@ -230,9 +230,17 @@ namespace elixir {
 
         nnue::NNUE nn;
 
+        int calculate_buckets() {
+            int active_neurons = 0;
+            for (int i = 0; i < 6; i++) {
+                active_neurons += bits::count_bits(b_pieces[i]);
+            }
+            return (active_neurons - 2) / BUCKET_DIVISOR;
+        }
+
         int evaluate() {
             using namespace bits;
-            const int eval  = nn.eval(side);
+            const int eval  = nn.eval(side, calculate_buckets());
             const int phase = 3 * count_bits(knights()) + 3 * count_bits(bishops()) +
                               5 * count_bits(rooks()) + 10 * count_bits(queens());
             const int scaled_eval = eval * (phase + 206) / 256;

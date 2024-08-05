@@ -71,7 +71,7 @@ namespace elixir {
                     accumulators[current_acc].make_move(board, move, net);
                 }
 
-                int eval(const Color side);
+                int eval(const Color side, const int bucket);
         };
     }
 }
