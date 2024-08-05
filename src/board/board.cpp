@@ -340,12 +340,9 @@ namespace elixir {
     }
 
     bool Board::make_move(move::Move move, bool update_accumulator) {
-        bool needs_refresh = false;
-        if (update_accumulator) {
-            const int bucket = nn.get_acc().king_bucket;
+        const auto bucket = nn.get_acc().king_bucket;
+        if (update_accumulator)
             nn.make_move(*this, move);
-            needs_refresh = bucket != calculate_buckets();
-        }
 
         const Square from               = move.get_from();
         const Square to                 = move.get_to();
@@ -495,6 +492,7 @@ namespace elixir {
             }
         }
 
+        
         if (is_square_attacked(kings[static_cast<I8>(side)], enemy_side)) {
             unmake_move(move, false);
             return false;
@@ -508,7 +506,7 @@ namespace elixir {
 
         hash_key ^= zobrist::side_key;
 
-        if (needs_refresh) {
+        if (bucket != calculate_buckets()) {
             nn.set_position(*this);
         }
 
