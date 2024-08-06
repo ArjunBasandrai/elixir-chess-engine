@@ -340,6 +340,7 @@ namespace elixir {
     }
 
     bool Board::make_move(move::Move move, bool update_accumulator) {
+        const auto old_king_buckets = nn.get_acc().king_buckets;
         if (update_accumulator)
             nn.make_move(*this, move);
 
@@ -491,6 +492,11 @@ namespace elixir {
             }
         }
 
+        const auto new_king_buckets = nn.get_acc().king_buckets;
+        if (old_king_buckets[0] != new_king_buckets[0] || old_king_buckets[1] != new_king_buckets[1]) {
+            nn.set_position(*this);
+        }
+
         if (is_square_attacked(kings[static_cast<I8>(side)], enemy_side)) {
             unmake_move(move, false);
             return false;
@@ -503,6 +509,7 @@ namespace elixir {
         hash_key ^= zobrist::castle_keys[castling_rights];
 
         hash_key ^= zobrist::side_key;
+
         return true;
     }
 

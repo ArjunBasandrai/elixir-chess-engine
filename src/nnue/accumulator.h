@@ -20,6 +20,7 @@ namespace elixir::nnue {
             Accumulator() = default;
 
             alignas(32) std::array<std::array<I16, HIDDEN_SIZE>, 2> accumulator;
+            std::array<U8 ,2> king_buckets;
 
             std::array<I16, HIDDEN_SIZE> &operator[](size_t i) { return accumulator[i]; }
             const std::array<I16, HIDDEN_SIZE> &operator[](size_t i) const { return accumulator[i]; }
