@@ -427,6 +427,7 @@ namespace elixir::search {
             R -= (is_quiet_move ? history_score / HISTORY_GRAVITY : 0);
             R -= board.is_in_check();
             R += cutnode;
+            R -= SEE(board, move, SEE_QUIET * depth);
             
             if (depth > 1 && legals > 1) {
                 R = std::clamp(R, 1, new_depth);
