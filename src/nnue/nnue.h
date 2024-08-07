@@ -71,6 +71,12 @@ namespace elixir {
                     accumulators[current_acc].make_move(board, move, net);
                 }
 
+                void refresh_if_bucket_change(const Board& board, const std::array<U8, 2> old_buckets) {
+                    if (old_buckets[0] != get_acc().king_buckets[0] || old_buckets[1] != get_acc().king_buckets[1]) {
+                        set_position(board);
+                    }
+                }
+
                 int eval(const Color side, const int bucket);
         };
     }
