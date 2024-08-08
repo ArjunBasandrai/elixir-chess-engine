@@ -218,7 +218,7 @@ namespace elixir::search {
         auto best_move = move::Move();
         ProbedEntry result;
         TTFlag tt_flag = TT_NONE;
-        bool tt_hit = false;
+        bool tt_hit = false, tt_capture = false;
         auto tt_move = move::NO_MOVE;
 
         if (!ss->excluded_move) {
@@ -234,6 +234,7 @@ namespace elixir::search {
                 return result.score;
             }
             tt_move = result.best_move;
+            tt_capture = tt_move && (tt_move.is_capture() || tt_move.is_en_passant());
         }
 
         /*
@@ -427,6 +428,7 @@ namespace elixir::search {
             R -= (is_quiet_move ? history_score / HISTORY_GRAVITY : 0);
             R -= board.is_in_check();
             R += cutnode;
+            R += tt_capture;
             
             if (depth > 1 && legals > 1) {
                 R = std::clamp(R, 1, new_depth);
