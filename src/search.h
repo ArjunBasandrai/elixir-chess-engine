@@ -128,7 +128,7 @@ namespace elixir::search {
 
         std::vector<Searcher> searchers;
 
-        std::vector<std::jthread> threads;
+        std::vector<std::thread> threads;
         std::vector<ThreadData> thread_datas;
 
         int num_threads = 1;
@@ -168,6 +168,10 @@ namespace elixir::search {
                 while (searchers[i].searching) {
                     std::this_thread::sleep_for(std::chrono::microseconds(1));
                 }
+            }
+            for (auto& thread: threads) {
+                if (thread.joinable())
+                    thread.join();
             }
         }
 
