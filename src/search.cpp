@@ -345,6 +345,8 @@ namespace elixir::search {
             if (skip_quiets && is_quiet_move)
                 continue;
 
+            const int history_score = history.get_history(move, ss);
+
             if (! root_node && best_score > -MATE_FOUND) {
                 /*
                 | Late Move Pruning [LMP] (~30 ELO) : Skip late quiet moves if  |
@@ -375,6 +377,11 @@ namespace elixir::search {
                     is_quiet_move ? -SEE_QUIET * depth : -SEE_CAPTURE * depth * depth;
                 if (depth <= SEE_DEPTH && legals > 0 && ! SEE(board, move, see_threshold))
                     continue;
+                
+                if (is_quiet_move && history_score < -4096 * depth) {
+                    skip_quiets = true;
+                    continue;
+                }
             }
 
             int extensions = 0;
@@ -414,8 +421,6 @@ namespace elixir::search {
 
             legals++;
             info.nodes++;
-
-            const int history_score = history.get_history(move, ss);
 
             /*
             | Principal Variation Search and Late Move Reduction [PVS + LMR] (~40 ELO) |
