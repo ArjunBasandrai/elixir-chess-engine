@@ -31,7 +31,7 @@
 
 namespace elixir::uci {
 
-    std::jthread main_search_thread;
+    std::thread main_search_thread;
     std::condition_variable cv;
     std::mutex mtx;
     std::atomic<bool> ready{false};
@@ -194,7 +194,7 @@ namespace elixir::uci {
     }
 
     void uci_loop(Board &board) {
-        main_search_thread = std::jthread(search_thread_function);
+        main_search_thread = std::thread(search_thread_function);
         search::SearchInfo info;
         while (true) {
             std::string input;

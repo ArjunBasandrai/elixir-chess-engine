@@ -681,7 +681,7 @@ namespace elixir::search {
         for (int i = 1; i < num_threads; i++) {
             auto &td = thread_datas[i];
             auto &searcher = searchers[i];
-            threads.emplace_back(std::jthread(
+            threads.emplace_back(std::thread(
                 [&td, &searcher, print_info]() { searcher.search(td, print_info); }
             ));
         }
@@ -691,6 +691,11 @@ namespace elixir::search {
         for (int i = 1; i < num_threads; i++) {
             if (searchers[i].searching) 
                 thread_datas[i].info.stopped = true;
+        }
+
+        for (auto& thread: threads) {
+            if (thread.joinable())
+                thread.join();
         }
 
         for (auto &td: thread_datas) {

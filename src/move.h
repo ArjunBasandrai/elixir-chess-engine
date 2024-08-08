@@ -80,6 +80,7 @@ namespace elixir::move {
         }
 
         bool operator==(const Move &other) const noexcept { return m_move == other.m_move; }
+        bool operator!=(const Move &other) const noexcept { return m_move != other.m_move; }
 
         explicit operator bool() const noexcept { return m_move != 0; }
 

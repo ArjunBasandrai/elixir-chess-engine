@@ -3,7 +3,6 @@
 #include <array>
 #include <vector>
 #include <chrono>
-#include <span>
 #include <thread>
 #include <atomic>
 
@@ -37,8 +36,6 @@ namespace elixir::search {
                 move = move::NO_MOVE;
             }
         }
-
-        std::span<move::Move> moves() { return std::span<move::Move>(line.data(), length); }
 
         int score_value() const { return score; }
 
@@ -131,7 +128,7 @@ namespace elixir::search {
 
         std::vector<Searcher> searchers;
 
-        std::vector<std::jthread> threads;
+        std::vector<std::thread> threads;
         std::vector<ThreadData> thread_datas;
 
         int num_threads = 1;
@@ -171,6 +168,10 @@ namespace elixir::search {
                 while (searchers[i].searching) {
                     std::this_thread::sleep_for(std::chrono::microseconds(1));
                 }
+            }
+            for (auto& thread: threads) {
+                if (thread.joinable())
+                    thread.join();
             }
         }
 
