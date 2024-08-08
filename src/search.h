@@ -3,7 +3,6 @@
 #include <array>
 #include <vector>
 #include <chrono>
-#include <span>
 #include <thread>
 #include <atomic>
 
@@ -37,8 +36,6 @@ namespace elixir::search {
                 move = move::NO_MOVE;
             }
         }
-
-        std::span<move::Move> moves() { return std::span<move::Move>(line.data(), length); }
 
         int score_value() const { return score; }
 
