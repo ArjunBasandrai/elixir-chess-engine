@@ -247,6 +247,10 @@ namespace elixir {
             return scaled_eval;
         }
 
+        bool is_only_pawns() const {
+            return (occupancy() == (pawns() | king()));
+        }
+
       private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};

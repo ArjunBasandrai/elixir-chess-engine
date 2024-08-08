@@ -345,7 +345,7 @@ namespace elixir::search {
             if (skip_quiets && is_quiet_move)
                 continue;
 
-            if (! root_node && best_score > -MATE_FOUND) {
+            if (! root_node && best_score > -MATE_FOUND && !board.is_only_pawns()) {
                 /*
                 | Late Move Pruning [LMP] (~30 ELO) : Skip late quiet moves if  |
                 | we've already searched the most promising moves because they  |
