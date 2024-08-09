@@ -242,7 +242,7 @@ namespace elixir::search {
         | not very good. So, we save time by reducing the depth of the search.              |
         */
         if (depth >= IIR_DEPTH && !tt_move)
-            depth--;
+            depth -= 2;
 
         /*
         | Initialize the evaluation score. If we are in check, we set the evaluation score to INF.   |
