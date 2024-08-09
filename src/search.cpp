@@ -283,7 +283,7 @@ namespace elixir::search {
             | confident that we will not fall below beta anytime soon, then we cutoff.     |
             */
             if (depth <= RFP_DEPTH && eval - RFP_MARGIN * depth + 60 * improving >= beta) {
-                return eval;
+                return (eval + beta) / 2;
             }
 
             /*
