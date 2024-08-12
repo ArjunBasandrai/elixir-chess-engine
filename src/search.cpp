@@ -290,7 +290,7 @@ namespace elixir::search {
             | Null Move Pruning (~60 ELO) : If our position is so good, we give our |
             | opponent an extra move to see if we are still better.                 |
             */
-            if (depth >= NMP_DEPTH && (ss - 1)->move && eval >= beta) {
+            if (depth >= NMP_DEPTH && (ss - 1)->move && eval - 20 * depth >= beta) {
                 int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR;
                 R     = std::min(R, depth);
 
