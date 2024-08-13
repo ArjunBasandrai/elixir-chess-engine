@@ -236,6 +236,8 @@ namespace elixir::search {
             tt_move = result.best_move;
         }
 
+        const bool tt_pv = (tt_hit && result.tt_pv) || pv_node;
+
         /*
         | Internal Iterative Reduction (~6 ELO) : If no TT move is found for this position, |
         | searching this node will likely take a lot of time, and this node is likely to be |
@@ -427,6 +429,7 @@ namespace elixir::search {
             R -= (is_quiet_move ? history_score / HISTORY_GRAVITY : 0);
             R -= board.is_in_check();
             R += cutnode;
+            R -= tt_pv;
             
             if (depth > 1 && legals > 1) {
                 R = std::clamp(R, 1, new_depth);
@@ -489,7 +492,7 @@ namespace elixir::search {
         }
 
         if (!ss->excluded_move) {
-            tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv);
+            tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv, tt_pv);
         }
 
         return best_score;
