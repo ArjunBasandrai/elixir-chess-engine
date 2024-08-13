@@ -41,13 +41,14 @@ namespace elixir {
             result.score     = entry.score;
             result.depth     = entry.depth;
             flag             = entry.flag;
+            result.tt_pv     = entry.tt_pv;
             return true;
         }
         return false;
     }
 
     void TranspositionTable::store_tt(U64 key, int score, move::Move move, U8 depth, int ply,
-                                      TTFlag flag, search::PVariation pv) {
+                                      TTFlag flag, search::PVariation pv, bool tt_pv) {
         U32 index     = get_index(key);
         TTEntry entry = table[index];
 
@@ -69,6 +70,7 @@ namespace elixir {
         entry.move  = move;
         entry.depth = depth;
         entry.flag  = flag;
+        entry.tt_pv = tt_pv;
 
         table[index] = entry;
     }
