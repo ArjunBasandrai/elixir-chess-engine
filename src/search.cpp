@@ -355,7 +355,6 @@ namespace elixir::search {
                 */
                 if (is_quiet_move && legals >= LMP_BASE + LMP_MULTIPLIER * depth * depth) {
                     skip_quiets = true;
-                    continue;
                 }
 
                 /*
@@ -366,7 +365,6 @@ namespace elixir::search {
                 if (depth <= FP_DEPTH && ! in_check && is_quiet_move &&
                     ss->eval + futility_margin < alpha) {
                     skip_quiets = true;
-                    continue;
                 }
 
                 /*
