@@ -293,7 +293,7 @@ namespace elixir::search {
             | opponent an extra move to see if we are still better.                 |
             */
             if (depth >= NMP_DEPTH && (ss - 1)->move && eval >= beta) {
-                int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR;
+                int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR + std::min((eval - beta) / 200, 6);
                 R     = std::min(R, depth);
 
                 /*
