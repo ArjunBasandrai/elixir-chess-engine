@@ -492,7 +492,7 @@ namespace elixir::search {
         }
 
         if (!ss->excluded_move) {
-            tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv, tt_pv);
+            tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv, tt_pv, improving);
         }
 
         return best_score;
