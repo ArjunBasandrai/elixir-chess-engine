@@ -272,9 +272,9 @@ namespace elixir::search {
             | Razoring (~4 ELO) : If out position is way below alpha, do a verification |
             | quiescence search, if we still cant exceed alpha, then we cutoff.         |
             */
-            if (depth <= RAZOR_DEPTH && eval + RAZOR_MARGIN * depth < alpha) {
+            if (depth <= RAZOR_DEPTH && eval + 500 + RAZOR_MARGIN * depth * depth < alpha) {
                 const int razor_score = qsearch(td, alpha, beta, local_pv, ss);
-                if (razor_score <= alpha) {
+                if (razor_score <= alpha && std::abs(razor_score) < MATE_FOUND) {
                     return razor_score;
                 }
             }
