@@ -247,6 +247,14 @@ namespace elixir {
             return scaled_eval;
         }
 
+        bool has_non_pawn_material() {
+            return (b_pieces[static_cast<I8>(PieceType::KNIGHT)] |
+                    b_pieces[static_cast<I8>(PieceType::BISHOP)] |
+                    b_pieces[static_cast<I8>(PieceType::ROOK)] |
+                    b_pieces[static_cast<I8>(PieceType::QUEEN)]) &
+                   color_occupancy(side);
+        }
+
       private:
         std::array<Bitboard, 2> b_occupancies{};
         std::array<Bitboard, 6> b_pieces{};
