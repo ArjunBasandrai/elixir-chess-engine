@@ -52,7 +52,7 @@ namespace elixir {
         U32 index     = get_index(key);
         TTEntry entry = table[index];
 
-        bool replace = entry.key != key || entry.depth < depth + 2 || flag == TT_EXACT || improving;
+        bool replace = entry.key != key || entry.depth < depth + 4 || flag == TT_EXACT || improving;
 
         if (! replace)
             return;
