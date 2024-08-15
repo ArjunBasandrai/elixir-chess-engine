@@ -7,14 +7,15 @@
 
 #include "board/board.h"
 #include "evaluate.h"
+#include "history.h"
 #include "move.h"
 #include "movegen.h"
 #include "movepicker.h"
-#include "tt.h"
 #include "time_manager.h"
-#include "history.h"
+#include "tt.h"
 #include "utils/bits.h"
 #include "utils/static_vector.h"
+
 
 using namespace elixir::bits;
 
@@ -67,8 +68,7 @@ namespace elixir::search {
     }
 
     // (~20 ELO)
-    int Searcher::qsearch(ThreadData &td, int alpha, int beta, PVariation &pv,
-                SearchStack *ss) {
+    int Searcher::qsearch(ThreadData &td, int alpha, int beta, PVariation &pv, SearchStack *ss) {
 
         pv.length = 0;
 
@@ -171,7 +171,7 @@ namespace elixir::search {
     }
 
     int Searcher::negamax(ThreadData &td, int alpha, int beta, int depth, PVariation &pv,
-                SearchStack *ss, bool cutnode) {
+                          SearchStack *ss, bool cutnode) {
 
         pv.length = 0;
 
@@ -188,9 +188,10 @@ namespace elixir::search {
 
         if (ss->ply > info.seldepth)
             info.seldepth = ss->ply;
-            
+
         /*
-        | Quiescence Search : Perform a quiescence search at leaf nodes to avoid the horizon effect. |
+        | Quiescence Search : Perform a quiescence search at leaf nodes to avoid the horizon effect.
+        |
         */
         if (depth <= 0)
             return qsearch(td, alpha, beta, pv, ss);
@@ -223,10 +224,10 @@ namespace elixir::search {
         auto best_move = move::Move();
         ProbedEntry result;
         TTFlag tt_flag = TT_NONE;
-        bool tt_hit = false;
-        auto tt_move = move::NO_MOVE;
+        bool tt_hit    = false;
+        auto tt_move   = move::NO_MOVE;
 
-        if (!ss->excluded_move) {
+        if (! ss->excluded_move) {
             tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta, tt_flag);
             /*
             | TT Cutoff (~130 ELO) : If we have already seen this position before and the |
@@ -235,7 +236,7 @@ namespace elixir::search {
             */
             if (tt_hit && ! pv_node && result.depth >= depth &&
                 (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) ||
-                (tt_flag == TT_BETA && result.score >= beta))) {
+                 (tt_flag == TT_BETA && result.score >= beta))) {
                 return result.score;
             }
             tt_move = result.best_move;
@@ -248,15 +249,16 @@ namespace elixir::search {
         | searching this node will likely take a lot of time, and this node is likely to be |
         | not very good. So, we save time by reducing the depth of the search.              |
         */
-        if (depth >= IIR_DEPTH && !tt_move)
+        if (depth >= IIR_DEPTH && ! tt_move)
             depth--;
 
         /*
-        | Initialize the evaluation score. If we are in check, we set the evaluation score to INF.   |
-        | Otherwise, if we have a TT hit, we use the stored score. If not, we evaluate the position. |
+        | Initialize the evaluation score. If we are in check, we set the evaluation score to INF. |
+        | Otherwise, if we have a TT hit, we use the stored score. If not, we evaluate the position.
+        |
         */
 
-        if (!ss->excluded_move) {
+        if (! ss->excluded_move) {
             if (in_check)
                 eval = ss->eval = INF;
 
@@ -274,7 +276,7 @@ namespace elixir::search {
             return true;
         }();
 
-        if (! pv_node && ! in_check && !ss->excluded_move) {
+        if (! pv_node && ! in_check && ! ss->excluded_move) {
             /*
             | Razoring (~4 ELO) : If out position is way below alpha, do a verification |
             | quiescence search, if we still cant exceed alpha, then we cutoff.         |
@@ -289,7 +291,8 @@ namespace elixir::search {
             | Reverse Futility Pruning (~45 ELO) : If our position is so good, that we are |
             | confident that we will not fall below beta anytime soon, then we cutoff.     |
             */
-            if (depth <= RFP_DEPTH && eval - futility_margin(depth, improving, cutnode, tt_hit) >= beta) {
+            if (depth <= RFP_DEPTH &&
+                eval - futility_margin(depth, improving, cutnode, tt_hit) >= beta) {
                 return (eval + beta) / 2;
             }
 
@@ -297,7 +300,8 @@ namespace elixir::search {
             | Null Move Pruning (~60 ELO) : If our position is so good, we give our |
             | opponent an extra move to see if we are still better.                 |
             */
-            if (depth >= NMP_DEPTH && (ss - 1)->move && eval >= beta && board.has_non_pawn_material()) {
+            if (depth >= NMP_DEPTH && (ss - 1)->move && eval >= beta &&
+                board.has_non_pawn_material()) {
                 int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR + std::min((eval - beta) / 200, 6);
                 R     = std::min(R, depth);
 
@@ -309,7 +313,7 @@ namespace elixir::search {
                 ss->cont_hist = nullptr;
 
                 board.make_null_move();
-                int score = -negamax(td, -beta, -beta + 1, depth - R, local_pv, ss + 1, !cutnode);
+                int score = -negamax(td, -beta, -beta + 1, depth - R, local_pv, ss + 1, ! cutnode);
                 board.unmake_null_move();
 
                 /*
@@ -341,7 +345,8 @@ namespace elixir::search {
 
         while ((move = mp.next_move())) {
 
-            if (move == ss->excluded_move) continue;
+            if (move == ss->excluded_move)
+                continue;
 
             const bool is_quiet_move = move.is_quiet();
 
@@ -358,7 +363,9 @@ namespace elixir::search {
                 | we've already searched the most promising moves because they  |
                 | are likely to be bad.                                         |
                 */
-                if (is_quiet_move && legals >= LMP_BASE + LMP_MULTIPLIER * depth * depth && board.has_non_pawn_material()) {
+                if (is_quiet_move && ! in_check &&
+                    legals >= LMP_BASE + LMP_MULTIPLIER * depth * depth &&
+                    board.has_non_pawn_material()) {
                     skip_quiets = true;
                     continue;
                 }
@@ -386,8 +393,9 @@ namespace elixir::search {
 
             int extensions = 0;
 
-            if (!root_node && depth >= 8 && move == tt_move && !ss->excluded_move && result.depth >= depth - 3 && tt_flag != TT_ALPHA) {
-                const auto s_beta = result.score - depth * 2;
+            if (! root_node && depth >= 8 && move == tt_move && ! ss->excluded_move &&
+                result.depth >= depth - 3 && tt_flag != TT_ALPHA) {
+                const auto s_beta  = result.score - depth * 2;
                 const auto s_depth = (depth - 1) / 2;
 
                 ss->excluded_move = move;
@@ -401,7 +409,7 @@ namespace elixir::search {
                     extensions += 1 + (s_score < s_beta - double_margin);
                 }
 
-                else if (s_beta >= beta) 
+                else if (s_beta >= beta)
                     return s_beta;
             }
 
@@ -409,7 +417,7 @@ namespace elixir::search {
 
             if (! board.make_move(move))
                 continue;
-            
+
 
             tt->prefetch(board.get_hash_key());
 
@@ -427,7 +435,7 @@ namespace elixir::search {
             /*
             | Principal Variation Search and Late Move Reduction [PVS + LMR] (~40 ELO) |
             */
-            int score = 0;
+            int score           = 0;
             const int new_depth = depth - 1 + extensions;
 
             int R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
@@ -435,19 +443,20 @@ namespace elixir::search {
             R -= board.is_in_check();
             R += cutnode;
             R -= tt_pv;
-            
+
             if (depth > 1 && legals > 1) {
-                R = std::clamp(R, 1, new_depth);
+                R             = std::clamp(R, 1, new_depth);
                 int lmr_depth = new_depth - R + 1;
-                score = -negamax(td, -alpha - 1, -alpha, lmr_depth, local_pv, ss + 1, true);
+                score         = -negamax(td, -alpha - 1, -alpha, lmr_depth, local_pv, ss + 1, true);
 
                 if (score > alpha && R > 0) {
-                    score = -negamax(td, -alpha - 1, -alpha, new_depth, local_pv, ss + 1, !cutnode);
+                    score =
+                        -negamax(td, -alpha - 1, -alpha, new_depth, local_pv, ss + 1, ! cutnode);
                 }
             }
 
-            else if (!pv_node || legals > 1) {
-                score = -negamax(td, -alpha - 1, -alpha, new_depth, local_pv, ss + 1, !cutnode);
+            else if (! pv_node || legals > 1) {
+                score = -negamax(td, -alpha - 1, -alpha, new_depth, local_pv, ss + 1, ! cutnode);
             }
 
             if (pv_node && (legals == 1 || (score > alpha && (root_node || score < beta)))) {
@@ -472,10 +481,10 @@ namespace elixir::search {
                                 ss->killers[0] = best_move;
                             }
                             history.update_countermove(board.get_side_to_move(),
-                                                             (ss - 1)->move.get_from(),
-                                                             (ss - 1)->move.get_to(), move);
+                                                       (ss - 1)->move.get_from(),
+                                                       (ss - 1)->move.get_to(), move);
                             history.update_history(move.get_from(), move.get_to(), depth,
-                                                         bad_quiets);
+                                                   bad_quiets);
                             history.update_chs(move, ss, bad_quiets, depth);
                         }
                         flag = TT_BETA;
@@ -492,12 +501,14 @@ namespace elixir::search {
         }
 
         if (legals == 0) {
-            if (ss->excluded_move) return alpha;
+            if (ss->excluded_move)
+                return alpha;
             return board.is_in_check() ? -MATE + ss->ply : 0;
         }
 
-        if (!ss->excluded_move) {
-            tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv, tt_pv, improving);
+        if (! ss->excluded_move) {
+            tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv,
+                         tt_pv, improving);
         }
 
         return best_score;
@@ -511,9 +522,8 @@ namespace elixir::search {
         Square from = move.get_from();
         Square to   = move.get_to();
 
-        int target_piece = move.is_en_passant()
-                               ? 0
-                               : static_cast<int>(piece_to_piecetype(board.piece_on(to)));
+        int target_piece =
+            move.is_en_passant() ? 0 : static_cast<int>(piece_to_piecetype(board.piece_on(to)));
 
 
         int value = see_values[target_piece] - threshold;
@@ -584,12 +594,12 @@ namespace elixir::search {
 
     void Searcher::search(ThreadData &td, bool print_info) {
         print_info &= td.thread_idx == 0;
-        searching = true;
+        searching  = true;
         auto start = std::chrono::high_resolution_clock::now();
         PVariation pv;
         move::Move best_move;
 
-        auto &info  = td.info;
+        auto &info = td.info;
 
         for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
             info.seldepth = 0;
@@ -636,8 +646,7 @@ namespace elixir::search {
             auto end      = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-            best_move = (pv.line[0]) ? pv.line[0]
-                                          : info.best_root_move;
+            best_move = (pv.line[0]) ? pv.line[0] : info.best_root_move;
 
             if (print_info && pv.line[0]) {
                 int time_ms = duration.count();
@@ -645,22 +654,22 @@ namespace elixir::search {
                 if (score > -MATE && score < -MATE_FOUND) {
                     std::cout << "info score mate " << -(score + MATE) / 2 << " depth "
                               << current_depth << " seldepth " << info.seldepth << " nodes "
-                              << main_searcher.get_nodes() << " time " << time_ms << " nps " << nps << " hashfull "
-                              << tt->get_hashfull() << " pv ";
+                              << main_searcher.get_nodes() << " time " << time_ms << " nps " << nps
+                              << " hashfull " << tt->get_hashfull() << " pv ";
                 }
 
                 else if (score > MATE_FOUND && score < MATE) {
                     std::cout << "info score mate " << (MATE - score) / 2 + 1 << " depth "
                               << current_depth << " seldepth " << info.seldepth << " nodes "
-                              << main_searcher.get_nodes() << " time " << time_ms << " nps " << nps << " hashfull "
-                              << tt->get_hashfull() << " pv ";
+                              << main_searcher.get_nodes() << " time " << time_ms << " nps " << nps
+                              << " hashfull " << tt->get_hashfull() << " pv ";
                 }
 
                 else {
                     std::cout << "info score cp " << score << " depth " << current_depth
-                              << " seldepth " << info.seldepth << " nodes " << main_searcher.get_nodes()
-                              << " time " << time_ms << " nps " << nps << " hashfull "
-                              << tt->get_hashfull() << " pv ";
+                              << " seldepth " << info.seldepth << " nodes "
+                              << main_searcher.get_nodes() << " time " << time_ms << " nps " << nps
+                              << " hashfull " << tt->get_hashfull() << " pv ";
                 }
                 pv.print_pv();
                 std::cout << std::endl;
@@ -679,7 +688,7 @@ namespace elixir::search {
     }
 
     void ThreadManager::search(Board &board, SearchInfo &info, bool print_info) {
-        in_search = true;
+        in_search                = true;
         SearchInfo non_main_info = SearchInfo(MAX_DEPTH, false);
         for (int i = 0; i < num_threads; i++) {
             thread_datas.push_back(ThreadData(board, i ? non_main_info : info));
@@ -687,26 +696,25 @@ namespace elixir::search {
         }
 
         for (int i = 1; i < num_threads; i++) {
-            auto &td = thread_datas[i];
+            auto &td       = thread_datas[i];
             auto &searcher = searchers[i];
-            threads.emplace_back(std::thread(
-                [&td, &searcher, print_info]() { searcher.search(td, print_info); }
-            ));
+            threads.emplace_back(
+                std::thread([&td, &searcher, print_info]() { searcher.search(td, print_info); }));
         }
 
         searchers[0].search(thread_datas[0], print_info);
 
         for (int i = 1; i < num_threads; i++) {
-            if (searchers[i].searching) 
+            if (searchers[i].searching)
                 thread_datas[i].info.stopped = true;
         }
 
-        for (auto& thread: threads) {
+        for (auto &thread : threads) {
             if (thread.joinable())
                 thread.join();
         }
 
-        for (auto &td: thread_datas) {
+        for (auto &td : thread_datas) {
             info.nodes += td.info.nodes;
         }
 
