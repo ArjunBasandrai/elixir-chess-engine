@@ -379,7 +379,7 @@ namespace elixir::search {
                 | lose a lot a material.                                               |
                 */
                 const int see_threshold =
-                    is_quiet_move ? -SEE_QUIET * depth : -SEE_CAPTURE * depth * depth;
+                    is_quiet_move ? -(SEE_QUIET + improving) * depth : -(SEE_CAPTURE + improving) * depth * depth;
                 if (depth <= SEE_DEPTH && legals > 0 && ! SEE(board, move, see_threshold))
                     continue;
             }
