@@ -358,7 +358,7 @@ namespace elixir::search {
                 | we've already searched the most promising moves because they  |
                 | are likely to be bad.                                         |
                 */
-                if (is_quiet_move && legals >= LMP_BASE + LMP_MULTIPLIER * depth * depth) {
+                if (is_quiet_move && legals >= LMP_BASE + LMP_MULTIPLIER * depth * depth && board.has_non_pawn_material()) {
                     skip_quiets = true;
                     continue;
                 }
