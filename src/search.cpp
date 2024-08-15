@@ -124,6 +124,10 @@ namespace elixir::search {
 
         while ((move = mp.next_move())) {
 
+            if (legals >= LMP_BASE + (MAX_DEPTH - ss->ply)) {
+                continue;
+            }
+
             /*
             | Q-Search Static Exchange Evaluation [SEE] Pruning (~55 ELO) : Skip moves that |
             | lose a lot of material.                                                       |
