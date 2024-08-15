@@ -108,6 +108,11 @@ namespace elixir::search {
             return result.score;
         }
 
+        if (tt_hit) {
+            best_score = result.score;
+            best_move  = result.best_move;
+        }
+
         if (best_score >= beta) {
             return best_score;
         }
