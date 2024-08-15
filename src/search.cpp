@@ -85,15 +85,14 @@ namespace elixir::search {
         if (board.is_repetition() || board.is_material_draw())
             return 0;
 
-        int best_score, eval = board.evaluate();
+        int best_score, eval;
 
         if (ss->ply >= MAX_DEPTH - 1)
-            return eval;
+            return board.evaluate();
 
         int legals     = 0;
         auto local_pv  = PVariation();
         auto best_move = move::Move();
-        best_score     = eval;
 
         ProbedEntry result;
         TTFlag tt_flag     = TT_NONE;
@@ -107,6 +106,8 @@ namespace elixir::search {
         if (ss->ply && can_cutoff) {
             return result.score;
         }
+
+        best_score = eval = board.evaluate();
 
         if (best_score >= beta) {
             return best_score;
