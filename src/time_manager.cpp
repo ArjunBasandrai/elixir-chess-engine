@@ -13,8 +13,8 @@ namespace elixir::time_management {
         2.43, 1.35, 1.09, 0.88, 0.68
     };
 
-    double node_fraction_base = 1.52;
-    double node_fraction_scale = 1.74;
+    double node_fraction_base = 1.00;
+    double node_fraction_scale = 1.24;
 
     void TimeManager::optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo,
                                    std::chrono::high_resolution_clock::time_point start_time_point) {
