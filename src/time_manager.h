@@ -38,7 +38,7 @@ namespace elixir {
             F64 soft_limit;
             F64 hard_limit;
 
-            std::array<U64, 4096> nodes_spent_;
+            std::array<U64, 4096> nodes_spent_ = {0ULL};
         };
     }
 

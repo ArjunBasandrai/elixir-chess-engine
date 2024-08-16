@@ -38,6 +38,7 @@ namespace elixir::time_management {
         info = search::SearchInfo(MAX_DEPTH, true);
 
         start_time = start_time_point;
+        nodes_spent_.fill(0);
     }
 
     bool TimeManager::should_stop(search::SearchInfo &info) {
