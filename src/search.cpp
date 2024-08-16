@@ -438,7 +438,7 @@ namespace elixir::search {
             
             if (depth > 1 && legals > 1) {
                 R = std::clamp(R, 1, new_depth);
-                int lmr_depth = new_depth - R + 1;
+                int lmr_depth = new_depth - R;
                 score = -negamax(td, -alpha - 1, -alpha, lmr_depth, local_pv, ss + 1, true);
 
                 if (score > alpha && R > 0) {
