@@ -413,6 +413,8 @@ namespace elixir::search {
 
             tt->prefetch(board.get_hash_key());
 
+            const U64 prev_nodes = main_searcher.get_nodes();
+
             /*
             | Add the current move to search stack. |
             */
@@ -455,6 +457,11 @@ namespace elixir::search {
             }
 
             board.unmake_move(move, true);
+
+            if (root_node) {
+                U64 &nodes_spent = time_manager.nodes_spent(move);
+                nodes_spent += main_searcher.get_nodes() - prev_nodes;
+            }
 
             if (info.stopped)
                 return 0;
@@ -666,7 +673,7 @@ namespace elixir::search {
                 std::cout << std::endl;
             }
 
-            if (time_manager.should_stop_early(info, current_depth, best_move) || info.stopped)
+            if (time_manager.should_stop_early(info, current_depth, best_move, main_searcher.get_nodes()) || info.stopped)
                 break;
         }
 
