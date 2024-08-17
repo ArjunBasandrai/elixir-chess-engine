@@ -12,7 +12,7 @@ namespace elixir {
     enum TTFlag : U8 { TT_NONE, TT_EXACT, TT_ALPHA, TT_BETA };
 
     struct TTEntry {
-        U64 key         = 0ULL;
+        U32 key         = 0ULL;
         I16 score       = 0;
         move::Move move = move::NO_MOVE;
         I8 depth        = -1;
