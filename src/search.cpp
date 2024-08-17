@@ -402,7 +402,7 @@ namespace elixir::search {
                     extensions += 1 + (s_score < s_beta - double_margin);
                 }
 
-                if (s_score <= s_alpha) {
+                if (s_score >= s_beta) {
                     extensions -= 1;
                 }
 
