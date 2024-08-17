@@ -388,6 +388,7 @@ namespace elixir::search {
 
             if (!root_node && depth >= 8 && move == tt_move && !ss->excluded_move && result.depth >= depth - 3 && tt_flag != TT_ALPHA) {
                 const auto s_beta = result.score - depth * 2;
+                const auto s_alpha = result.score - depth * 4;
                 const auto s_depth = (depth - 1) / 2;
 
                 ss->excluded_move = move;
@@ -399,6 +400,10 @@ namespace elixir::search {
                 if (s_score < s_beta) {
                     const int double_margin = 300 * pv_node;
                     extensions += 1 + (s_score < s_beta - double_margin);
+                }
+
+                if (s_score <= s_alpha) {
+                    extensions -= 1;
                 }
 
                 else if (s_beta >= beta) 
