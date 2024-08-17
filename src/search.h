@@ -109,16 +109,16 @@ namespace elixir::search {
         public:
         bool searching = false;
 
-        int futility_margin(int depth, bool improving, bool cutnode, bool tt_hit) const {
-            int futilitity_base = 122 - 37 * (cutnode && !tt_hit);
-            int improving_reduction = improving * futilitity_base / 2;
+        U16 futility_margin(int depth, bool improving, bool cutnode, bool tt_hit) const {
+            U8 futilitity_base = 122 - 37 * (cutnode && !tt_hit);
+            U8 improving_reduction = improving * futilitity_base / 2;
 
             return futilitity_base * depth - improving_reduction;
         }
 
         int qsearch(ThreadData &td, int alpha, int beta, PVariation &pv,
             SearchStack *ss);
-        int negamax(ThreadData &td, int alpha, int beta, int depth, PVariation &pv,
+        int negamax(ThreadData &td, int alpha, int beta, U8 depth, PVariation &pv,
                     SearchStack *ss, bool cutnode);
         void search(ThreadData &td, bool print_info);
         void clear_history() { history.clear(); }

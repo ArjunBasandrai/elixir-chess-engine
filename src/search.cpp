@@ -170,7 +170,7 @@ namespace elixir::search {
         return best_score;
     }
 
-    int Searcher::negamax(ThreadData &td, int alpha, int beta, int depth, PVariation &pv,
+    int Searcher::negamax(ThreadData &td, int alpha, int beta, U8 depth, PVariation &pv,
                 SearchStack *ss, bool cutnode) {
 
         pv.length = 0;
@@ -299,7 +299,7 @@ namespace elixir::search {
             */
             if (depth >= NMP_DEPTH && (ss - 1)->move && eval >= beta && board.has_non_pawn_material()) {
                 int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR + std::min((eval - beta) / 200, 6);
-                R     = std::min(R, depth);
+                R     = std::min<int>(R, depth);
 
                 /*
                 | Set current move to a null move in the search stack to avoid |
@@ -430,14 +430,14 @@ namespace elixir::search {
             int score = 0;
             const int new_depth = depth - 1 + extensions;
 
-            int R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
+            int R = lmr[std::min<U8>(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
             R -= (is_quiet_move ? history_score / HISTORY_GRAVITY : 0);
             R -= board.is_in_check();
             R += cutnode;
             R -= tt_pv;
             
             if (depth > 1 && legals > 1) {
-                R = std::clamp(R, 1, new_depth);
+                R = std::clamp<int>(R, 1, new_depth);
                 int lmr_depth = new_depth - R + 1;
                 score = -negamax(td, -alpha - 1, -alpha, lmr_depth, local_pv, ss + 1, true);
 
