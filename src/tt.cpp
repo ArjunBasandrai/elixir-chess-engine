@@ -47,7 +47,7 @@ namespace elixir {
         return false;
     }
 
-    void TranspositionTable::store_tt(U64 key, int score, move::Move move, U8 depth, int ply,
+    void TranspositionTable::store_tt(U64 key, I16 score, move::Move move, U8 depth, U8 ply,
                                       TTFlag flag, search::PVariation pv, bool tt_pv, bool improving) {
         U32 index     = get_index(key);
         TTEntry entry = table[index];

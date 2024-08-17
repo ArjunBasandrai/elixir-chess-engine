@@ -45,7 +45,7 @@ namespace elixir::time_management {
         return false;
     }
 
-    bool TimeManager::should_stop_early(search::SearchInfo &info, const int depth,
+    bool TimeManager::should_stop_early(search::SearchInfo &info, const U8 depth,
                                         const move::Move best_move) {
         if (! info.timed) 
             return false;

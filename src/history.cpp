@@ -27,7 +27,7 @@ namespace elixir {
         return bonus - score * std::abs(bonus) / HISTORY_GRAVITY;
     }
 
-    void History::update_history(Square from, Square to, int depth, MoveList &bad_quiets) {
+    void History::update_history(Square from, Square to, U8 depth, MoveList &bad_quiets) {
         int ifrom  = static_cast<int>(from);
         int ito    = static_cast<int>(to);
         int &score = history[ifrom][ito];
@@ -57,7 +57,7 @@ namespace elixir {
         return counter_moves[static_cast<int>(side)][static_cast<int>(from)][static_cast<int>(to)];
     }
     
-    void History::update_chs(move::Move& move, search::SearchStack *ss, MoveList &bad_quiets, int depth) {
+    void History::update_chs(move::Move& move, search::SearchStack *ss, MoveList &bad_quiets, U8 depth) {
         update_single_chs(move, ss - 1, depth, false);
         update_single_chs(move, ss - 2, depth, false);
 
@@ -72,7 +72,7 @@ namespace elixir {
         return (*(ss)->cont_hist)[static_cast<int>(move.get_piece())][static_cast<int>(move.get_to())];
     }
 
-    void History::update_single_chs(move::Move& move, search::SearchStack *ss, int depth, bool is_bad_quiet) {
+    void History::update_single_chs(move::Move& move, search::SearchStack *ss, U8 depth, bool is_bad_quiet) {
         if (!ss->move || ss->cont_hist == nullptr) return;
         int &score = (*(ss)->cont_hist)[static_cast<int>(move.get_piece())][static_cast<int>(move.get_to())];
         int bonus = (is_bad_quiet) ? history_malus(depth) : history_bonus(depth);

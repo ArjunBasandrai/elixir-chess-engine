@@ -115,7 +115,7 @@ namespace elixir::uci {
         std::vector<std::string> tokens = str_utils::split(input, ' ');
         info                            = search::SearchInfo();
         const auto start_time           = std::chrono::high_resolution_clock::now();
-        int depth = MAX_DEPTH, movestogo = -1;
+        U8 depth = MAX_DEPTH, movestogo = -1;
         F64 time = 0, inc = 0;
         // If there are no tokens after "go" command, return
         if (tokens.size() <= 1)

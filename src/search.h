@@ -13,14 +13,14 @@ namespace elixir::search {
     class SearchInfo {
       public:
         SearchInfo() = default;
-        SearchInfo(int depth, bool timed)
+        SearchInfo(U8 depth, bool timed)
             : nodes(0), depth(depth), seldepth(0), stopped(false), timed(timed),
               best_root_move(move::NO_MOVE) {}
 
         ~SearchInfo() = default;
         unsigned long long nodes;
-        int depth;
-        int seldepth;
+        U8 depth;
+        U8 seldepth;
         bool stopped;
         bool timed;
         move::Move best_root_move;
@@ -28,7 +28,7 @@ namespace elixir::search {
 
     struct PVariation {
         std::size_t length;
-        int score;
+        I16 score;
         std::array<move::Move, 256> line;
 
         PVariation() : length(0), score(0) {
@@ -109,16 +109,16 @@ namespace elixir::search {
         public:
         bool searching = false;
 
-        U16 futility_margin(int depth, bool improving, bool cutnode, bool tt_hit) const {
+        U16 futility_margin(U8 depth, bool improving, bool cutnode, bool tt_hit) const {
             U8 futilitity_base = 122 - 37 * (cutnode && !tt_hit);
             U8 improving_reduction = improving * futilitity_base / 2;
 
             return futilitity_base * depth - improving_reduction;
         }
 
-        int qsearch(ThreadData &td, int alpha, int beta, PVariation &pv,
+        I16 qsearch(ThreadData &td, int alpha, int beta, PVariation &pv,
             SearchStack *ss);
-        int negamax(ThreadData &td, int alpha, int beta, U8 depth, PVariation &pv,
+        I16 negamax(ThreadData &td, int alpha, int beta, U8 depth, PVariation &pv,
                     SearchStack *ss, bool cutnode);
         void search(ThreadData &td, bool print_info);
         void clear_history() { history.clear(); }

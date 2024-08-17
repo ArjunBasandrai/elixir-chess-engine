@@ -67,7 +67,7 @@ namespace elixir::search {
     }
 
     // (~20 ELO)
-    int Searcher::qsearch(ThreadData &td, int alpha, int beta, PVariation &pv,
+    I16 Searcher::qsearch(ThreadData &td, int alpha, int beta, PVariation &pv,
                 SearchStack *ss) {
 
         pv.length = 0;
@@ -85,7 +85,7 @@ namespace elixir::search {
         if (board.is_repetition() || board.is_material_draw())
             return 0;
 
-        int best_score, eval = board.evaluate();
+        I16 best_score, eval = board.evaluate();
 
         if (ss->ply >= MAX_DEPTH - 1)
             return eval;
@@ -117,7 +117,7 @@ namespace elixir::search {
             return best_score;
         }
 
-        alpha = std::max(alpha, best_score);
+        alpha = std::max<I16>(alpha, best_score);
 
         MovePicker mp;
         mp.init_mp(board, tt_move, ss, history, true);
@@ -144,7 +144,7 @@ namespace elixir::search {
             legals++;
             info.nodes++;
 
-            int score = -qsearch(td, -beta, -alpha, local_pv, ss);
+            I16 score = -qsearch(td, -beta, -alpha, local_pv, ss);
             board.unmake_move(move, true);
 
             if (info.stopped)
@@ -170,7 +170,7 @@ namespace elixir::search {
         return best_score;
     }
 
-    int Searcher::negamax(ThreadData &td, int alpha, int beta, U8 depth, PVariation &pv,
+    I16 Searcher::negamax(ThreadData &td, int alpha, int beta, U8 depth, PVariation &pv,
                 SearchStack *ss, bool cutnode) {
 
         pv.length = 0;
@@ -181,7 +181,7 @@ namespace elixir::search {
         bool root_node = ss->ply == 0;
         bool pv_node   = ((beta - alpha > 1) || root_node);
         bool in_check  = board.is_in_check();
-        int eval;
+        I16 eval;
 
         if (! root_node && (time_manager.should_stop(info) || info.stopped))
             return 0;
@@ -280,7 +280,7 @@ namespace elixir::search {
             | quiescence search, if we still cant exceed alpha, then we cutoff.         |
             */
             if (depth <= RAZOR_DEPTH && eval + RAZOR_MARGIN * depth < alpha) {
-                const int razor_score = qsearch(td, alpha, beta, local_pv, ss);
+                const I16 razor_score = qsearch(td, alpha, beta, local_pv, ss);
                 if (razor_score <= alpha) {
                     return razor_score;
                 }
@@ -309,7 +309,7 @@ namespace elixir::search {
                 ss->cont_hist = nullptr;
 
                 board.make_null_move();
-                int score = -negamax(td, -beta, -beta + 1, depth - R, local_pv, ss + 1, !cutnode);
+                I16 score = -negamax(td, -beta, -beta + 1, depth - R, local_pv, ss + 1, !cutnode);
                 board.unmake_null_move();
 
                 /*
@@ -392,7 +392,7 @@ namespace elixir::search {
 
                 ss->excluded_move = move;
 
-                const int s_score = negamax(td, s_beta - 1, s_beta, s_depth, local_pv, ss, cutnode);
+                const I16 s_score = negamax(td, s_beta - 1, s_beta, s_depth, local_pv, ss, cutnode);
 
                 ss->excluded_move = move::NO_MOVE;
 
@@ -427,8 +427,8 @@ namespace elixir::search {
             /*
             | Principal Variation Search and Late Move Reduction [PVS + LMR] (~40 ELO) |
             */
-            int score = 0;
-            const int new_depth = depth - 1 + extensions;
+            I16 score = 0;
+            const U8 new_depth = depth - 1 + extensions;
 
             int R = lmr[std::min<U8>(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
             R -= (is_quiet_move ? history_score / HISTORY_GRAVITY : 0);
@@ -516,7 +516,7 @@ namespace elixir::search {
                                : static_cast<int>(piece_to_piecetype(board.piece_on(to)));
 
 
-        int value = see_values[target_piece] - threshold;
+        I16 value = see_values[target_piece] - threshold;
 
         if (value < 0)
             return false;
@@ -593,7 +593,8 @@ namespace elixir::search {
 
         for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
             info.seldepth = 0;
-            int score = 0, alpha = -INF, beta = INF, delta = INITIAL_ASP_DELTA;
+            I16 score = 0;
+            int alpha = -INF, beta = INF, delta = INITIAL_ASP_DELTA;
             SearchStack stack[MAX_DEPTH + 4], *ss = stack + 4;
             for (int i = -4; i < MAX_DEPTH; i++) {
                 (ss + i)->move       = move::NO_MOVE;
