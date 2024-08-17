@@ -67,7 +67,7 @@ namespace elixir::search {
     }
 
     // (~20 ELO)
-    I16 Searcher::qsearch(ThreadData &td, int alpha, int beta, PVariation &pv,
+    I16 Searcher::qsearch(ThreadData &td, I16 alpha, I16 beta, PVariation &pv,
                 SearchStack *ss) {
 
         pv.length = 0;
@@ -170,7 +170,7 @@ namespace elixir::search {
         return best_score;
     }
 
-    I16 Searcher::negamax(ThreadData &td, int alpha, int beta, U8 depth, PVariation &pv,
+    I16 Searcher::negamax(ThreadData &td, I16 alpha, I16 beta, U8 depth, PVariation &pv,
                 SearchStack *ss, bool cutnode) {
 
         pv.length = 0;
@@ -210,13 +210,13 @@ namespace elixir::search {
             | Mate Distance Pruning : If a forced mate is already found, cut the search and adjust |
             | the bounds if no shorter mate is possible.                                           |
             */
-            alpha = std::max(alpha, -MATE + ss->ply);
-            beta  = std::min(beta, MATE - ss->ply - 1);
+            alpha = std::max<I16>(alpha, -MATE + ss->ply);
+            beta  = std::min<I16>(beta, MATE - ss->ply - 1);
             if (alpha >= beta)
                 return alpha;
         }
 
-        int legals = 0;
+        U8 legals = 0;
 
         auto local_pv  = PVariation();
         int best_score = -INF;
@@ -367,7 +367,7 @@ namespace elixir::search {
                 | Futility Pruning (~5 ELO) : Skip futile quiet moves at near-leaf nodes |
                 | when there's a little chance of improving alpha.                       |
                 */
-                const int futility_margin = FP_BASE + FP_MULTIPLIER * depth;
+                const I16 futility_margin = FP_BASE + FP_MULTIPLIER * depth;
                 if (depth <= FP_DEPTH && ! in_check && is_quiet_move &&
                     ss->eval + futility_margin < alpha) {
                     skip_quiets = true;
@@ -430,7 +430,7 @@ namespace elixir::search {
             I16 score = 0;
             const U8 new_depth = depth - 1 + extensions;
 
-            int R = lmr[std::min<U8>(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
+            int R = lmr[std::min<U8>(63, depth)][std::min<U8>(63, legals)] + (pv_node ? 0 : 1);
             R -= (is_quiet_move ? history_score / HISTORY_GRAVITY : 0);
             R -= board.is_in_check();
             R += cutnode;
@@ -438,7 +438,7 @@ namespace elixir::search {
             
             if (depth > 1 && legals > 1) {
                 R = std::clamp<int>(R, 1, new_depth);
-                int lmr_depth = new_depth - R + 1;
+                U8 lmr_depth = new_depth - R + 1;
                 score = -negamax(td, -alpha - 1, -alpha, lmr_depth, local_pv, ss + 1, true);
 
                 if (score > alpha && R > 0) {

@@ -18,7 +18,7 @@ namespace elixir::search {
               best_root_move(move::NO_MOVE) {}
 
         ~SearchInfo() = default;
-        unsigned long long nodes;
+        U64 nodes;
         U8 depth;
         U8 seldepth;
         bool stopped;
@@ -37,7 +37,7 @@ namespace elixir::search {
             }
         }
 
-        int score_value() const { return score; }
+        I16 score_value() const { return score; }
 
         void print_pv() const {
             for (int i = 0; i < length; i++) {
@@ -46,7 +46,7 @@ namespace elixir::search {
             }
         }
 
-        void update(const move::Move m, const int s, const PVariation &rest) {
+        void update(const move::Move m, const I16 s, const PVariation &rest) {
             line[0] = m;
             std::copy(rest.line.begin(), rest.line.begin() + rest.length, line.begin() + 1);
             length = rest.length + 1;
@@ -99,7 +99,7 @@ namespace elixir::search {
             }
             ~ThreadData() = default;
 
-            int thread_idx = -1;
+            I16 thread_idx = -1;
             Board board;
             SearchInfo info;
     };
@@ -116,9 +116,9 @@ namespace elixir::search {
             return futilitity_base * depth - improving_reduction;
         }
 
-        I16 qsearch(ThreadData &td, int alpha, int beta, PVariation &pv,
+        I16 qsearch(ThreadData &td, I16 alpha, I16 beta, PVariation &pv,
             SearchStack *ss);
-        I16 negamax(ThreadData &td, int alpha, int beta, U8 depth, PVariation &pv,
+        I16 negamax(ThreadData &td, I16 alpha, I16 beta, U8 depth, PVariation &pv,
                     SearchStack *ss, bool cutnode);
         void search(ThreadData &td, bool print_info);
         void clear_history() { history.clear(); }
@@ -126,7 +126,7 @@ namespace elixir::search {
 
     class ThreadManager {
         public:
-        ThreadManager(int threads) {
+        ThreadManager(I16 threads) {
             num_threads = threads;
             for (int i = 0; i < num_threads; i++) {
                 searchers.push_back(Searcher());
@@ -139,11 +139,11 @@ namespace elixir::search {
         std::vector<std::thread> threads;
         std::vector<ThreadData> thread_datas;
 
-        int num_threads = 1;
+        I16 num_threads = 1;
         std::atomic<bool> in_search{false};
 
-        unsigned long long get_nodes() {
-            unsigned long long nodes = 0;
+        U64 get_nodes() {
+            U64 nodes = 0;
             for (auto &td: thread_datas) {
                 nodes += td.info.nodes;
             }
@@ -156,7 +156,7 @@ namespace elixir::search {
             }
         }
 
-        void set_threads(int n) {
+        void set_threads(I16 n) {
             num_threads = n;
             for (int i = 0; i < num_threads; i++) {
                 searchers.push_back(Searcher());
@@ -164,14 +164,14 @@ namespace elixir::search {
             threads.clear();
             thread_datas.clear();
             searchers.clear();
-            for (int i = 0; i < num_threads; i++) {
+            for (I16 i = 0; i < num_threads; i++) {
                 searchers.push_back(Searcher());
             }
         }
 
         void stop_search() {
             if (!in_search) return;
-            for (int i = 0; i < num_threads; i++) {
+            for (I16 i = 0; i < num_threads; i++) {
                 thread_datas[i].info.stopped = true;
                 while (searchers[i].searching) {
                     std::this_thread::sleep_for(std::chrono::microseconds(1));

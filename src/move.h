@@ -5,7 +5,7 @@
 #include "utils/static_vector.h"
 
 namespace elixir::move {
-    enum class Flag {
+    enum class Flag : U8 {
         NORMAL,
         CAPTURE,
         DOUBLE_PAWN_PUSH,
@@ -14,7 +14,7 @@ namespace elixir::move {
         PROMOTION,
         CAPTURE_PROMOTION
     };
-    enum class Promotion {
+    enum class Promotion : U8 {
         QUEEN,
         ROOK,
         BISHOP,
@@ -27,8 +27,8 @@ namespace elixir::move {
         Move(Square from, Square to, Piece piece, Flag flag, Promotion promotion);
         ~Move() = default;
 
-        [[nodiscard]] Move_T encode_move(Square from, Square to, Piece piece, Flag flag,
-                                         Promotion promotion) const noexcept;
+        [[nodiscard]] Move_T encode_move(const Square from, const Square to, const Piece piece, const Flag flag,
+                                         const Promotion promotion) const noexcept;
 
         [[nodiscard]] constexpr Square get_from() const noexcept {
             return static_cast<Square>(m_move & 0x3f);

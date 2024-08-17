@@ -14,8 +14,8 @@ namespace elixir::move {
         set_move(from, to, piece, flag, promotion);
     }
 
-    [[nodiscard]] Move_T Move::encode_move(Square from, Square to, Piece piece, Flag flag,
-                                           Promotion promotion) const noexcept {
+    [[nodiscard]] Move_T Move::encode_move(const Square from, const Square to, const Piece piece, const Flag flag,
+                                         const Promotion promotion) const noexcept {
         Move_T move = 0;
         move |= static_cast<Move_T>(from);
         move |= static_cast<Move_T>(to) << 6;
