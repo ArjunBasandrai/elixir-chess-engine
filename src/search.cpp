@@ -380,7 +380,7 @@ namespace elixir::search {
                 */
                 const int see_threshold =
                     is_quiet_move ? -SEE_QUIET * depth : -SEE_CAPTURE * depth * depth;
-                if (depth <= SEE_DEPTH && legals > 0 && ! SEE(board, move, see_threshold))
+                if (depth <= SEE_DEPTH && legals > 2 * depth && ! SEE(board, move, see_threshold))
                     continue;
             }
 
