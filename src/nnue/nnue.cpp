@@ -271,6 +271,6 @@ namespace elixir::nnue {
         eval += net.output_bias[bucket];
         eval = (eval * SCALE) / (L1Q * OutputQ);
 
-        return eval;
+        return eval + 7;
     }
 }
