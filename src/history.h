@@ -32,6 +32,9 @@ namespace elixir {
         void update_countermove(Color side, Square from, Square to, move::Move countermove);
         move::Move get_countermove(Color side, Square from, Square to) const;
 
+        void update_followup_move(Color side, Square from, Square to, move::Move followup_move);
+        move::Move get_followup_move(Color side, Square from, Square to) const;
+
         ContHistEntry *get_cont_hist_entry(move::Move& move) {
             return &cont_hist[static_cast<int>(move.get_piece())][static_cast<int>(move.get_to())];
         }
@@ -56,6 +59,7 @@ namespace elixir {
         int scale_bonus(int score, int bonus);
         int history[64][64]                 = {0};
         move::Move counter_moves[2][64][64] = {move::NO_MOVE};
+        move::Move followup_moves[2][64][64] = {move::NO_MOVE};
 
         void update_single_chs(move::Move& move, search::SearchStack *ss, int depth, bool is_bad_quiet);
     };

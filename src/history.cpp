@@ -56,6 +56,15 @@ namespace elixir {
     move::Move History::get_countermove(Color side, Square from, Square to) const {
         return counter_moves[static_cast<int>(side)][static_cast<int>(from)][static_cast<int>(to)];
     }
+
+    void History::update_followup_move(Color side, Square from, Square to, move::Move followup_move) {
+        followup_moves[static_cast<int>(side)][static_cast<int>(from)][static_cast<int>(to)] =
+            followup_move;
+    }
+
+    move::Move History::get_followup_move(Color side, Square from, Square to) const {
+        return followup_moves[static_cast<int>(side)][static_cast<int>(from)][static_cast<int>(to)];
+    }
     
     void History::update_chs(move::Move& move, search::SearchStack *ss, MoveList &bad_quiets, int depth) {
         update_single_chs(move, ss - 1, depth, false);

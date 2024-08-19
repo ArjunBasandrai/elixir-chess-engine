@@ -474,6 +474,9 @@ namespace elixir::search {
                             history.update_countermove(board.get_side_to_move(),
                                                              (ss - 1)->move.get_from(),
                                                              (ss - 1)->move.get_to(), move);
+                            history.update_followup_move(board.get_side_to_move(),
+                                                          (ss - 2)->move.get_from(),
+                                                          (ss - 2)->move.get_to(), move);
                             history.update_history(move.get_from(), move.get_to(), depth,
                                                          bad_quiets);
                             history.update_chs(move, ss, bad_quiets, depth);

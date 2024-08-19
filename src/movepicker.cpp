@@ -65,6 +65,10 @@ namespace elixir {
                                                              (ss - 1)->move.get_from(),
                                                              (ss - 1)->move.get_to())) {
                 value = 600000000;
+            } else if (move == history.get_followup_move(board.get_side_to_move(),
+                                                             (ss - 2)->move.get_from(),
+                                                             (ss - 2)->move.get_to())) {
+                value = 500000000;
             } else {
                 // Butterfly History Move Ordering (~45 ELO)
                 value = history.get_history(move, ss);
