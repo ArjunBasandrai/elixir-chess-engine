@@ -157,7 +157,7 @@ namespace elixir::search {
                 if (score > alpha) {
                     alpha = score;
                     pv.update(move, score, local_pv);
-                    flag = TT_EXACT;
+                    flag = TT_ALPHA;
                 }
 
                 if (alpha >= beta) {
