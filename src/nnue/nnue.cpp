@@ -259,6 +259,7 @@ namespace elixir::nnue {
         eval = reduce_add_epi32(sum);
 #else
         for (int i = 0; i < HIDDEN_SIZE; i++) {
+            __builtin_prefetch(&accumulators[current_acc][icolor ^ 1][i]);
             eval += screlu(accumulators[current_acc][icolor][i]) * net.output_weights[bucket][0][i];
         }
 
