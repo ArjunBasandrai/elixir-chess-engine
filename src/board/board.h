@@ -244,6 +244,7 @@ namespace elixir {
             const int phase = 3 * count_bits(knights()) + 3 * count_bits(bishops()) +
                               5 * count_bits(rooks()) + 10 * count_bits(queens());
             const int scaled_eval = eval * (phase + 206) / 256;
+            const int fifty_mr_scaled_eval = scaled_eval * (300 - fifty_move_counter) / 300;
             return scaled_eval;
         }
 
