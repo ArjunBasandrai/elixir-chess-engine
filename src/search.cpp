@@ -497,7 +497,8 @@ namespace elixir::search {
         }
 
         if (!ss->excluded_move) {
-            tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv, tt_pv, improving);
+            int quiet_history_score = (best_move.is_quiet()) ? history.get_quiet_history(best_move.get_from(), best_move.get_to()) : 0;
+            tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv, quiet_history_score, tt_pv, improving);
         }
 
         return best_score;
