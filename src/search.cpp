@@ -428,7 +428,7 @@ namespace elixir::search {
             | Principal Variation Search and Late Move Reduction [PVS + LMR] (~40 ELO) |
             */
             int score = 0;
-            const int new_depth = depth - 1 + extensions;
+            int new_depth = depth - 1 + extensions;
 
             int R = lmr[std::min(63, depth)][std::min(63, legals)] + (pv_node ? 0 : 1);
             R -= (is_quiet_move ? history_score / HISTORY_GRAVITY : 0);
@@ -442,7 +442,11 @@ namespace elixir::search {
                 score = -negamax(td, -alpha - 1, -alpha, lmr_depth, local_pv, ss + 1, true);
 
                 if (score > alpha && R > 0) {
-                    score = -negamax(td, -alpha - 1, -alpha, new_depth, local_pv, ss + 1, !cutnode);
+                    new_depth += (score > best_score + 76);
+                    new_depth -= (score < best_score + new_depth);
+                    if (new_depth - 1 > lmr_depth) {
+                        score = -negamax(td, -alpha - 1, -alpha, new_depth, local_pv, ss + 1, !cutnode);
+                    }
                 }
             }
 
