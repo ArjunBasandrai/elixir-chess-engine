@@ -317,7 +317,7 @@ namespace elixir::search {
                 | an extra move, we can safely assume that we are winning.       |
                 */
                 if (score >= beta) {
-                    return beta;
+                    return beta + (score - beta) / 4;
                 }
             }
         }
