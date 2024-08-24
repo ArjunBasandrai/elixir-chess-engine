@@ -274,6 +274,16 @@ namespace elixir::search {
             return true;
         }();
 
+        const bool worsening = [&] {
+            if (in_check)
+                return true;
+            if (ss->ply > 0 && std::abs((ss - 1)->eval) != INF)
+                return ss->eval < (ss - 1)->eval;
+            if (ss->ply > 2 && std::abs((ss - 3)->eval) != INF)
+                return ss->eval < (ss - 3)->eval;
+            return false;
+        }();
+
         if (! pv_node && ! in_check && !ss->excluded_move) {
             /*
             | Razoring (~4 ELO) : If out position is way below alpha, do a verification |
@@ -298,7 +308,7 @@ namespace elixir::search {
             | opponent an extra move to see if we are still better.                 |
             */
             if (depth >= NMP_DEPTH && (ss - 1)->move && eval >= beta && board.has_non_pawn_material()) {
-                int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR + std::min((eval - beta) / 200, 6);
+                int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR + std::min((eval - beta) / 200, 6) + std::min(board.get_phase(), 24) / 8;
                 R     = std::min(R, depth);
 
                 /*
