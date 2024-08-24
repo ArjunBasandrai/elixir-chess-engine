@@ -267,11 +267,11 @@ namespace elixir::search {
         const bool improving = [&] {
             if (in_check)
                 return false;
-            if (ss->ply > 1 && (ss - 2)->eval != -INF)
+            if (ss->ply > 1 && std::abs((ss - 2)->eval) != -INF)
                 return ss->eval > (ss - 2)->eval;
-            if (ss->ply > 3 && (ss - 4)->eval != -INF)
+            if (ss->ply > 3 && std::abs((ss - 4)->eval) != -INF)
                 return ss->eval > (ss - 4)->eval;
-            return true;
+            return false;
         }();
 
         if (! pv_node && ! in_check && !ss->excluded_move) {
