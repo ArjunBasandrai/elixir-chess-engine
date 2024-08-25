@@ -284,6 +284,15 @@ namespace elixir::search {
             return false;
         }();
 
+        if (!in_check && improving && worsening && ss->ply > 3) {
+            int ewma = (ss - 4)->eval;
+            float ewma_alpha = 0.1;
+            for (int i = 3; i > 0; i--) {
+                ewma = ewma_alpha * (ss - i)->eval + (1 - ewma_alpha) * ewma;
+            }
+            eval = ss->eval = ewma;
+        }
+
         if (! pv_node && ! in_check && !ss->excluded_move) {
             /*
             | Razoring (~4 ELO) : If out position is way below alpha, do a verification |
