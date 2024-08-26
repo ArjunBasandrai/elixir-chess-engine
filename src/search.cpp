@@ -285,14 +285,15 @@ namespace elixir::search {
         }();
 
         if (!in_check && improving && worsening && ss->ply > 3) {
-            int ma = ss->eval, counter = 1;
+            int ewma = ss->eval, counter = 1;
+            const float ewma_alpha = 0.3;
             for (int i = 0; i < 4; i++) {
                 if (std::abs((ss - i)->eval) != INF) {
-                    ma += (ss - i)->eval;
+                    ewma = (1 - ewma_alpha) * ewma + ewma_alpha * (ss - i)->eval;
                     counter++;
                 }
             }
-            eval = ss->eval = ma / counter;
+            eval = ss->eval = ewma / counter;
         }
 
         if (! pv_node && ! in_check && !ss->excluded_move) {
