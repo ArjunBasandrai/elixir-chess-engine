@@ -12,6 +12,7 @@ namespace elixir::search {
         move::Move killers[2]    = {};
         int eval                 = -INF;
         ContHistEntry *cont_hist = nullptr;
+        bool in_check            = false;
         int ply;
     };
 }
