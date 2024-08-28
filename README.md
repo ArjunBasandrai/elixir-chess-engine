@@ -13,6 +13,12 @@
 
 Elixir is a [UCI-compliant](https://en.wikipedia.org/wiki/Universal_Chess_Interface) chess engine developed in C++. It is the successor of my previous engine, [Shuffle](https://github.com/ArjunBasandrai/shuffle-chess-engine/), and is under development with the goal of achieving an ELO rating of 3500+
 
+## Ratings
+
+|   | **CCRL BLitz** | **CCRL 40/15** |
+|:-:| :------------: | :------------: |
+| **v2.0** | 3018 | _2927_ |
+| **v1.0** | 2828 | - |
 
 ## Instructions to build
 Building Elixir requires `Make` and latest versions of `clang++` or `g++` with `C++20` support
