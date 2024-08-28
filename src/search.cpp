@@ -284,6 +284,12 @@ namespace elixir::search {
             return false;
         }();
 
+        const bool needs_smoothening = !in_check && improving && worsening;
+
+        if (needs_smoothening) {
+            eval = ss->eval = (ss->eval + (ss - 1)->eval) / 2;
+        }
+
         if (! pv_node && ! in_check && !ss->excluded_move) {
             /*
             | Razoring (~4 ELO) : If out position is way below alpha, do a verification |
