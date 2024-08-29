@@ -96,8 +96,8 @@ namespace elixir::search {
         best_score     = eval;
 
         ProbedEntry result;
-        TTFlag tt_flag     = TT_NONE;
-        const bool tt_hit  = tt->probe_tt(result, board.get_hash_key(), 0, alpha, beta, tt_flag);
+        const bool tt_hit  = tt->probe_tt(result, board.get_hash_key(), 0, alpha, beta);
+        const TTFlag tt_flag = result.flag;
         const auto tt_move = result.best_move;
 
         bool can_cutoff =
@@ -221,21 +221,23 @@ namespace elixir::search {
         auto local_pv  = PVariation();
         int best_score = -INF;
         auto best_move = move::Move();
+
         ProbedEntry result;
-        TTFlag tt_flag = TT_NONE;
         bool tt_hit = false;
+        bool is_usable_tt_score = false;
         auto tt_move = move::NO_MOVE;
+        TTFlag tt_flag = TT_NONE;
 
         if (!ss->excluded_move) {
-            tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta, tt_flag);
+            tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta);
+            tt_flag = result.flag;
+            is_usable_tt_score = result.is_usable_score(alpha, beta);
             /*
             | TT Cutoff (~130 ELO) : If we have already seen this position before and the |
             | stored score is useful, we can use the previously stored score to avoid     |
             | searching the same position again.                                          |
             */
-            if (tt_hit && ! pv_node && result.depth >= depth &&
-                (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) ||
-                (tt_flag == TT_BETA && result.score >= beta))) {
+            if (tt_hit && ! pv_node && result.depth >= depth && is_usable_tt_score) {
                 return result.score;
             }
             tt_move = result.best_move;
@@ -261,7 +263,7 @@ namespace elixir::search {
                 eval = ss->eval = INF;
 
             else
-                eval = ss->eval = (tt_hit) ? result.score : board.evaluate();
+                eval = ss->eval = (tt_hit && is_usable_tt_score) ? result.score : board.evaluate();
         }
 
         const bool improving = [&] {

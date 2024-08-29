@@ -16,8 +16,8 @@ namespace elixir {
         I16 score       = 0;
         move::Move move = move::NO_MOVE;
         I8 depth        = -1;
-        TTFlag flag : 6     = TT_NONE;
-        bool tt_pv: 2       = false;
+        TTFlag flag : 6 = TT_NONE;
+        bool tt_pv : 2  = false;
 
         bool operator==(const TTEntry &other) const {
             return key == other.key && score == other.score && depth == other.depth &&
@@ -30,8 +30,8 @@ namespace elixir {
         int score;
         move::Move best_move;
         U8 depth;
-        TTFlag flag: 6;
-        bool tt_pv: 2;
+        TTFlag flag : 6;
+        bool tt_pv : 2;
 
         ProbedEntry() : score(0), best_move(move::NO_MOVE), depth(0), flag(TT_NONE), tt_pv(false) {}
 
@@ -41,6 +41,11 @@ namespace elixir {
             depth     = entry.depth;
             flag      = entry.flag;
             return *this;
+        }
+
+        bool is_usable_score(int alpha, int beta) const {
+            return (flag == TT_EXACT || (flag == TT_ALPHA && score <= alpha) ||
+                    (flag == TT_BETA && score >= beta));
         }
     };
 
@@ -52,7 +57,7 @@ namespace elixir {
         void resize(U16 size);
         void store_tt(U64 key, int score, move::Move move, U8 depth, int ply, TTFlag flag,
                       search::PVariation pv, bool tt_pv = false, bool improving = false);
-        bool probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta, TTFlag &flag);
+        bool probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta);
         U32 get_hashfull() {
             return static_cast<U32>(static_cast<F64>(entries) / static_cast<F64>(table.capacity()) *
                                     1000.0);
