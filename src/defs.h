@@ -144,9 +144,9 @@ namespace elixir {
     constexpr I8 MAX_PLY   = 64;
 
     // TT size terms
-    constexpr int MIN_HASH          = 4;
-    constexpr int DEFAULT_HASH_SIZE = 64;
-    constexpr int MAX_HASH          = 1024;
+    constexpr int MIN_HASH          = 4;       // 4 MB
+    constexpr int DEFAULT_HASH_SIZE = 64;      // 64 MB
+    constexpr int MAX_HASH          = 1048576; // 1 TB
 
     constexpr int MIN_THREADS     = 1;
     constexpr int DEFAULT_THREADS = 1;
