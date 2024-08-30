@@ -10,7 +10,7 @@ namespace elixir::search {
         move::Move move          = move::NO_MOVE;
         move::Move excluded_move = move::NO_MOVE;
         move::Move killers[2]    = {};
-        int eval                 = -INF;
+        int eval                 = SCORE_NONE;
         ContHistEntry *cont_hist = nullptr;
         int ply;
     };
