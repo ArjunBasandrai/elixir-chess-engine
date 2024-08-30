@@ -300,7 +300,7 @@ namespace elixir::search {
             | Reverse Futility Pruning (~45 ELO) : If our position is so good, that we are |
             | confident that we will not fall below beta anytime soon, then we cutoff.     |
             */
-            if (depth <= RFP_DEPTH && eval - futility_margin(depth, improving, cutnode, tt_hit) >= beta) {
+            if (depth <= RFP_DEPTH && eval - futility_margin(depth, improving, cutnode, tt_hit) >= beta && beta >= -MATE_FOUND && eval <= MATE_FOUND) {
                 return (eval + beta) / 2;
             }
 
