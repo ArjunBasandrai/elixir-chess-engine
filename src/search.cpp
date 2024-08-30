@@ -258,7 +258,7 @@ namespace elixir::search {
 
         if (!ss->excluded_move) {
             if (in_check)
-                eval = ss->eval = INF;
+                eval = ss->eval = -INF;
 
             else
                 eval = ss->eval = (tt_hit) ? result.score : board.evaluate();
