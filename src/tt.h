@@ -42,6 +42,11 @@ namespace elixir {
             flag      = entry.flag;
             return *this;
         }
+
+        bool is_usable_score(int alpha, int beta) const {
+            return (flag == TT_EXACT || (flag == TT_ALPHA && score <= alpha) ||
+                (flag == TT_BETA && score >= beta));
+        }
     };
 
     class TranspositionTable {
@@ -52,7 +57,7 @@ namespace elixir {
         void resize(U16 size);
         void store_tt(U64 key, int score, move::Move move, U8 depth, int ply, TTFlag flag,
                       search::PVariation pv, bool tt_pv = false, bool improving = false);
-        bool probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta, TTFlag &flag);
+        bool probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta);
         U32 get_hashfull() {
             return static_cast<U32>(static_cast<F64>(entries) / static_cast<F64>(table.capacity()) *
                                     1000.0);

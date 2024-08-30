@@ -96,8 +96,8 @@ namespace elixir::search {
         best_score     = eval;
 
         ProbedEntry result;
-        TTFlag tt_flag     = TT_NONE;
-        const bool tt_hit  = tt->probe_tt(result, board.get_hash_key(), 0, alpha, beta, tt_flag);
+        const bool tt_hit  = tt->probe_tt(result, board.get_hash_key(), 0, alpha, beta);
+        TTFlag tt_flag     = result.flag;
         const auto tt_move = result.best_move;
 
         bool can_cutoff =
@@ -222,12 +222,13 @@ namespace elixir::search {
         int best_score = -INF;
         auto best_move = move::Move();
         ProbedEntry result;
-        TTFlag tt_flag = TT_NONE;
+        TTFlag tt_flag;
         bool tt_hit = false;
         auto tt_move = move::NO_MOVE;
 
         if (!ss->excluded_move) {
-            tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta, tt_flag);
+            tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta);
+            tt_flag = result.flag;
             /*
             | TT Cutoff (~130 ELO) : If we have already seen this position before and the |
             | stored score is useful, we can use the previously stored score to avoid     |

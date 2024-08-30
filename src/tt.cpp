@@ -26,21 +26,20 @@ namespace elixir {
         resize(size);
     }
 
-    bool TranspositionTable::probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta,
-                                      TTFlag &flag) {
+    bool TranspositionTable::probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta) {
 
         if (table.empty())
             return false;
         U32 index     = get_index(key);
         TTEntry entry = table[index];
 
-        flag = TT_NONE;
+        result.flag = TT_NONE;
 
         if (entry.key == key) {
             result.best_move = entry.move;
             result.score     = entry.score;
             result.depth     = entry.depth;
-            flag             = entry.flag;
+            result.flag             = entry.flag;
             result.tt_pv     = entry.tt_pv;
             return true;
         }
