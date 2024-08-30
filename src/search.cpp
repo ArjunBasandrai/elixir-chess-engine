@@ -258,7 +258,7 @@ namespace elixir::search {
 
         if (!ss->excluded_move) {
             if (in_check)
-                eval = ss->eval = INF;
+                eval = ss->eval = -INF;
 
             else
                 eval = ss->eval = (tt_hit) ? result.score : board.evaluate();
@@ -609,7 +609,7 @@ namespace elixir::search {
                 (ss + i)->move       = move::NO_MOVE;
                 (ss + i)->killers[0] = move::NO_MOVE;
                 (ss + i)->killers[1] = move::NO_MOVE;
-                (ss + i)->eval       = INF;
+                (ss + i)->eval       = -INF;
             }
 
             for (int i = 0; i < MAX_DEPTH; i++) {
