@@ -108,6 +108,7 @@ namespace elixir::search {
         History history;
         public:
         bool searching = false;
+        bool soft_stop = true;
 
         int futility_margin(int depth, bool improving, bool cutnode, bool tt_hit) const {
             int futilitity_base = 122 - 37 * (cutnode && !tt_hit);
@@ -172,19 +173,13 @@ namespace elixir::search {
         void stop_search() {
             if (!in_search) return;
             for (int i = 0; i < num_threads; i++) {
+                searchers[i].soft_stop = false;
                 thread_datas[i].info.stopped = true;
-                while (searchers[i].searching) {
-                    std::this_thread::sleep_for(std::chrono::microseconds(1));
-                }
-            }
-            for (auto& thread: threads) {
-                if (thread.joinable())
-                    thread.join();
             }
         }
 
         void search(Board &board, SearchInfo &info, bool print_info = true);
     };
 
-    inline ThreadManager main_searcher(1);
+    inline ThreadManager main_searcher(DEFAULT_THREADS);
 }

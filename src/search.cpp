@@ -649,8 +649,12 @@ namespace elixir::search {
 
             best_move = (pv.line[0]) ? pv.line[0]
                                           : info.best_root_move;
+            
+            print_info &= bool(pv.line[0]);
 
-            if (print_info && pv.line[0]) {
+            if (!soft_stop && print_info) {
+                std::cout << "info string depth " << current_depth << " unfinished\n" << std::endl;
+            } else if (print_info) {
                 int time_ms = duration.count();
                 int nps     = info.nodes * 1000 / (time_ms + 1);
                 if (score > -MATE && score < -MATE_FOUND) {
@@ -686,6 +690,7 @@ namespace elixir::search {
             best_move.print_uci();
             std::cout << std::endl;
         }
+
         searching = false;
     }
 
@@ -713,8 +718,9 @@ namespace elixir::search {
         }
 
         for (auto& thread: threads) {
-            if (thread.joinable())
+            if (thread.joinable()) {
                 thread.join();
+            }
         }
 
         for (auto &td: thread_datas) {
