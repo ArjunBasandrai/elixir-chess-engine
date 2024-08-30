@@ -258,7 +258,7 @@ namespace elixir::search {
 
         if (!ss->excluded_move) {
             if (in_check)
-                eval = ss->eval = INF;
+                eval = ss->eval = SCORE_NONE;
 
             else
                 eval = ss->eval = (tt_hit) ? result.score : board.evaluate();
@@ -267,9 +267,9 @@ namespace elixir::search {
         const bool improving = [&] {
             if (in_check)
                 return false;
-            if (ss->ply > 1 && (ss - 2)->eval != -INF)
+            if ((ss - 2)->eval != SCORE_NONE)
                 return ss->eval > (ss - 2)->eval;
-            if (ss->ply > 3 && (ss - 4)->eval != -INF)
+            if ((ss - 4)->eval != SCORE_NONE)
                 return ss->eval > (ss - 4)->eval;
             return true;
         }();
@@ -277,9 +277,9 @@ namespace elixir::search {
         const bool worsening = [&] {
             if (in_check)
                 return true;
-            if (ss->ply > 0 && std::abs((ss - 1)->eval) != INF)
+            if ((ss - 1)->eval != SCORE_NONE)
                 return ss->eval < (ss - 1)->eval;
-            if (ss->ply > 2 && std::abs((ss - 3)->eval) != INF)
+            if ((ss - 3)->eval != SCORE_NONE)
                 return ss->eval < (ss - 3)->eval;
             return false;
         }();
@@ -609,7 +609,7 @@ namespace elixir::search {
                 (ss + i)->move       = move::NO_MOVE;
                 (ss + i)->killers[0] = move::NO_MOVE;
                 (ss + i)->killers[1] = move::NO_MOVE;
-                (ss + i)->eval       = INF;
+                (ss + i)->eval       = SCORE_NONE;
             }
 
             for (int i = 0; i < MAX_DEPTH; i++) {
