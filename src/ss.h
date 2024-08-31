@@ -11,6 +11,7 @@ namespace elixir::search {
         move::Move excluded_move = move::NO_MOVE;
         move::Move killers[2]    = {};
         int eval                 = SCORE_NONE;
+        int static_eval                 = SCORE_NONE;
         ContHistEntry *cont_hist = nullptr;
         int ply;
     };

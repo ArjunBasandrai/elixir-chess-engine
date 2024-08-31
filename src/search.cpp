@@ -258,29 +258,30 @@ namespace elixir::search {
 
         if (!ss->excluded_move) {
             if (in_check)
-                ss->eval = SCORE_NONE;
+                ss->static_eval = ss->eval = SCORE_NONE;
 
             else
-                ss->eval = (tt_hit && can_use_tt_score) ? result.score : board.evaluate();
+                ss->static_eval = board.evaluate();
+                ss->eval = (tt_hit && can_use_tt_score) ? result.score : ss->static_eval;
         }
 
         const bool improving = [&] {
             if (in_check)
                 return false;
-            if ((ss - 2)->eval != SCORE_NONE)
-                return ss->eval > (ss - 2)->eval;
-            if ((ss - 4)->eval != SCORE_NONE)
-                return ss->eval > (ss - 4)->eval;
+            if ((ss - 2)->static_eval != SCORE_NONE)
+                return ss->static_eval > (ss - 2)->static_eval;
+            if ((ss - 4)->static_eval != SCORE_NONE)
+                return ss->static_eval > (ss - 4)->static_eval;
             return true;
         }();
 
         const bool worsening = [&] {
             if (in_check)
                 return true;
-            if ((ss - 1)->eval != SCORE_NONE)
-                return ss->eval < (ss - 1)->eval;
-            if ((ss - 3)->eval != SCORE_NONE)
-                return ss->eval < (ss - 3)->eval;
+            if ((ss - 1)->static_eval != SCORE_NONE)
+                return ss->static_eval < (ss - 1)->static_eval;
+            if ((ss - 3)->static_eval != SCORE_NONE)
+                return ss->static_eval < (ss - 3)->static_eval;
             return false;
         }();
 
@@ -610,6 +611,7 @@ namespace elixir::search {
                 (ss + i)->killers[0] = move::NO_MOVE;
                 (ss + i)->killers[1] = move::NO_MOVE;
                 (ss + i)->eval       = SCORE_NONE;
+                (ss + i)->static_eval       = SCORE_NONE;
             }
 
             for (int i = 0; i < MAX_DEPTH; i++) {
