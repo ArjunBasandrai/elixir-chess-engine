@@ -224,19 +224,19 @@ namespace elixir::search {
         ProbedEntry result;
         TTFlag tt_flag;
         bool tt_hit = false;
+        bool can_use_tt_score = false;
         auto tt_move = move::NO_MOVE;
 
         if (!ss->excluded_move) {
             tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta);
             tt_flag = result.flag;
+            can_use_tt_score = result.is_usable_score(alpha, beta);
             /*
             | TT Cutoff (~130 ELO) : If we have already seen this position before and the |
             | stored score is useful, we can use the previously stored score to avoid     |
             | searching the same position again.                                          |
             */
-            if (tt_hit && ! pv_node && result.depth >= depth &&
-                (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) ||
-                (tt_flag == TT_BETA && result.score >= beta))) {
+            if (tt_hit && ! pv_node && result.depth >= depth && can_use_tt_score) {
                 return result.score;
             }
             tt_move = result.best_move;
@@ -262,7 +262,7 @@ namespace elixir::search {
                 eval = ss->eval = SCORE_NONE;
 
             else
-                eval = ss->eval = (tt_hit) ? result.score : board.evaluate();
+                eval = ss->eval = (tt_hit && can_use_tt_score) ? result.score : board.evaluate();
         }
 
         const bool improving = [&] {
