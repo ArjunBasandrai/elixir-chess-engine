@@ -301,7 +301,7 @@ namespace elixir::search {
             | confident that we will not fall below beta anytime soon, then we cutoff.     |
             */
             if (depth <= RFP_DEPTH && eval - futility_margin(depth, improving, cutnode, tt_hit) >= beta && beta >= -MATE_FOUND && eval <= MATE_FOUND) {
-                return (eval + beta) / 2;
+                return std::lerp(beta, eval, (improving ? 0.50 : 0.35));
             }
 
             /*
