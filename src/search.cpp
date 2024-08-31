@@ -447,7 +447,7 @@ namespace elixir::search {
             R += cutnode;
             R -= tt_pv;
             
-            if (depth > 1 && legals > 1) {
+            if (depth > 1 && legals > 2 * pv_node) {
                 R = std::clamp(R, 1, new_depth);
                 int lmr_depth = new_depth - R + 1;
                 score = -negamax(td, -alpha - 1, -alpha, lmr_depth, local_pv, ss + 1, true);
