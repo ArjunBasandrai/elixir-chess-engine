@@ -181,7 +181,6 @@ namespace elixir::search {
         bool root_node = ss->ply == 0;
         bool pv_node   = ((beta - alpha > 1) || root_node);
         bool in_check  = board.is_in_check();
-        int eval;
 
         if (! root_node && (time_manager.should_stop(info) || info.stopped))
             return 0;
@@ -259,10 +258,10 @@ namespace elixir::search {
 
         if (!ss->excluded_move) {
             if (in_check)
-                eval = ss->eval = SCORE_NONE;
+                ss->eval = SCORE_NONE;
 
             else
-                eval = ss->eval = (tt_hit && can_use_tt_score) ? result.score : board.evaluate();
+                ss->eval = (tt_hit && can_use_tt_score) ? result.score : board.evaluate();
         }
 
         const bool improving = [&] {
@@ -290,7 +289,7 @@ namespace elixir::search {
             | Razoring (~4 ELO) : If out position is way below alpha, do a verification |
             | quiescence search, if we still cant exceed alpha, then we cutoff.         |
             */
-            if (depth <= RAZOR_DEPTH && eval + RAZOR_MARGIN * depth < alpha) {
+            if (depth <= RAZOR_DEPTH && ss->eval + RAZOR_MARGIN * depth < alpha) {
                 const int razor_score = qsearch(td, alpha, beta, local_pv, ss);
                 if (razor_score <= alpha) {
                     return razor_score;
@@ -300,16 +299,16 @@ namespace elixir::search {
             | Reverse Futility Pruning (~45 ELO) : If our position is so good, that we are |
             | confident that we will not fall below beta anytime soon, then we cutoff.     |
             */
-            if (depth <= RFP_DEPTH && eval - futility_margin(depth, improving, cutnode, tt_hit) >= beta && beta >= -MATE_FOUND && eval <= MATE_FOUND) {
-                return (eval + beta) / 2;
+            if (depth <= RFP_DEPTH && ss->eval - futility_margin(depth, improving, cutnode, tt_hit) >= beta && beta >= -MATE_FOUND && ss->eval <= MATE_FOUND) {
+                return (ss->eval + beta) / 2;
             }
 
             /*
             | Null Move Pruning (~60 ELO) : If our position is so good, we give our |
             | opponent an extra move to see if we are still better.                 |
             */
-            if (depth >= NMP_DEPTH && (ss - 1)->move && eval >= beta && board.has_non_pawn_material()) {
-                int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR + std::min((eval - beta) / 200, 6) + std::min(board.get_phase(), 24) / 8;
+            if (depth >= NMP_DEPTH && (ss - 1)->move && ss->eval >= beta && board.has_non_pawn_material()) {
+                int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR + std::min((ss->eval - beta) / 200, 6) + std::min(board.get_phase(), 24) / 8;
                 R     = std::min(R, depth);
 
                 /*
