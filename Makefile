@@ -30,11 +30,11 @@ CXXFLAGS = -flto=auto -pthread
 
 ARCH_DETECTED =
 PROPERTIES = $(shell echo | $(CXX) -march=native -E -dM -)
-# ifneq ($(findstring __AVX512F__, $(PROPERTIES)),)
-# 	ifneq ($(findstring __AVX512BW__, $(PROPERTIES)),)
-# 		ARCH_DETECTED = AVX512
-# 	endif
-# endif
+ifneq ($(findstring __AVX512F__, $(PROPERTIES)),)
+	ifneq ($(findstring __AVX512BW__, $(PROPERTIES)),)
+		ARCH_DETECTED = AVX512
+	endif
+endif
 ifeq ($(ARCH_DETECTED),)
 	ifneq ($(findstring __BMI2__, $(PROPERTIES)),)
 		ARCH_DETECTED = BMI2
@@ -46,9 +46,9 @@ ifeq ($(ARCH_DETECTED),)
 	endif
 endif
 
-# ifeq ($(ARCH_DETECTED), AVX512)
-# 	CXXFLAGS += $(AVX512FLAGS)
-# endif
+ifeq ($(ARCH_DETECTED), AVX512)
+	CXXFLAGS += $(AVX512FLAGS)
+endif
 ifeq ($(ARCH_DETECTED), BMI2)
 	CXXFLAGS += $(BMI2FLAGS)
 endif
