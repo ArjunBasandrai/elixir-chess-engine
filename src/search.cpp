@@ -108,7 +108,7 @@ namespace elixir::search {
             return result.score;
         }
 
-        if (tt_hit) {
+        if (tt_hit && can_cutoff) {
             best_score = result.score;
             best_move  = result.best_move;
         }
