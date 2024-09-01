@@ -68,7 +68,7 @@ namespace elixir::search {
 
     // (~20 ELO)
     int Searcher::qsearch(ThreadData &td, int alpha, int beta, PVariation &pv,
-                SearchStack *ss) {
+                SearchStack *ss, bool pv_node) {
 
         pv.length = 0;
 
@@ -104,7 +104,7 @@ namespace elixir::search {
             tt_hit && (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) ||
                        (tt_flag == TT_BETA && result.score >= beta));
 
-        if (ss->ply && can_cutoff) {
+        if (!pv_node && can_cutoff) {
             return result.score;
         }
 
@@ -144,7 +144,7 @@ namespace elixir::search {
             legals++;
             info.nodes++;
 
-            int score = -qsearch(td, -beta, -alpha, local_pv, ss);
+            int score = -qsearch(td, -beta, -alpha, local_pv, ss, pv_node);
             board.unmake_move(move, true);
 
             if (info.stopped)
@@ -193,7 +193,7 @@ namespace elixir::search {
         | Quiescence Search : Perform a quiescence search at leaf nodes to avoid the horizon effect. |
         */
         if (depth <= 0)
-            return qsearch(td, alpha, beta, pv, ss);
+            return qsearch(td, alpha, beta, pv, ss, pv_node);
 
         if (! root_node) {
             /*
@@ -291,7 +291,7 @@ namespace elixir::search {
             | quiescence search, if we still cant exceed alpha, then we cutoff.         |
             */
             if (depth <= RAZOR_DEPTH && eval + RAZOR_MARGIN * depth < alpha) {
-                const int razor_score = qsearch(td, alpha, beta, local_pv, ss);
+                const int razor_score = qsearch(td, alpha, beta, local_pv, ss, pv_node);
                 if (razor_score <= alpha) {
                     return razor_score;
                 }

@@ -118,7 +118,7 @@ namespace elixir::search {
         }
 
         int qsearch(ThreadData &td, int alpha, int beta, PVariation &pv,
-            SearchStack *ss);
+            SearchStack *ss, bool pv_node);
         int negamax(ThreadData &td, int alpha, int beta, int depth, PVariation &pv,
                     SearchStack *ss, bool cutnode);
         void search(ThreadData &td, bool print_info);
