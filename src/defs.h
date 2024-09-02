@@ -164,6 +164,10 @@ namespace elixir {
         return std::max(std::abs(get_rank(a) - get_rank(b)), std::abs(get_file(a) - get_file(b)));
     }
 
+    static inline bool is_bad_score(int score, Color side) {
+        return (side == Color::WHITE) ? score < 0 : score > 0;
+    }
+
     constexpr I32 INF        = 32001;
     constexpr I32 SCORE_NONE = 32001;
     constexpr I32 MATE       = 32000;

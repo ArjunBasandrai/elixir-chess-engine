@@ -75,4 +75,26 @@ namespace elixir {
     };
 
     extern TranspositionTable tt[1];
+
+    struct BadEntry {
+        move::Move move = move::NO_MOVE;
+        int score = 0;
+        int depth = 0;
+    };
+
+    class BadsTable {
+        public:
+            BadsTable(U16 size = 4);
+            ~BadsTable() = default;
+            void clear_bads();
+            void resize(U16 size);
+            void store_bad(const move::Move move, const int score, const int depth);
+            bool is_bad(const move::Move move, const int depth);
+        private:
+            std::size_t get_index(const move::Move move) const { return move.get_move() % table.size(); }
+            std::size_t entries;
+            std::vector<BadEntry> table;
+    };
+
+    extern BadsTable bads[1];
 }

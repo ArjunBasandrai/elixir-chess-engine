@@ -74,4 +74,50 @@ namespace elixir {
         table[index] = entry;
     }
 
+    BadsTable::BadsTable(U16 size) {
+        table.resize(size);
+    }
+
+    void BadsTable::clear_bads() {
+        entries = 0;
+        std::fill(table.begin(), table.end(), BadEntry());
+    }
+
+    void BadsTable::resize(U16 size) {
+        table.resize(size);
+        clear_bads();
+    }
+
+    void BadsTable::store_bad(const move::Move move, const int score, const int depth) {
+        if (entries == table.size())
+            return;
+        
+        U32 index = get_index(move);
+        BadEntry &entry = table[index];
+
+        bool replace = entry.move != move || entry.depth < depth;
+
+        if (! replace)
+            return;
+
+        entry.move  = move;
+        entry.score = score;
+        entry.depth = depth;
+
+        entries++;
+    }
+
+    bool BadsTable::is_bad(const move::Move move, const int depth) {
+        U32 index = get_index(move);
+        BadEntry &entry = table[index];
+
+        if (entry.move == move) {
+            if (entry.depth >= depth)
+                return true;
+        }
+
+        return false;
+    }
+
+    BadsTable bads[1];
 }

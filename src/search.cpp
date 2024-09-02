@@ -352,6 +352,8 @@ namespace elixir::search {
 
         while ((move = mp.next_move())) {
 
+            int search_depth = depth;
+
             if (move == ss->excluded_move) continue;
 
             const bool is_quiet_move = move.is_quiet();
@@ -420,7 +422,10 @@ namespace elixir::search {
 
             if (! board.make_move(move))
                 continue;
-            
+
+            if (bads->is_bad(move, depth)) {
+                depth--;
+            }
 
             tt->prefetch(board.get_hash_key());
 
@@ -451,24 +456,32 @@ namespace elixir::search {
                 R = std::clamp(R, 1, new_depth);
                 int lmr_depth = new_depth - R + 1;
                 score = -negamax(td, -alpha - 1, -alpha, lmr_depth, local_pv, ss + 1, true);
+                search_depth = lmr_depth;
 
                 if (score > alpha && R > 0) {
                     score = -negamax(td, -alpha - 1, -alpha, new_depth, local_pv, ss + 1, !cutnode);
+                    search_depth = new_depth;
                 }
             }
 
             else if (!pv_node || legals > 1) {
                 score = -negamax(td, -alpha - 1, -alpha, new_depth, local_pv, ss + 1, !cutnode);
+                search_depth = new_depth;
             }
 
             if (pv_node && (legals == 1 || (score > alpha && (root_node || score < beta)))) {
                 score = -negamax(td, -beta, -alpha, new_depth, local_pv, ss + 1, false);
+                search_depth = new_depth;
             }
 
             board.unmake_move(move, true);
 
             if (info.stopped)
                 return 0;
+
+            if (is_bad_score(score, board.get_side_to_move())) {
+                bads->store_bad(move, score, depth);
+            }
 
             if (score > best_score) {
                 best_move  = move;
