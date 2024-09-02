@@ -479,7 +479,7 @@ namespace elixir::search {
             if (info.stopped)
                 return 0;
 
-            if (is_bad_score(score, board.get_side_to_move())) {
+            if (is_bad_score(score, board.get_side_to_move(), best_score)) {
                 bads->store_bad(move, score, depth);
             }
 
