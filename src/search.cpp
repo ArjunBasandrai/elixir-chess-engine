@@ -100,6 +100,8 @@ namespace elixir::search {
         TTFlag tt_flag     = result.flag;
         const auto tt_move = result.best_move;
 
+        // TODO: handle in check positions
+
         bool can_cutoff =
             tt_hit && (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) ||
                        (tt_flag == TT_BETA && result.score >= beta));
