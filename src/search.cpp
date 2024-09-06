@@ -285,6 +285,19 @@ namespace elixir::search {
             return false;
         }();
 
+        const bool fluctuating = improving && worsening;
+        if (!in_check && !ss->excluded_move && fluctuating) {
+            for (int i = 1; i <= 4; i++) {
+                if ((ss - i)->eval != SCORE_NONE) {
+                    ss->eval += (ss - i)->eval;
+                    ss->eval /= 2;                    
+                } else {
+                    break;
+                }
+            }
+            eval = ss->eval;
+        } 
+
         if (! pv_node && ! in_check && !ss->excluded_move) {
             /*
             | Razoring (~4 ELO) : If out position is way below alpha, do a verification |
