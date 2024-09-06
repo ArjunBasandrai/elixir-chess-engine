@@ -330,7 +330,7 @@ namespace elixir::search {
         | searching this node will likely take a lot of time, and this node is likely to be |
         | not very good. So, we save time by reducing the depth of the search.              |
         */
-        if (depth >= IIR_DEPTH && !tt_move && !ss->excluded_move)
+        if ((pv_node || cutnode) && depth >= IIR_DEPTH && !tt_move && !ss->excluded_move)
             depth--;
 
         /*
