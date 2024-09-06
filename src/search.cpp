@@ -245,14 +245,6 @@ namespace elixir::search {
         const bool tt_pv = (tt_hit && result.tt_pv) || pv_node;
 
         /*
-        | Internal Iterative Reduction (~6 ELO) : If no TT move is found for this position, |
-        | searching this node will likely take a lot of time, and this node is likely to be |
-        | not very good. So, we save time by reducing the depth of the search.              |
-        */
-        if (depth >= IIR_DEPTH && !tt_move)
-            depth--;
-
-        /*
         | Initialize the evaluation score. If we are in check, we set the evaluation score to INF.   |
         | Otherwise, if we have a TT hit, we use the stored score. If not, we evaluate the position. |
         */
@@ -332,6 +324,14 @@ namespace elixir::search {
                 }
             }
         }
+
+        /*
+        | Internal Iterative Reduction (~6 ELO) : If no TT move is found for this position, |
+        | searching this node will likely take a lot of time, and this node is likely to be |
+        | not very good. So, we save time by reducing the depth of the search.              |
+        */
+        if (depth >= IIR_DEPTH && !tt_move && !ss->excluded_move)
+            depth--;
 
         /*
         | Initialize MovePicker, generate all moves and use TT Move for move ordering. |
