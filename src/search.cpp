@@ -278,10 +278,10 @@ namespace elixir::search {
         const bool worsening = [&] {
             if (in_check)
                 return true;
-            if ((ss - 1)->eval != SCORE_NONE)
-                return ss->eval < (ss - 1)->eval;
-            if ((ss - 3)->eval != SCORE_NONE)
-                return ss->eval < (ss - 3)->eval;
+            if ((ss - 2)->eval != SCORE_NONE)
+                return ss->eval < (ss - 2)->eval;
+            if ((ss - 4)->eval != SCORE_NONE)
+                return ss->eval < (ss - 4)->eval;
             return false;
         }();
 
@@ -446,6 +446,7 @@ namespace elixir::search {
             R -= board.is_in_check();
             R += cutnode;
             R -= tt_pv;
+            R += worsening;
             
             if (depth > 1 && legals > 1) {
                 R = std::clamp(R, 1, new_depth);
