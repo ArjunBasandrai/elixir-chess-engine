@@ -17,6 +17,7 @@
 #include "utils/static_vector.h"
 
 using namespace elixir::bits;
+using namespace elixir::move;
 
 namespace elixir::search {
     int LMP_BASE           = 2;
@@ -71,6 +72,7 @@ namespace elixir::search {
                 SearchStack *ss) {
 
         pv.length = 0;
+        auto local_pv  = PVariation();
 
         auto &board = td.board;
         auto &info  = td.info;
@@ -78,56 +80,50 @@ namespace elixir::search {
         if (time_manager.should_stop(info) || info.stopped)
             return 0;
 
-        if (ss->ply > info.seldepth)
-            info.seldepth = ss->ply;
+        if (ss->ply >= MAX_DEPTH - 1)
+            return board.evaluate();
 
         // Three-Fold Repetition Detection (~50 ELO)
         if (board.is_repetition() || board.is_material_draw())
             return 0;
 
-        int best_score, eval = board.evaluate();
+        info.seldepth = std::max(info.seldepth, ss->ply);
 
-        if (ss->ply >= MAX_DEPTH - 1)
-            return eval;
-
-        int legals     = 0;
-        auto local_pv  = PVariation();
-        auto best_move = move::Move();
-        best_score     = eval;
+        const bool in_check = board.is_in_check();
 
         ProbedEntry result;
         const bool tt_hit  = tt->probe_tt(result, board.get_hash_key(), 0, alpha, beta);
         TTFlag tt_flag     = result.flag;
         const auto tt_move = result.best_move;
 
-        bool can_cutoff =
-            tt_hit && (tt_flag == TT_EXACT || (tt_flag == TT_ALPHA && result.score <= alpha) ||
-                       (tt_flag == TT_BETA && result.score >= beta));
+        bool can_use_tt_score = result.is_usable_score(alpha, beta);
 
-        if (ss->ply && can_cutoff) {
+        if (ss->ply && tt_hit && can_use_tt_score) {
             return result.score;
         }
 
-        if (tt_hit && can_cutoff) {
-            best_score = result.score;
-            best_move  = result.best_move;
+        const auto eval = [&] {
+            if (in_check) return SCORE_NONE;
+            return (tt_hit && can_use_tt_score) ? result.score : board.evaluate();
+        }();
+
+        if (eval > alpha) {
+            if (eval >= beta) return eval;
+
+            alpha = eval;
         }
 
-        if (best_score >= beta) {
-            return best_score;
-        }
-
-        alpha = std::max(alpha, best_score);
+        auto best_move = Move();
+        int best_score = eval;
+        TTFlag flag = TT_ALPHA;
 
         MovePicker mp;
         mp.init_mp(board, tt_move, ss, history, true);
-        move::Move move;
-        TTFlag flag = TT_ALPHA;
 
         if (! ss->ply)
             info.best_root_move = mp.first_move();
 
-        while ((move = mp.next_move())) {
+        while (const Move move = mp.next_move()) {
 
             /*
             | Q-Search Static Exchange Evaluation [SEE] Pruning (~55 ELO) : Skip moves that |
@@ -141,7 +137,6 @@ namespace elixir::search {
 
             tt->prefetch(board.get_hash_key());
 
-            legals++;
             info.nodes++;
 
             int score = -qsearch(td, -beta, -alpha, local_pv, ss);
@@ -186,8 +181,7 @@ namespace elixir::search {
         if (! root_node && (time_manager.should_stop(info) || info.stopped))
             return 0;
 
-        if (ss->ply > info.seldepth)
-            info.seldepth = ss->ply;
+        info.seldepth = std::max(info.seldepth, ss->ply);
             
         /*
         | Quiescence Search : Perform a quiescence search at leaf nodes to avoid the horizon effect. |
@@ -220,12 +214,12 @@ namespace elixir::search {
 
         auto local_pv  = PVariation();
         int best_score = -INF;
-        auto best_move = move::Move();
+        auto best_move = Move();
         ProbedEntry result;
         TTFlag tt_flag;
         bool tt_hit = false;
         bool can_use_tt_score = false;
-        auto tt_move = move::NO_MOVE;
+        auto tt_move = NO_MOVE;
 
         if (!ss->excluded_move) {
             tt_hit = tt->probe_tt(result, board.get_hash_key(), depth, alpha, beta);
@@ -316,7 +310,7 @@ namespace elixir::search {
                 | Set current move to a null move in the search stack to avoid |
                 | multiple null move searching in a row.                       |
                 */
-                ss->move      = move::NO_MOVE;
+                ss->move      = NO_MOVE;
                 ss->cont_hist = nullptr;
 
                 board.make_null_move();
@@ -342,7 +336,7 @@ namespace elixir::search {
             info.best_root_move = mp.first_move();
 
         TTFlag flag = TT_ALPHA;
-        move::Move move;
+        Move move;
         bool skip_quiets = false;
 
         /*
@@ -405,7 +399,7 @@ namespace elixir::search {
 
                 const int s_score = negamax(td, s_beta - 1, s_beta, s_depth, local_pv, ss, cutnode);
 
-                ss->excluded_move = move::NO_MOVE;
+                ss->excluded_move = NO_MOVE;
 
                 if (s_score < s_beta) {
                     const int double_margin = 300 * pv_node;
@@ -514,7 +508,7 @@ namespace elixir::search {
         return best_score;
     }
 
-    bool SEE(const Board &board, const move::Move move, int threshold, const int see_values[7]) {
+    bool SEE(const Board &board, const Move move, int threshold, const int see_values[7]) {
 
         if (move.is_promotion())
             return true;
@@ -598,7 +592,7 @@ namespace elixir::search {
         searching = true;
         auto start = std::chrono::high_resolution_clock::now();
         PVariation pv;
-        move::Move best_move;
+        Move best_move;
 
         auto &info  = td.info;
 
@@ -607,9 +601,9 @@ namespace elixir::search {
             int score = 0, alpha = -INF, beta = INF, delta = INITIAL_ASP_DELTA;
             SearchStack stack[MAX_DEPTH + 4], *ss = stack + 4;
             for (int i = -4; i < MAX_DEPTH; i++) {
-                (ss + i)->move       = move::NO_MOVE;
-                (ss + i)->killers[0] = move::NO_MOVE;
-                (ss + i)->killers[1] = move::NO_MOVE;
+                (ss + i)->move       = NO_MOVE;
+                (ss + i)->killers[0] = NO_MOVE;
+                (ss + i)->killers[1] = NO_MOVE;
                 (ss + i)->eval       = SCORE_NONE;
             }
 
