@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "defs.h"
 #include "move.h"
 #include "types.h"
@@ -21,6 +23,14 @@ namespace elixir {
                 }
             }
 
+            capthist.resize(12);
+            for (auto &to_sq: capthist) {
+                to_sq.resize(64);
+                for (auto &entry: to_sq) {
+                    entry.resize(12);
+                }
+            }
+            
             clear();
         }
         ~History() = default;
@@ -43,6 +53,17 @@ namespace elixir {
           return 2 * get_quiet_history(move.get_from(), move.get_to()) + (get_chs(move, ss - 1) + get_chs(move, ss - 2));
         }
 
+        int get_capthist(move::Move move, Piece captured) const {
+            return capthist[static_cast<int>(move.get_piece())][static_cast<int>(move.get_to())][static_cast<int>(captured)];
+        }
+
+        void update_single_capthist(move::Move& move, Piece captured, int depth, bool is_bad_noisy) {
+            int bonus = (is_bad_noisy) ? history_malus(depth) : history_bonus(depth);
+            int &score = capthist[static_cast<int>(move.get_piece())][static_cast<int>(move.get_to())][static_cast<int>(captured)];
+            score += scale_bonus(score, bonus);
+        }
+        void update_capthist(move::Move &move, Piece captured, MovePieceList bad_noisies, int depth);
+
         ContHistArray cont_hist;
 
       private:
@@ -56,6 +77,7 @@ namespace elixir {
         int scale_bonus(int score, int bonus);
         int history[64][64]                 = {0};
         move::Move counter_moves[2][64][64] = {move::NO_MOVE};
+        std::vector<std::vector<std::vector<int>>> capthist;
 
         void update_single_chs(move::Move& move, search::SearchStack *ss, int depth, bool is_bad_quiet);
     };

@@ -95,4 +95,5 @@ namespace elixir::move {
 
 namespace elixir {
     using MoveList = StaticVector<move::Move, 256>;
+    using MovePieceList = StaticVector<std::pair<move::Move, Piece>, 256>;
 }

@@ -349,12 +349,14 @@ namespace elixir::search {
         | Initialize a bad quiets array to be used by history maluses. |
         */
         MoveList bad_quiets;
+        MovePieceList bad_noisies;
 
         while ((move = mp.next_move())) {
 
             if (move == ss->excluded_move) continue;
 
             const bool is_quiet_move = move.is_quiet();
+            const bool is_capture_move = !is_quiet_move;
 
             /*
             | If skip_quiets is enabled by Late Move Pruning, we skip quiet |
@@ -488,7 +490,14 @@ namespace elixir::search {
                             history.update_history(move.get_from(), move.get_to(), depth,
                                                          bad_quiets);
                             history.update_chs(move, ss, bad_quiets, depth);
+                        } else {
+                            const auto captured = move.is_en_passant() ? (
+                            (board.get_side_to_move() == Color::WHITE) ? Piece::wP : Piece::bP
+                            ) : board.piece_on(move.get_to());
+                            assert(captured != Piece::NO_PIECE);
+                            history.update_capthist(move, captured, bad_noisies, depth);
                         }
+
                         flag = TT_BETA;
                         break;
                     }
@@ -499,6 +508,12 @@ namespace elixir::search {
 
             else if (is_quiet_move) {
                 bad_quiets.push(move);
+            } else {
+                const auto captured = move.is_en_passant() ? (
+                    (board.get_side_to_move() == Color::WHITE) ? Piece::wP : Piece::bP
+                ) : board.piece_on(move.get_to());
+                assert(captured != Piece::NO_PIECE);
+                bad_noisies.push({move, captured});
             }
         }
 

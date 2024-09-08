@@ -21,6 +21,16 @@ namespace elixir {
                 counter_moves[1][i][j] = move::NO_MOVE;
             }
         }
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 64; j++) {
+                for (int k = 0; k < 12; k++) {
+                    capthist[i][j][k] = 0;
+                    for (int l = 0; l < 64; l++) {
+                        cont_hist[i][j][k][l] = 0;
+                    }
+                }
+            }
+        }
     }
 
     int History::scale_bonus(int score, int bonus) {
@@ -77,5 +87,13 @@ namespace elixir {
         int &score = (*(ss)->cont_hist)[static_cast<int>(move.get_piece())][static_cast<int>(move.get_to())];
         int bonus = (is_bad_quiet) ? history_malus(depth) : history_bonus(depth);
         score += scale_bonus(score, bonus);
+    }
+
+    void History::update_capthist(move::Move &move, Piece captured, MovePieceList bad_noisies, int depth) {
+        update_single_capthist(move, captured, depth, false);
+
+        for (auto& [bad_noisy, bad_captured]: bad_noisies) {
+            update_single_capthist(bad_noisy, bad_captured, depth, true);
+        }
     }
 }

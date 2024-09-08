@@ -51,11 +51,11 @@ namespace elixir {
                         break;
                 }
             } else if (move.is_capture() || move.is_en_passant()) {
-                auto captured_piece =
-                    move.is_en_passant()
-                        ? static_cast<int>(PieceType::PAWN)
-                        : static_cast<int>(piece_to_piecetype(board.piece_on(to)));
-                value = eval::piece_values[captured_piece];
+                const auto captured = move.is_en_passant() ? (
+                        (board.get_side_to_move() == Color::WHITE) ? Piece::wP : Piece::bP
+                    ) : board.piece_on(move.get_to());
+                auto captured_piece = static_cast<int>(piece_to_piecetype(captured));
+                value = eval::piece_values[captured_piece] + history.get_capthist(move, captured);
                 value += search::SEE(board, move, -MP_SEE) ? 1000000000 : -1000000;
             } else if (move == ss->killers[0]) {
                 value = 800000000;
