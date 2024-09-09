@@ -308,7 +308,7 @@ namespace elixir::search {
             | Null Move Pruning (~60 ELO) : If our position is so good, we give our |
             | opponent an extra move to see if we are still better.                 |
             */
-            if (depth >= NMP_DEPTH && (ss - 1)->move && eval >= beta && board.has_non_pawn_material()) {
+            if (depth >= NMP_DEPTH && (ss - 1)->move && eval >= beta && board.has_non_pawn_material() && std::abs(eval) < MATE_FOUND) {
                 int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR + std::min((eval - beta) / 200, 6) + std::min(board.get_phase(), 24) / 8;
                 R     = std::min(R, depth);
 
@@ -379,7 +379,7 @@ namespace elixir::search {
                 | when there's a little chance of improving alpha.                       |
                 */
                 const int futility_margin = FP_BASE + FP_MULTIPLIER * depth;
-                if (depth <= FP_DEPTH && ! in_check && is_quiet_move &&
+                if (depth <= FP_DEPTH && ! in_check && is_quiet_move && std::abs(eval) < MATE_FOUND &&
                     ss->eval + futility_margin < alpha) {
                     skip_quiets = true;
                     continue;
