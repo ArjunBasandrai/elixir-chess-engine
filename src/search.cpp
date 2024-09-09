@@ -416,6 +416,8 @@ namespace elixir::search {
                     return s_beta;
                 else if (result.score >= beta)
 					extensions--;
+                else if (cutnode)
+                    extensions--;
             }
 
             extensions += in_check;
