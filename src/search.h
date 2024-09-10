@@ -9,6 +9,9 @@
 #include "board/board.h"
 #include "move.h"
 
+#include "search_terms.h"
+#include "pv.h"
+
 namespace elixir::search {
     class SearchInfo {
       public:
@@ -26,68 +29,7 @@ namespace elixir::search {
         move::Move best_root_move;
     };
 
-    struct PVariation {
-        std::size_t length;
-        int score;
-        std::array<move::Move, 256> line;
-
-        PVariation() : length(0), score(0) {
-            for (auto &move : line) {
-                move = move::NO_MOVE;
-            }
-        }
-
-        int score_value() const { return score; }
-
-        void print_pv() const {
-            for (int i = 0; i < length; i++) {
-                line[i].print_uci();
-                std::cout << " ";
-            }
-        }
-
-        void update(const move::Move m, const int s, const PVariation &rest) {
-            line[0] = m;
-            std::copy(rest.line.begin(), rest.line.begin() + rest.length, line.begin() + 1);
-            length = rest.length + 1;
-            score  = s;
-        }
-    };
-
-    extern int RFP_MARGIN;
-    extern int LMP_BASE;
-    extern int RAZOR_MARGIN;
-    extern int NMP_BASE_REDUCTION;
-    extern int NMP_DEPTH;
-    extern int RFP_DEPTH;
-    extern int RAZOR_DEPTH;
-    extern int IIR_DEPTH;
-    extern int LMP_MULTIPLIER;
-    extern int LMR_DEPTH;
-    extern int FP_BASE;
-    extern int FP_MULTIPLIER;
-    extern int FP_DEPTH;
-    extern int SEE_QUIET;
-    extern int SEE_CAPTURE;
-    extern int SEE_DEPTH;
-    extern int QS_SEE_THRESHOLD;
-    extern int SEE_PAWN;
-    extern int SEE_KNIGHT;
-    extern int SEE_BISHOP;
-    extern int SEE_ROOK;
-    extern int SEE_QUEEN;
-    extern int INITIAL_ASP_DELTA;
-    extern int NMP_DIVISOR;
-    extern double LMR_OFFSET;
-    extern double LMR_DIVISOR;
-    extern int MIN_ASP_DEPTH;
-    extern double ASP_MULTIPLIER;
-
-    extern int see_pieces[7];
-
-    extern int lmr[MAX_DEPTH][64];
     void init_lmr();
-
     bool SEE(const Board &board, const move::Move move, int threshold,
              const int see_values[7] = see_pieces);
 
