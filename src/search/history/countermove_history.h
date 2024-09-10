@@ -4,9 +4,12 @@
 #include "move.h"
 
 namespace elixir {
+    using CounterMoveArray = std::vector<std::array<std::array<move::Move, 64>, 64>>;
+    
     class CounterMoveHistory {
         public:
             CounterMoveHistory() {
+                counter_moves.resize(2);
                 clear();
             }
             ~CounterMoveHistory() = default;
@@ -17,6 +20,6 @@ namespace elixir {
             move::Move get_countermove(Color side, Square from, Square to) const;
         
         private:
-            move::Move counter_moves[2][64][64] = {move::NO_MOVE};
+            CounterMoveArray counter_moves;
     };
 }

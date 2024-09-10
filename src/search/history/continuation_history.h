@@ -9,15 +9,6 @@ namespace elixir {
         public:
             ContiuationHistory() {
                 cont_hist.resize(12);
-                for (auto &to_sq: cont_hist) {
-                    to_sq.resize(64);
-                    for (auto &entry: to_sq) {
-                        entry.resize(12);
-                        for (auto &from_sq: entry) {
-                            from_sq.resize(64);
-                        }
-                    }
-                }
                 clear();
             }
             ~ContiuationHistory() = default;
