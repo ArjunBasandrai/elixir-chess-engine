@@ -66,7 +66,6 @@ namespace elixir {
                                                              (ss - 1)->move.get_to())) {
                 value = 600000000;
             } else {
-                // Butterfly History Move Ordering (~45 ELO)
                 value = history.get_history(move, ss);
             }
 
@@ -87,7 +86,6 @@ namespace elixir {
         if (moves.size() <= 0)
             return move::NO_MOVE;
 
-        // (~300 ELO)
         int max = -INF, max_idx = 0;
         for (int i = 0; i < moves.size(); i++) {
             if (scores[i] > max) {

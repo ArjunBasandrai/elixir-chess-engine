@@ -8,7 +8,6 @@
 #include "types.h"
 #include "move.h"
 
-#include "incbin.h"
 #include "arch.h"
 #include "accumulator.h"
 #include "weights.h"

@@ -6,6 +6,7 @@
 #include "types.h"
 #include "utils/bits.h"
 
+#include "third_party/incbin.h"
 #include "nnue.h"
 #include "simd.h"
 

@@ -9,6 +9,7 @@
 #include "weights.h"
 
 namespace elixir {
+    // forward declaration
     class Board;
 }
 
