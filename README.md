@@ -75,7 +75,7 @@ Alternatively, you can download pre-compiled binaries from the [Releases](https:
   - Data Size: 3.3B positions
   
 > [!IMPORTANT]
-> As of version 2.0, Elixir no longer utilizes Hand-Crafted Evaluation (HCE). This information is retained here for reference purposes.
+> As of version 2.0, Elixir no longer utilizes Hand-Crafted Evaluation (HCE). The following information is retained here for reference purposes.
 
 - **Evaluation** : Hand Crafted Evaluation (HCE) using texel-tuned values
   - Tapered Evaluation
