@@ -10,8 +10,8 @@
 #include <vector>
 
 #include "defs.h"
-#include "types.h"
 #include "evaluation/evaluate.h"
+#include "types.h"
 
 using namespace elixir::eval;
 

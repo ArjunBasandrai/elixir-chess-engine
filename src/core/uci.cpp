@@ -12,10 +12,10 @@
 
 #include "uci.h"
 
-#include "search/bench/bench.h"
 #include "evaluation/evaluate.h"
-#include "search/history/history.h"
 #include "movegen.h"
+#include "search/bench/bench.h"
+#include "search/history/history.h"
 #include "search/movepicker.h"
 #include "search/search.h"
 #include "spsa/spsa.h"

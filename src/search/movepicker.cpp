@@ -52,18 +52,18 @@ namespace elixir {
                 }
             } else if (move.is_capture() || move.is_en_passant()) {
                 auto captured_piece =
-                    move.is_en_passant()
-                        ? static_cast<int>(PieceType::PAWN)
-                        : static_cast<int>(piece_to_piecetype(board.piece_on(to)));
+                    move.is_en_passant() ? static_cast<int>(PieceType::PAWN)
+                                         : static_cast<int>(piece_to_piecetype(board.piece_on(to)));
                 value = eval::piece_values[captured_piece];
                 value += search::SEE(board, move, -MP_SEE) ? 1000000000 : -1000000;
             } else if (move == ss->killers[0]) {
                 value = 800000000;
             } else if (move == ss->killers[1]) {
                 value = 700000000;
-            } else if (move == history.countermove_history.get_countermove(board.get_side_to_move(),
-                                                             (ss - 1)->move.get_from(),
-                                                             (ss - 1)->move.get_to())) {
+            } else if (move ==
+                       history.countermove_history.get_countermove(board.get_side_to_move(),
+                                                                   (ss - 1)->move.get_from(),
+                                                                   (ss - 1)->move.get_to())) {
                 value = 600000000;
             } else {
                 value = history.get_history(move, ss);
@@ -73,8 +73,8 @@ namespace elixir {
         }
     }
 
-    void MovePicker::init_mp(const Board &board, move::Move tt_move, search::SearchStack *ss, History &history,
-                             bool for_qs) {
+    void MovePicker::init_mp(const Board &board, move::Move tt_move, search::SearchStack *ss,
+                             History &history, bool for_qs) {
         if (for_qs)
             moves = movegen::generate_moves<true>(board);
         else

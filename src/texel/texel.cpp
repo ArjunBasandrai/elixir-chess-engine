@@ -61,8 +61,7 @@ namespace elixir::texel {
         const auto phase = board.get_phase();
 
         TunerPosition position;
-        position.eval =
-            board.evaluate() * color_offset[static_cast<int>(board.get_side_to_move())];
+        position.eval = board.evaluate() * color_offset[static_cast<int>(board.get_side_to_move())];
         position.phase   = phase;
         position.outcome = result;
         position.stm     = static_cast<int>(board.get_side_to_move());

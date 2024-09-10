@@ -1,7 +1,7 @@
 #pragma once
 
-#include <iostream>
 #include <array>
+#include <iostream>
 
 #include "move.h"
 

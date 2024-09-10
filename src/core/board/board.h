@@ -6,9 +6,9 @@
 
 #include "attacks/attacks.h"
 #include "defs.h"
-#include "search/history/history.h"
-#include "move.h"
 #include "evaluation/nnue/nnue.h"
+#include "move.h"
+#include "search/history/history.h"
 #include "types.h"
 #include "utils/bits.h"
 #include "utils/state.h"

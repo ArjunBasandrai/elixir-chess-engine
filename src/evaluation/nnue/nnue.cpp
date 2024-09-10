@@ -1,14 +1,14 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <cstring>
 #include <cassert>
+#include <cstring>
 
 #include "defs.h"
 #include "types.h"
 #include "utils/bits.h"
 
-#include "third_party/incbin.h"
 #include "nnue.h"
 #include "simd.h"
+#include "third_party/incbin.h"
 
 #include "board/board.h"
 
@@ -26,7 +26,7 @@ namespace elixir::nnue {
         return clipped * clipped;
     }
 
-    void Accumulator::set_position(const Board &board, Network& net) {
+    void Accumulator::set_position(const Board &board, Network &net) {
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             accumulator[0][i] = net.layer_1_biases[i];
         }
@@ -58,11 +58,11 @@ namespace elixir::nnue {
         }
     }
 
-    void Accumulator::add(const Piece piece, const Square sq, Network& net) {
-        const int color = static_cast<int>(piece_color(piece));
+    void Accumulator::add(const Piece piece, const Square sq, Network &net) {
+        const int color     = static_cast<int>(piece_color(piece));
         const int piecetype = static_cast<int>(piece_to_piecetype(piece));
-        const int white_sq = static_cast<int>(sq);
-        const int black_sq = white_sq ^ 56;
+        const int white_sq  = static_cast<int>(sq);
+        const int black_sq  = white_sq ^ 56;
 
         const int white_input_index = color * 384 + piecetype * 64 + white_sq;
         const int black_input_index = (color ^ 1) * 384 + piecetype * 64 + black_sq;
@@ -76,11 +76,11 @@ namespace elixir::nnue {
         }
     }
 
-    void Accumulator::remove(const Piece piece, const Square sq, Network& net) {
-        const int color = static_cast<int>(piece_color(piece));
+    void Accumulator::remove(const Piece piece, const Square sq, Network &net) {
+        const int color     = static_cast<int>(piece_color(piece));
         const int piecetype = static_cast<int>(piece_to_piecetype(piece));
-        const int white_sq = static_cast<int>(sq);
-        const int black_sq = white_sq ^ 56;
+        const int white_sq  = static_cast<int>(sq);
+        const int black_sq  = white_sq ^ 56;
 
         const int white_input_index = color * 384 + piecetype * 64 + white_sq;
         const int black_input_index = (color ^ 1) * 384 + piecetype * 64 + black_sq;
@@ -94,13 +94,13 @@ namespace elixir::nnue {
         }
     }
 
-    void Accumulator::make_move(const Board& board, const move::Move& move, Network& net) {
-        const Square from = move.get_from();
-        const Square to = move.get_to();
+    void Accumulator::make_move(const Board &board, const move::Move &move, Network &net) {
+        const Square from     = move.get_from();
+        const Square to       = move.get_to();
         const move::Flag flag = move.get_flag();
-        const Piece piece = move.get_piece();
-        const Color color = board.get_side_to_move();
-        const int stm = static_cast<int>(color);
+        const Piece piece     = move.get_piece();
+        const Color color     = board.get_side_to_move();
+        const int stm         = static_cast<int>(color);
 
         if (move.is_promotion()) {
             const Piece promo = [&] {
@@ -118,7 +118,7 @@ namespace elixir::nnue {
                         assert(0);
                         exit(1);
                 }
-            } ();
+            }();
 
             remove(piece, from, net);
 
@@ -133,9 +133,10 @@ namespace elixir::nnue {
         }
 
         if (move.is_en_passant()) {
-            const int enpass_sq = static_cast<int>(board.get_en_passant_square());
+            const int enpass_sq    = static_cast<int>(board.get_en_passant_square());
             Square captured_square = static_cast<Square>(enpass_sq - 8 * color_offset[stm]);
-            remove(piece_color(piece) == Color::WHITE ? Piece::bP : Piece::wP, captured_square, net);
+            remove(piece_color(piece) == Color::WHITE ? Piece::bP : Piece::wP, captured_square,
+                   net);
         }
 
         if (move.is_capture()) {
@@ -153,7 +154,7 @@ namespace elixir::nnue {
                 } else {
                     return static_cast<Square>(static_cast<int>(to) - 2);
                 }
-            } ();
+            }();
 
             const Square rook_to = [&] {
                 if (to == Square::G1 || to == Square::G8) {
@@ -161,7 +162,7 @@ namespace elixir::nnue {
                 } else {
                     return static_cast<Square>(static_cast<int>(to) + 1);
                 }
-            } ();
+            }();
 
             remove(piece_color(piece) == Color::WHITE ? Piece::wR : Piece::bR, rook_from, net);
             add(piece_color(piece) == Color::WHITE ? Piece::wR : Piece::bR, rook_to, net);
@@ -182,7 +183,8 @@ namespace elixir::nnue {
             read += fread(net.layer_1_weights, sizeof(I16), INPUT_WEIGHTS * HIDDEN_SIZE, nn);
             read += fread(net.layer_1_biases, sizeof(I16), HIDDEN_SIZE, nn);
             read += fread(net.output_weights, sizeof(I16), HIDDEN_SIZE * 2, nn);
-            read += fread(untransposed_output_weights, sizeof(I16), HIDDEN_SIZE * OUTPUT_BUCKETS * 2, nn);
+            read += fread(untransposed_output_weights, sizeof(I16),
+                          HIDDEN_SIZE * OUTPUT_BUCKETS * 2, nn);
             read += fread(net.output_bias, sizeof(I16), OUTPUT_BUCKETS, nn);
 
             if (read != objectsExpected) {
@@ -204,7 +206,8 @@ namespace elixir::nnue {
             std::memcpy(net.layer_1_biases, &gEVALData[memoryIndex], HIDDEN_SIZE * sizeof(I16));
             memoryIndex += HIDDEN_SIZE * sizeof(I16);
 
-            std::memcpy(untransposed_output_weights, &gEVALData[memoryIndex], HIDDEN_SIZE * OUTPUT_BUCKETS * sizeof(I16) * 2);
+            std::memcpy(untransposed_output_weights, &gEVALData[memoryIndex],
+                        HIDDEN_SIZE * OUTPUT_BUCKETS * sizeof(I16) * 2);
 
             memoryIndex += HIDDEN_SIZE * OUTPUT_BUCKETS * sizeof(I16) * 2;
             std::memcpy(net.output_bias, &gEVALData[memoryIndex], OUTPUT_BUCKETS * sizeof(I16));
@@ -213,7 +216,8 @@ namespace elixir::nnue {
         for (int stm = 0; stm < 2; stm++) {
             for (int weight = 0; weight < HIDDEN_SIZE; weight++) {
                 for (int bucket = 0; bucket < OUTPUT_BUCKETS; bucket++) {
-                    net.output_weights[bucket][stm][weight] = untransposed_output_weights[stm][weight][bucket];
+                    net.output_weights[bucket][stm][weight] =
+                        untransposed_output_weights[stm][weight][bucket];
                 }
             }
         }
@@ -226,14 +230,14 @@ namespace elixir::nnue {
     int NNUE::eval(const Color side, const int bucket) {
         I8 icolor = static_cast<I8>(side);
         int eval  = 0;
-        
+
 #if defined(USE_SIMD)
-        vepi32 sum = zero_epi32();
+        vepi32 sum               = zero_epi32();
         constexpr int chunk_size = sizeof(vepi16) / sizeof(int16_t);
 
         for (int i = 0; i < HIDDEN_SIZE; i += chunk_size) {
             const vepi16 accumulator_data = load_epi16(&accumulators[current_acc][icolor][i]);
-            const vepi16 weights = load_epi16(&net.output_weights[bucket][0][i]);
+            const vepi16 weights          = load_epi16(&net.output_weights[bucket][0][i]);
 
             const vepi16 clipped_accumulator = clip(accumulator_data, L1Q);
 
@@ -246,7 +250,7 @@ namespace elixir::nnue {
 
         for (int i = 0; i < HIDDEN_SIZE; i += chunk_size) {
             const vepi16 accumulator_data = load_epi16(&accumulators[current_acc][icolor ^ 1][i]);
-            const vepi16 weights = load_epi16(&net.output_weights[bucket][1][i]);
+            const vepi16 weights          = load_epi16(&net.output_weights[bucket][1][i]);
 
             const vepi16 clipped_accumulator = clip(accumulator_data, L1Q);
 
@@ -264,7 +268,8 @@ namespace elixir::nnue {
         }
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            eval += screlu(accumulators[current_acc][icolor ^ 1][i]) * net.output_weights[bucket][1][i];
+            eval +=
+                screlu(accumulators[current_acc][icolor ^ 1][i]) * net.output_weights[bucket][1][i];
         }
 
 #endif

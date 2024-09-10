@@ -2,10 +2,10 @@
 #include <string>
 
 #include "attacks/attacks.h"
-#include "search/bench/bench.h"
 #include "board/board.h"
 #include "defs.h"
 #include "hashing/hash.h"
+#include "search/bench/bench.h"
 #include "search/search.h"
 #include "src/spsa/spsa.h"
 #include "src/tests/see_test.h"

@@ -47,7 +47,7 @@ namespace elixir::move {
         }
 
         [[nodiscard]] int get_promo_piece() const;
-        
+
         [[nodiscard]] constexpr Move_T get_move() const noexcept { return m_move; }
 
         void set_move(Move_T move) noexcept { m_move = move; }

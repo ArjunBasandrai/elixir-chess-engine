@@ -1,16 +1,16 @@
 #pragma once
 
 #include <array>
-#include <vector>
+#include <atomic>
 #include <chrono>
 #include <thread>
-#include <atomic>
+#include <vector>
 
 #include "board/board.h"
 #include "move.h"
 
-#include "search_terms.h"
 #include "pv.h"
+#include "search_terms.h"
 
 namespace elixir::search {
     class SearchInfo {
@@ -34,42 +34,43 @@ namespace elixir::search {
              const int see_values[7] = see_pieces);
 
     class ThreadData {
-        public:
-            ThreadData(Board &board, SearchInfo &info) {
-                this->board = board;
-                this->info = info;
-            }
-            ~ThreadData() = default;
+      public:
+        ThreadData(Board &board, SearchInfo &info) {
+            this->board = board;
+            this->info  = info;
+        }
+        ~ThreadData() = default;
 
-            int thread_idx = -1;
-            Board board;
-            SearchInfo info;
+        int thread_idx = -1;
+        Board board;
+        SearchInfo info;
     };
 
     class Searcher {
         History history;
-        public:
+
+      public:
         bool searching = false;
         bool soft_stop = true;
 
         int futility_margin(int depth, bool improving, bool cutnode, bool tt_hit) const {
-            int futilitity_base = 122 - 37 * (cutnode && !tt_hit);
+            int futilitity_base     = 122 - 37 * (cutnode && ! tt_hit);
             int improving_reduction = improving * futilitity_base / 2;
 
             return futilitity_base * depth - improving_reduction;
         }
 
-        int qsearch(ThreadData &td, int alpha, int beta, PVariation &pv,
-            SearchStack *ss);
-        int negamax(ThreadData &td, int alpha, int beta, int depth, PVariation &pv,
-                    SearchStack *ss, bool cutnode);
+        int qsearch(ThreadData &td, int alpha, int beta, PVariation &pv, SearchStack *ss);
+        int negamax(ThreadData &td, int alpha, int beta, int depth, PVariation &pv, SearchStack *ss,
+                    bool cutnode);
         void search(ThreadData &td, bool print_info);
         void clear_history() { history.clear(); }
-        void update_killers_and_histories(SearchStack*ss, move::Move move, MoveList& bad_quiets, Color stm, int depth, bool is_quiet_move);
+        void update_killers_and_histories(SearchStack *ss, move::Move move, MoveList &bad_quiets,
+                                          Color stm, int depth, bool is_quiet_move);
     };
 
     class ThreadManager {
-        public:
+      public:
         ThreadManager(int threads) {
             num_threads = threads;
             for (int i = 0; i < num_threads; i++) {
@@ -88,13 +89,13 @@ namespace elixir::search {
 
         unsigned long long get_nodes() {
             unsigned long long nodes = 0;
-            for (auto &td: thread_datas) {
+            for (auto &td : thread_datas) {
                 nodes += td.info.nodes;
             }
             return nodes;
         }
 
-        void ucinewgame() { 
+        void ucinewgame() {
             for (int i = 0; i < num_threads; i++) {
                 searchers[i].clear_history();
             }
@@ -114,9 +115,10 @@ namespace elixir::search {
         }
 
         void stop_search() {
-            if (!in_search) return;
+            if (! in_search)
+                return;
             for (int i = 0; i < num_threads; i++) {
-                searchers[i].soft_stop = false;
+                searchers[i].soft_stop       = false;
                 thread_datas[i].info.stopped = true;
             }
         }

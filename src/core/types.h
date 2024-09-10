@@ -1,8 +1,8 @@
 #pragma once
 
 #include <array>
-#include <vector>
 #include <cstdint>
+#include <vector>
 
 namespace elixir {
     using Bitboard = std::uint64_t;

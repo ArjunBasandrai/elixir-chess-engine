@@ -8,8 +8,8 @@
 
 #include "defs.h"
 #include "evaluation/evaluate.h"
-#include "hashing/hash.h"
 #include "evaluation/nnue/nnue.h"
+#include "hashing/hash.h"
 #include "texel/texel.h"
 #include "tt/tt.h"
 #include "types.h"

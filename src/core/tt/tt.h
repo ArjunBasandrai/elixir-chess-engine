@@ -5,8 +5,8 @@
 #include "defs.h"
 #include "hashing/hash.h"
 #include "move.h"
-#include "search/search.h"
 #include "search/pv.h"
+#include "search/search.h"
 #include "types.h"
 
 namespace elixir {
@@ -17,8 +17,8 @@ namespace elixir {
         I16 score       = 0;
         move::Move move = move::NO_MOVE;
         I8 depth        = -1;
-        TTFlag flag : 6     = TT_NONE;
-        bool tt_pv: 2       = false;
+        TTFlag flag : 6 = TT_NONE;
+        bool tt_pv : 2  = false;
 
         bool operator==(const TTEntry &other) const {
             return key == other.key && score == other.score && depth == other.depth &&
@@ -31,8 +31,8 @@ namespace elixir {
         int score;
         move::Move best_move;
         U8 depth;
-        TTFlag flag: 6;
-        bool tt_pv: 2;
+        TTFlag flag : 6;
+        bool tt_pv : 2;
 
         ProbedEntry() : score(0), best_move(move::NO_MOVE), depth(0), flag(TT_NONE), tt_pv(false) {}
 
@@ -46,7 +46,7 @@ namespace elixir {
 
         bool is_usable_score(int alpha, int beta) const {
             return (flag == TT_EXACT || (flag == TT_ALPHA && score <= alpha) ||
-                (flag == TT_BETA && score >= beta));
+                    (flag == TT_BETA && score >= beta));
         }
     };
 

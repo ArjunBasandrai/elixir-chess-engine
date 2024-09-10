@@ -5,10 +5,10 @@
 #include "board/board.h"
 #include "defs.h"
 #include "move.h"
-#include "types.h"
 #include "search/search.h"
-#include "utils/str_utils.h"
 #include "see_test.h"
+#include "types.h"
+#include "utils/str_utils.h"
 
 namespace elixir {
     namespace tests {

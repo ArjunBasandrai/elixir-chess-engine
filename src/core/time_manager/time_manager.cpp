@@ -3,18 +3,17 @@
 #include "time_manager.h"
 
 #include "defs.h"
-#include "types.h"
 #include "search.h"
 #include "spsa/spsa.h"
+#include "types.h"
 
 
 namespace elixir::time_management {
-    double move_stability_scale[5] = {
-        2.43, 1.35, 1.09, 0.88, 0.68
-    };
+    double move_stability_scale[5] = {2.43, 1.35, 1.09, 0.88, 0.68};
 
-    void TimeManager::optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo,
-                                   std::chrono::high_resolution_clock::time_point start_time_point) {
+    void
+    TimeManager::optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo,
+                              std::chrono::high_resolution_clock::time_point start_time_point) {
         if (time < 0)
             time = 1000;
 
@@ -47,7 +46,7 @@ namespace elixir::time_management {
 
     bool TimeManager::should_stop_early(search::SearchInfo &info, const int depth,
                                         const move::Move best_move) {
-        if (! info.timed) 
+        if (! info.timed)
             return false;
 
         if (depth < 7) {
@@ -65,7 +64,7 @@ namespace elixir::time_management {
         }
 
         const double stability_scale = move_stability_scale[best_move_stability];
-        const F64 optimal_time = std::min<F64>(soft_limit * stability_scale, hard_limit);
+        const F64 optimal_time       = std::min<F64>(soft_limit * stability_scale, hard_limit);
 
         return time_elapsed(info) >= optimal_time;
     }

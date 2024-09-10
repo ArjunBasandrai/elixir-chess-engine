@@ -3,8 +3,8 @@
 #include "defs.h"
 #include "hashing/hash.h"
 #include "move.h"
-#include "search/search.h"
 #include "search/pv.h"
+#include "search/search.h"
 #include "types.h"
 
 #include "tt.h"
@@ -40,7 +40,7 @@ namespace elixir {
             result.best_move = entry.move;
             result.score     = entry.score;
             result.depth     = entry.depth;
-            result.flag             = entry.flag;
+            result.flag      = entry.flag;
             result.tt_pv     = entry.tt_pv;
             return true;
         }
@@ -48,7 +48,8 @@ namespace elixir {
     }
 
     void TranspositionTable::store_tt(U64 key, int score, move::Move move, U8 depth, int ply,
-                                      TTFlag flag, search::PVariation pv, bool tt_pv, bool improving) {
+                                      TTFlag flag, search::PVariation pv, bool tt_pv,
+                                      bool improving) {
         U32 index     = get_index(key);
         TTEntry entry = table[index];
 
