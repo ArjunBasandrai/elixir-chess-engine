@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "search.h"
+#include "search_terms.h"
 #include "ss.h"
 
 #include "board/board.h"
@@ -19,40 +20,6 @@
 using namespace elixir::bits;
 
 namespace elixir::search {
-    int LMP_BASE           = 2;
-    int RFP_MARGIN         = 72;
-    int RAZOR_MARGIN       = 298;
-    int NMP_BASE_REDUCTION = 5;
-    int NMP_DEPTH          = 1;
-    int RFP_DEPTH          = 6;
-    int RAZOR_DEPTH        = 7;
-    int IIR_DEPTH          = 4;
-    int LMP_MULTIPLIER     = 1;
-    int LMR_DEPTH          = 4;
-    int FP_BASE            = 146;
-    int FP_MULTIPLIER      = 118;
-    int FP_DEPTH           = 5;
-    int SEE_QUIET          = 67;
-    int SEE_CAPTURE        = 32;
-    int SEE_DEPTH          = 10;
-    int QS_SEE_THRESHOLD   = 9;
-    int SEE_PAWN           = 77;
-    int SEE_KNIGHT         = 299;
-    int SEE_BISHOP         = 303;
-    int SEE_ROOK           = 504;
-    int SEE_QUEEN          = 903;
-    int INITIAL_ASP_DELTA  = 12;
-    int NMP_DIVISOR        = 9;
-    double LMR_OFFSET      = 0.5137;
-    double LMR_DIVISOR     = 1.711;
-    int MIN_ASP_DEPTH      = 4;
-    double ASP_MULTIPLIER  = 1.3111;
-}
-
-namespace elixir::search {
-
-    int see_pieces[7] = {SEE_PAWN, SEE_KNIGHT, SEE_BISHOP, SEE_ROOK, SEE_QUEEN, 0, 0};
-
     int lmr[MAX_DEPTH][64] = {0};
     void init_lmr() {
         for (int depth = 0; depth < MAX_DEPTH; depth++) {
@@ -156,7 +123,7 @@ namespace elixir::search {
 
                 if (score > alpha) {
                     alpha = score;
-                    pv.update(move, score, local_pv);
+                    pv.update(move, local_pv);
                     flag = TT_ALPHA;
                 }
 
@@ -477,7 +444,7 @@ namespace elixir::search {
                 best_score = score;
                 if (score > alpha) {
                     if (pv_node)
-                        pv.update(move, score, local_pv);
+                        pv.update(move, local_pv);
                     if (score >= beta) {
                         if (is_quiet_move) {
                             if (ss->killers[0] != move) {
