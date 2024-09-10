@@ -65,6 +65,7 @@ namespace elixir::search {
                     SearchStack *ss, bool cutnode);
         void search(ThreadData &td, bool print_info);
         void clear_history() { history.clear(); }
+        void update_killers_and_histories(SearchStack*ss, move::Move move, MoveList& bad_quiets, Color stm, int depth, bool is_quiet_move);
     };
 
     class ThreadManager {

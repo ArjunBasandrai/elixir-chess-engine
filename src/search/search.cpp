@@ -33,6 +33,21 @@ namespace elixir::search {
         }
     }
 
+    void Searcher::update_killers_and_histories(SearchStack*ss, move::Move move, MoveList& bad_quiets, Color stm, int depth, bool is_quiet_move) {
+        if (is_quiet_move) {
+            if (ss->killers[0] != move) {
+                ss->killers[1] = ss->killers[0];
+                ss->killers[0] = move;
+            }
+            history.countermove_history.update_countermove(
+                stm, (ss - 1)->move.get_from(),
+                (ss - 1)->move.get_to(), move);
+            history.quiet_history.update_history(move.get_from(), move.get_to(),
+                                                    depth, bad_quiets);
+            history.continuation_history.update_chs(move, ss, bad_quiets, depth);
+        }
+    }
+
     // (~20 ELO)
     int Searcher::qsearch(ThreadData &td, int alpha, int beta, PVariation &pv, SearchStack *ss) {
 
@@ -499,18 +514,7 @@ namespace elixir::search {
                     if (pv_node)
                         pv.update(move, local_pv);
                     if (score >= beta) {
-                        if (is_quiet_move) {
-                            if (ss->killers[0] != move) {
-                                ss->killers[1] = ss->killers[0];
-                                ss->killers[0] = best_move;
-                            }
-                            history.countermove_history.update_countermove(
-                                board.get_side_to_move(), (ss - 1)->move.get_from(),
-                                (ss - 1)->move.get_to(), move);
-                            history.quiet_history.update_history(move.get_from(), move.get_to(),
-                                                                 depth, bad_quiets);
-                            history.continuation_history.update_chs(move, ss, bad_quiets, depth);
-                        }
+                        update_killers_and_histories(ss, move, bad_quiets, board.get_side_to_move(), depth, is_quiet_move);
                         flag = TT_BETA;
                         break;
                     }
