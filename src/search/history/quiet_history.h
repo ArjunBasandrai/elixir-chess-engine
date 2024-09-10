@@ -7,6 +7,7 @@ namespace elixir {
     class QuietHistory {
         public:
             QuietHistory() {
+                history.resize(64);
                 clear();
             }
             ~QuietHistory() = default;
@@ -17,6 +18,6 @@ namespace elixir {
             int get_quiet_history(Square from, Square to) const;
     
         private:
-            int history[64][64] = {0};
+            QuietHistoryArray history;
     };
 }
