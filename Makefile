@@ -57,7 +57,7 @@ ifeq ($(ARCH_DETECTED), AVX2)
 endif
 
 INCLUDE_PATHS = -Isrc/ -Isrc/core/
-CXXFLAGS += -std=c++2a $(STACK) $(INCLUDE_PATHS)
+CXXFLAGS += -std=c++20 $(STACK) $(INCLUDE_PATHS)
 
 all: __compile
 
@@ -68,16 +68,16 @@ tune: __tune_compile
 texel: __texel_compile __texel_run
 
 __compile:
-	g++ -Ofast -march=native -DNDEBUG -DEVALFILE=\"nnue.bin\" $(CXXFLAGS) -o $(EXE_NAME) elixir.cpp $(SRC)
+	$(CXX) -Ofast -march=native -DNDEBUG -DEVALFILE=\"nnue.bin\" $(CXXFLAGS) -o $(EXE_NAME) elixir.cpp $(SRC)
 
 __tune_compile:
-	g++ -Ofast -march=native -DNDEBUG -DUSE_TUNE -DEVALFILE=\"nnue.bin\" $(CXXFLAGS) -o $(EXE_NAME) elixir.cpp $(SRC)
+	$(CXX) -Ofast -march=native -DNDEBUG -DUSE_TUNE -DEVALFILE=\"nnue.bin\" $(CXXFLAGS) -o $(EXE_NAME) elixir.cpp $(SRC)
 
 __texel_compile:
-	g++ -Ofast -march=native -DNDEBUG -DTEXEL -DEVALFILE=\"nnue.bin\" $(CXXFLAGS) -o $(EXE_NAME) elixir.cpp $(SRC)
+	$(CXX) -Ofast -march=native -DNDEBUG -DTEXEL -DEVALFILE=\"nnue.bin\" $(CXXFLAGS) -o $(EXE_NAME) elixir.cpp $(SRC)
 
 __debug_compile:
-	g++ -Og -g -DEVALFILE=\"nnue.bin\" $(CXXFLAGS) -o $(EXE_NAME) elixir.cpp $(SRC)
+	$(CXX) -Og -g -DEVALFILE=\"nnue.bin\" $(CXXFLAGS) -o $(EXE_NAME) elixir.cpp $(SRC)
 
 __run:
 	./$(EXE_NAME)

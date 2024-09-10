@@ -26,8 +26,7 @@
 #include "utils/str_utils.h"
 #include "utils/test_fens.h"
 
-
-#define version "2.0"
+#define version "3.0"
 
 namespace elixir::uci {
 

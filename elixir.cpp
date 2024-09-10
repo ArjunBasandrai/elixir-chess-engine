@@ -1,4 +1,3 @@
-#include <fstream>
 #include <iostream>
 #include <string>
 
@@ -11,11 +10,7 @@
 #include "src/spsa/spsa.h"
 #include "src/tests/see_test.h"
 #include "src/texel/texel.h"
-#include "tt/tt.h"
-#include "evaluation/nnue/nnue.h"
-#include "types.h"
 #include "uci.h"
-#include "utils/test_fens.h"
 
 using namespace elixir;
 
