@@ -14,7 +14,7 @@
 
 #include "search/bench/bench.h"
 #include "evaluation/evaluate.h"
-#include "search/history.h"
+#include "search/history/history.h"
 #include "movegen.h"
 #include "search/movepicker.h"
 #include "search/search.h"

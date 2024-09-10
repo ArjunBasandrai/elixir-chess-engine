@@ -8,7 +8,7 @@
 
 #include "board/board.h"
 #include "evaluation/evaluate.h"
-#include "history.h"
+#include "history/history.h"
 #include "move.h"
 #include "movegen.h"
 #include "movepicker.h"

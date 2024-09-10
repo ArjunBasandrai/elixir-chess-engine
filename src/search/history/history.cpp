@@ -4,7 +4,7 @@
 #include "defs.h"
 #include "move.h"
 #include "types.h"
-#include "ss.h"
+#include "../ss.h"
 
 namespace elixir {
     int HISTORY_GRAVITY = 8289;
