@@ -2,12 +2,12 @@
 #include <string>
 #include <vector>
 
-#include "../board/board.h"
-#include "../defs.h"
-#include "../move.h"
-#include "../search.h"
-#include "../types.h"
-#include "../utils/str_utils.h"
+#include "board/board.h"
+#include "defs.h"
+#include "move.h"
+#include "types.h"
+#include "search/search.h"
+#include "utils/str_utils.h"
 #include "see_test.h"
 
 namespace elixir {

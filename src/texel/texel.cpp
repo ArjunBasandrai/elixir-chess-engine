@@ -7,12 +7,12 @@
 
 #include "texel.h"
 
-#include "../board/board.h"
-#include "../defs.h"
-#include "../evaluate.h"
-#include "../types.h"
-#include "../utils/eval_terms.h"
-#include "../utils/str_utils.h"
+#include "board/board.h"
+#include "defs.h"
+#include "evaluation/evaluate.h"
+#include "types.h"
+#include "utils/eval_terms.h"
+#include "utils/str_utils.h"
 
 namespace elixir::texel {
     void Tune::get_intial_parameters() {
