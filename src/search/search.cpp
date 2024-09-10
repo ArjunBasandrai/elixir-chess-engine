@@ -12,11 +12,10 @@
 #include "move.h"
 #include "movegen.h"
 #include "movepicker.h"
-#include "time_manager.h"
+#include "time_manager/time_manager.h"
 #include "tt/tt.h"
 #include "utils/bits.h"
 #include "utils/static_vector.h"
-
 
 using namespace elixir::bits;
 
