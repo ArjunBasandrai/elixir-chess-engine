@@ -17,7 +17,8 @@ Elixir is a [UCI-compliant](https://en.wikipedia.org/wiki/Universal_Chess_Interf
 
 |   | **CCRL BLitz** | **CCRL 40/15** |
 |:-:| :------------: | :------------: |
-| **v2.0** | 3018 | _2927_ |
+| **v3.0** | - | - |
+| **v2.0** | 3018 | 2938 |
 | **v1.0** | 2828 | - |
 
 ## Instructions to build
@@ -32,11 +33,14 @@ make CXX=<compiler>
 
 Alternatively, you can download pre-compiled binaries from the [Releases](https://github.com/ArjunBasandrai/elixir-chess-engine/releases) page
 
+> [!NOTE]  
+> Elixir utilizes a third-party tool - [**INCBIN**](https://github.com/graphitemaster/incbin/blob/main/incbin.h) to embed NNUE weights into the binary. However, **INCBIN** is not fully compatible with `clang++` on `Windows`. If you're using `clang++` to compile Elixir on a `Windows` system, ensure that the `nnue.bin` file is located in the same directory as the compiled binary.
+
 ## UCI Options
 | Name             |  Type   | Default value |       Valid values        | Description                                                                          |
 |:-----------------|:-------:|:-------------:|:-------------------------:|:-------------------------------------------------------------------------------------|
-| `Hash`             | integer |      64       |         [4, 1024]         | Memory allocated to the Transposition Table (in MB).                                 |
-| `Threads`          | integer |       1       |             1             | Number of Threads used to search.                                                    |
+| `Hash`             | integer |      64       |         [4, 1048576]         | Memory allocated to the Transposition Table (in MB).                                 |
+| `Threads`          | integer |       1       |             [1, 1024]             | Number of Threads used to search.                                                    |
 
 ## Features
 - **Search** : Standard PVS with Quiescence Search and Iterative Deepening
@@ -63,7 +67,16 @@ Alternatively, you can download pre-compiled binaries from the [Releases](https:
   - Continuation History
     - 1-ply Continuation History
     - 2-ply Continuation History
-  - Butterfly History Move Ordering with maluses
+  - Butterfly History
+- **Evaluation** : Neural Network based evaluation (NNUE)
+  - Architecture: (768 -> 1024)x2 -> 8
+  - Material Output Buckets: 8
+  - Input King Buckets: $${\color{yellow} \text{Not implemented yet}}$$
+  - Data Size: 3.3B positions
+  
+> [!IMPORTANT]
+> As of version 2.0, Elixir no longer utilizes Hand-Crafted Evaluation (HCE). This information is retained here for reference purposes.
+
 - **Evaluation** : Hand Crafted Evaluation (HCE) using texel-tuned values
   - Tapered Evaluation
   - Material + Piece Square Table Evaluation
