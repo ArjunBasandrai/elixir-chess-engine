@@ -3,7 +3,8 @@
 #include "defs.h"
 #include "hashing/hash.h"
 #include "move.h"
-#include "search.h"
+#include "search/search.h"
+#include "search/pv.h"
 #include "types.h"
 
 #include "tt.h"

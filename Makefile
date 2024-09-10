@@ -1,4 +1,4 @@
-SRC := $(wildcard src/*.cpp) $(wildcard src/**/*.cpp)
+SRC := $(wildcard src/*.cpp) $(wildcard src/**/*.cpp) $(wildcard src/**/**/*.cpp)
 
 CXX = g++
 EXE = elixir
@@ -56,7 +56,8 @@ ifeq ($(ARCH_DETECTED), AVX2)
 	CXXFLAGS += $(AVX2FLAGS)
 endif
 
-CXXFLAGS += -std=c++2a $(STACK)
+INCLUDE_PATHS = -Isrc/ -Isrc/core/
+CXXFLAGS += -std=c++2a $(STACK) $(INCLUDE_PATHS)
 
 all: __compile
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../defs.h"
-#include "../move.h"
-#include "../types.h"
+#include "defs.h"
+#include "move.h"
+#include "types.h"
 
 namespace elixir {
     struct State {

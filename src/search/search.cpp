@@ -7,13 +7,13 @@
 #include "ss.h"
 
 #include "board/board.h"
-#include "evaluate.h"
+#include "evaluation/evaluate.h"
 #include "history.h"
 #include "move.h"
 #include "movegen.h"
 #include "movepicker.h"
 #include "time_manager.h"
-#include "tt.h"
+#include "tt/tt.h"
 #include "utils/bits.h"
 #include "utils/static_vector.h"
 

@@ -6,18 +6,18 @@
 
 #include "board.h"
 
-#include "../defs.h"
-#include "../evaluate.h"
-#include "../hashing/hash.h"
-#include "../nnue/nnue.h"
-#include "../texel/texel.h"
-#include "../tt.h"
-#include "../types.h"
-#include "../utils/bits.h"
-#include "../utils/eval_terms.h"
-#include "../utils/state.h"
-#include "../utils/str_utils.h"
-#include "../utils/test_fens.h"
+#include "defs.h"
+#include "evaluation/evaluate.h"
+#include "hashing/hash.h"
+#include "evaluation/nnue/nnue.h"
+#include "texel/texel.h"
+#include "tt/tt.h"
+#include "types.h"
+#include "utils/bits.h"
+#include "utils/eval_terms.h"
+#include "utils/state.h"
+#include "utils/str_utils.h"
+#include "utils/test_fens.h"
 
 
 namespace elixir {

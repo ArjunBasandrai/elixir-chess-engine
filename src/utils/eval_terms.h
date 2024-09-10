@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../evaluate.h"
-#include "../types.h"
+#include "evaluation/evaluate.h"
+#include "types.h"
 namespace elixir::eval {
     const std::array<EvalScore, 6> material_score = {S(66, 29),   S(233, 326), S(250, 325),
                                                      S(335, 540), S(749, 948), S(0, 0)};

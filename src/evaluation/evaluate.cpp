@@ -9,8 +9,6 @@
 #include "texel/texel.h"
 #include "types.h"
 #include "utils/bits.h"
-#include "utils/eval_terms.h"
-#include "utils/masks.h"
 
 using namespace elixir::bits;
 using namespace elixir::texel;

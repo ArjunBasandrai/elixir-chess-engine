@@ -1,7 +1,7 @@
 #include <climits>
 #include <iostream>
 
-#include "evaluate.h"
+#include "evaluation/evaluate.h"
 #include "move.h"
 #include "movegen.h"
 #include "movepicker.h"

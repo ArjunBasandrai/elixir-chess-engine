@@ -4,8 +4,8 @@
 #include <cassert>
 #include <iostream>
 
-#include "../defs.h"
-#include "../types.h"
+#include "defs.h"
+#include "types.h"
 
 namespace elixir {
     namespace bits {

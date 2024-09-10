@@ -4,10 +4,10 @@
 
 #include "bench.h"
 
-#include "../board/board.h"
-#include "../search.h"
-#include "../tt.h"
-#include "../utils/test_fens.h"
+#include "board/board.h"
+#include "search/search.h"
+#include "tt/tt.h"
+#include "utils/test_fens.h"
 
 namespace elixir::bench {
     void bench() {

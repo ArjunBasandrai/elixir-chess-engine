@@ -2,8 +2,8 @@
 
 #include "bits.h"
 
-#include "../defs.h"
-#include "../types.h"
+#include "defs.h"
+#include "types.h"
 
 namespace elixir {
     void print_bitboard(const Bitboard bitboard) noexcept {

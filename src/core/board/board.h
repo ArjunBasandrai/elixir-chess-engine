@@ -4,15 +4,15 @@
 #include <string>
 #include <vector>
 
-#include "../attacks/attacks.h"
-#include "../defs.h"
-#include "../history.h"
-#include "../move.h"
-#include "../nnue/nnue.h"
-#include "../types.h"
-#include "../utils/bits.h"
-#include "../utils/state.h"
-#include "../utils/static_vector.h"
+#include "attacks/attacks.h"
+#include "defs.h"
+#include "search/history.h"
+#include "move.h"
+#include "evaluation/nnue/nnue.h"
+#include "types.h"
+#include "utils/bits.h"
+#include "utils/state.h"
+#include "utils/static_vector.h"
 
 
 namespace elixir {

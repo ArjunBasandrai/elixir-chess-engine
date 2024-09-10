@@ -4,10 +4,10 @@
 #include <iostream>
 #include <vector>
 
-#include "../board/board.h"
-#include "../move.h"
-#include "../movegen.h"
-#include "../utils/static_vector.h"
+#include "board/board.h"
+#include "move.h"
+#include "movegen.h"
+#include "utils/static_vector.h"
 
 namespace elixir {
     void perft_driver(Board &board, int depth, long long &nodes) {

@@ -9,9 +9,9 @@
 #include <string>
 #include <vector>
 
-#include "../defs.h"
-#include "../evaluate.h"
-#include "../types.h"
+#include "defs.h"
+#include "types.h"
+#include "evaluation/evaluate.h"
 
 using namespace elixir::eval;
 

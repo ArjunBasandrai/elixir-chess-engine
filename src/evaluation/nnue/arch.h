@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../types.h"
+#include "types.h"
 
 constexpr int INPUT_WEIGHTS = 768;
 constexpr int HIDDEN_SIZE   = 1024;

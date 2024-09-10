@@ -2,21 +2,20 @@
 #include <iostream>
 #include <string>
 
-#include "src/attacks/attacks.h"
-#include "src/bench/bench.h"
-#include "src/board/board.h"
-#include "src/defs.h"
-#include "src/hashing/hash.h"
-#include "src/search.h"
-#include "src/spsa.h"
+#include "attacks/attacks.h"
+#include "search/bench/bench.h"
+#include "board/board.h"
+#include "defs.h"
+#include "hashing/hash.h"
+#include "search/search.h"
+#include "src/spsa/spsa.h"
 #include "src/tests/see_test.h"
 #include "src/texel/texel.h"
-#include "src/tt.h"
-#include "src/nnue/nnue.h"
-#include "src/types.h"
-#include "src/uci.h"
-#include "src/utils/masks.h"
-#include "src/utils/test_fens.h"
+#include "tt/tt.h"
+#include "evaluation/nnue/nnue.h"
+#include "types.h"
+#include "uci.h"
+#include "utils/test_fens.h"
 
 using namespace elixir;
 

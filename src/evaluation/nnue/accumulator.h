@@ -2,8 +2,8 @@
 
 #include <array>
 
-#include "../defs.h"
-#include "../move.h"
+#include "defs.h"
+#include "move.h"
 
 #include "arch.h"
 #include "weights.h"

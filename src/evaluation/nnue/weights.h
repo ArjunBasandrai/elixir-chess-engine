@@ -1,7 +1,7 @@
 #pragma once
 
 #include "arch.h"
-#include "../types.h"
+#include "types.h"
 
 namespace elixir::nnue {
     struct Network {
