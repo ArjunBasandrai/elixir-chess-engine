@@ -430,7 +430,7 @@ namespace elixir::search {
             | Add the current move to search stack. |
             */
             ss->move      = move;
-            ss->cont_hist = history.get_cont_hist_entry(move);
+            ss->cont_hist = history.continuation_history.get_cont_hist_entry(move);
 
             legals++;
             info.nodes++;
@@ -484,12 +484,12 @@ namespace elixir::search {
                                 ss->killers[1] = ss->killers[0];
                                 ss->killers[0] = best_move;
                             }
-                            history.update_countermove(board.get_side_to_move(),
+                            history.countermove_history.update_countermove(board.get_side_to_move(),
                                                              (ss - 1)->move.get_from(),
                                                              (ss - 1)->move.get_to(), move);
-                            history.update_history(move.get_from(), move.get_to(), depth,
+                            history.quiet_history.update_history(move.get_from(), move.get_to(), depth,
                                                          bad_quiets);
-                            history.update_chs(move, ss, bad_quiets, depth);
+                            history.continuation_history.update_chs(move, ss, bad_quiets, depth);
                         }
                         flag = TT_BETA;
                         break;

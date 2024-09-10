@@ -10,24 +10,20 @@ namespace elixir {
     int HISTORY_GRAVITY = 8289;
 
     void History::clear() {
+        quiet_history.clear();
+        continuation_history.clear();
+        countermove_history.clear();
+    }
+
+    void QuietHistory::clear() {
         for (int i = 0; i < 64; i++) {
             for (int j = 0; j < 64; j++) {
                 history[i][j] = 0;
             }
         }
-        for (int i = 0; i < 64; i++) {
-            for (int j = 0; j < 64; j++) {
-                counter_moves[0][i][j] = move::NO_MOVE;
-                counter_moves[1][i][j] = move::NO_MOVE;
-            }
-        }
-    }
+    }    
 
-    int History::scale_bonus(int score, int bonus) {
-        return bonus - score * std::abs(bonus) / HISTORY_GRAVITY;
-    }
-
-    void History::update_history(Square from, Square to, int depth, MoveList &bad_quiets) {
+    void QuietHistory::update_history(Square from, Square to, int depth, MoveList &bad_quiets) {
         int ifrom  = static_cast<int>(from);
         int ito    = static_cast<int>(to);
         int &score = history[ifrom][ito];
@@ -44,20 +40,41 @@ namespace elixir {
         }
     }
 
-    int History::get_quiet_history(Square from, Square to) const {
+    int QuietHistory::get_quiet_history(Square from, Square to) const {
         return history[static_cast<int>(from)][static_cast<int>(to)];
     }
 
-    void History::update_countermove(Color side, Square from, Square to, move::Move countermove) {
+    void CounterMoveHistory::clear() {
+        for (int i = 0; i < 64; i++) {
+            for (int j = 0; j < 64; j++) {
+                counter_moves[0][i][j] = move::NO_MOVE;
+                counter_moves[1][i][j] = move::NO_MOVE;
+            }
+        }
+    }
+
+    void CounterMoveHistory::update_countermove(Color side, Square from, Square to, move::Move countermove) {
         counter_moves[static_cast<int>(side)][static_cast<int>(from)][static_cast<int>(to)] =
             countermove;
     }
 
-    move::Move History::get_countermove(Color side, Square from, Square to) const {
+    move::Move CounterMoveHistory::get_countermove(Color side, Square from, Square to) const {
         return counter_moves[static_cast<int>(side)][static_cast<int>(from)][static_cast<int>(to)];
     }
+
+    void ContiuationHistory::clear() {
+        for (auto &to_sq: cont_hist) {
+            for (auto &entry: to_sq) {
+                for (auto &from_sq: entry) {
+                    for (auto &piece: from_sq) {
+                        piece = 0;
+                    }
+                }
+            }
+        }
+    }
     
-    void History::update_chs(move::Move& move, search::SearchStack *ss, MoveList &bad_quiets, int depth) {
+    void ContiuationHistory::update_chs(move::Move& move, search::SearchStack *ss, MoveList &bad_quiets, int depth) {
         update_single_chs(move, ss - 1, depth, false);
         update_single_chs(move, ss - 2, depth, false);
 
@@ -67,12 +84,12 @@ namespace elixir {
         }
     }
 
-    int History::get_chs(move::Move& move, const search::SearchStack *ss) const {
+    int ContiuationHistory::get_chs(move::Move& move, const search::SearchStack *ss) const {
         if (!ss->move || ss->cont_hist == nullptr) return 0;
         return (*(ss)->cont_hist)[static_cast<int>(move.get_piece())][static_cast<int>(move.get_to())];
     }
 
-    void History::update_single_chs(move::Move& move, search::SearchStack *ss, int depth, bool is_bad_quiet) {
+    void ContiuationHistory::update_single_chs(move::Move& move, search::SearchStack *ss, int depth, bool is_bad_quiet) {
         if (!ss->move || ss->cont_hist == nullptr) return;
         int &score = (*(ss)->cont_hist)[static_cast<int>(move.get_piece())][static_cast<int>(move.get_to())];
         int bonus = (is_bad_quiet) ? history_malus(depth) : history_bonus(depth);
