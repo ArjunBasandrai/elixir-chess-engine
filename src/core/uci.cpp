@@ -120,6 +120,8 @@ namespace elixir::uci {
         if (tokens.size() <= 1)
             return;
 
+        bool is_movetime = false;
+
         for (int i = 1; i < tokens.size(); i++) {
             if (tokens[i] == "depth") {
                 // If depth is not specified, return
@@ -141,6 +143,10 @@ namespace elixir::uci {
                                (board.get_side_to_move() == Color::WHITE ? "wtime" : "btime")) {
                     time = std::stoi(tokens[i]);
                     time = std::max<F64>(time, 1.0);
+                } else if (tokens[i] == "movetime") {
+                    time        = std::stoi(tokens[++i]);
+                    time        = std::max<F64>(time, 1.0);
+                    is_movetime = true;
                 } else if ((tokens[i] == "winc" || tokens[i] == "binc") &&
                            ++i < (int)tokens.size() &&
                            tokens[i - 1] ==
@@ -158,7 +164,7 @@ namespace elixir::uci {
         }
 
         if (time != 0) {
-            time_manager.optimum_time(info, time, inc, movestogo, start_time);
+            time_manager.optimum_time(info, time, inc, movestogo, start_time, is_movetime);
         } else {
             info = search::SearchInfo(depth, false);
         }

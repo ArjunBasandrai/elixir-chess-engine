@@ -11,25 +11,30 @@
 namespace elixir::time_management {
     double move_stability_scale[5] = {2.43, 1.35, 1.09, 0.88, 0.68};
 
-    void
-    TimeManager::optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo,
-                              std::chrono::high_resolution_clock::time_point start_time_point) {
+    void TimeManager::optimum_time(search::SearchInfo &info, F64 time, F64 inc, int movestogo,
+                                   std::chrono::high_resolution_clock::time_point start_time_point,
+                                   bool is_movetime) {
         if (time < 0)
             time = 1000;
 
         time -= DEFAULT_MOVE_OVERHEAD;
 
-        double base_time;
-
-        if (movestogo != -1) {
-            base_time = time / movestogo;
+        if (is_movetime) {
+            soft_limit = time;
+            hard_limit = time;
         } else {
-            base_time = time * 0.054 + inc * 0.6;
-        }
-        const auto max_bound = 0.76 * time;
+            double base_time;
 
-        soft_limit = std::min(0.76 * base_time, max_bound);
-        hard_limit = std::min(2.50 * base_time, max_bound);
+            if (movestogo != -1) {
+                base_time = time / movestogo;
+            } else {
+                base_time = time * 0.054 + inc * 0.6;
+            }
+            const auto max_bound = 0.76 * time;
+
+            soft_limit = std::min(0.76 * base_time, max_bound);
+            hard_limit = std::min(2.50 * base_time, max_bound);
+        }
 
         info = search::SearchInfo(MAX_DEPTH, true);
 
