@@ -245,7 +245,8 @@ namespace elixir::search {
         | searching this node will likely take a lot of time, and this node is likely to be |
         | not very good. So, we save time by reducing the depth of the search.              |
         */
-        if (depth >= IIR_DEPTH && ! tt_move)
+        const bool do_iir = depth >= IIR_DEPTH && ! tt_move;
+        if (do_iir)
             depth--;
 
         /*
@@ -537,7 +538,7 @@ namespace elixir::search {
 
         if (! ss->excluded_move) {
             tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv,
-                         tt_pv, improving);
+                         tt_pv, improving, do_iir);
         }
 
         return best_score;

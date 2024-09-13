@@ -49,7 +49,7 @@ namespace elixir {
 
     void TranspositionTable::store_tt(U64 key, int score, move::Move move, U8 depth, int ply,
                                       TTFlag flag, search::PVariation pv, bool tt_pv,
-                                      bool improving) {
+                                      bool improving, bool do_reductions) {
         U32 index     = get_index(key);
         TTEntry entry = table[index];
 
@@ -65,6 +65,8 @@ namespace elixir {
             score += ply;
         else if (score < -MATE)
             score -= ply;
+
+        if (do_reductions) depth = std::max(0, depth - 1);
 
         entry.key   = key;
         entry.score = score;
