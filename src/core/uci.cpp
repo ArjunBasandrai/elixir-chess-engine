@@ -21,6 +21,7 @@
 #include "spsa/spsa.h"
 #include "tests/see_test.h"
 #include "time_manager/time_manager.h"
+#include "time_manager/time_management_terms.h"
 #include "tt/tt.h"
 #include "utils/perft.h"
 #include "utils/str_utils.h"

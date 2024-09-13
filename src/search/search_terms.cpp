@@ -11,11 +11,21 @@ namespace elixir::search {
     // Reverse Futility Pruning
     int RFP_MARGIN = 72;
     int RFP_DEPTH  = 6;
+    int RFP_BASE = 122;
+    int RFP_BASE_MULTIPLIER = 37;
 
     // Null Move Pruning
     int NMP_BASE_REDUCTION = 5;
     int NMP_DEPTH          = 1;
     int NMP_DIVISOR        = 9;
+    int NMP_EVAL_BASE = 200;
+    int NMP_EVAL_MAX = 60;
+    int NMP_PHASE_BASE = 80;
+    int NMP_PHASE_MAX = 24;
+
+    // Singular Extensions
+    int SE_BETA_MULTIPLIER = 200;
+    int DOUBLE_EXT_MARGIN = 300;
 
     // Late Move Pruning
     int LMP_BASE       = 2;
@@ -30,6 +40,7 @@ namespace elixir::search {
     int LMR_DEPTH      = 4;
     double LMR_OFFSET  = 0.5137;
     double LMR_DIVISOR = 1.711;
+    int LMR_HISTORY_BASE = 8289;
 
     // Static Exchange Evaluation Pruning
     int SEE_QUIET        = 67;

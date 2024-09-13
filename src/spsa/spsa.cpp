@@ -1,16 +1,13 @@
 #ifdef USE_TUNE
 #include <variant>
 
-#include "evaluate.h"
-#include "movepicker.h"
-#include "search.h"
+#include "evaluation/evaluate.h"
+#include "search/movepicker.h"
+#include "search/search.h"
 #include "spsa.h"
+#include "time_manager/time_management_terms.h"
+#include "time_manager/time_manager.h"
 #endif
-
-namespace elixir {
-    int DEFAULT_MOVESTOGO     = -1;
-    int DEFAULT_MOVE_OVERHEAD = 100;
-}
 
 #ifdef USE_TUNE
 namespace elixir::tune {
@@ -52,58 +49,69 @@ namespace elixir::tune {
     void init_tune() {
         using namespace elixir::eval;
         using namespace elixir::search;
-        // eval terms
-        tuner.add_field({"TEMPO", &TEMPO, 7, 1, 100, 1, 0.002});
 
         // movepicker terms
-        tuner.add_field({"MP_PAWN", &MP_PAWN, 86, 50, 300, 10, 0.002});
-        tuner.add_field({"MP_KNIGHT", &MP_KNIGHT, 304, 150, 500, 10, 0.002});
-        tuner.add_field({"MP_BISHOP", &MP_BISHOP, 360, 200, 600, 10, 0.002});
-        tuner.add_field({"MP_ROOK", &MP_ROOK, 466, 300, 800, 25, 0.002});
-        tuner.add_field({"MP_QUEEN", &MP_QUEEN, 905, 500, 1300, 40, 0.002});
-        tuner.add_field({"MP_KING", &MP_KING, 20903, 10000, 30000, 500, 0.002});
-        tuner.add_field({"MP_SEE", &MP_SEE, 109, 20, 500, 5, 0.002});
+        tuner.add_field(TunerField("MP_PAWN", &MP_PAWN, 86, 50, 300, 0.002));
+        tuner.add_field(TunerField("MP_KNIGHT", &MP_KNIGHT, 304, 150, 500, 0.002));
+        tuner.add_field(TunerField("MP_BISHOP", &MP_BISHOP, 360, 200, 600, 0.002));
+        tuner.add_field(TunerField("MP_ROOK", &MP_ROOK, 466, 300, 800, 0.002));
+        tuner.add_field(TunerField("MP_QUEEN", &MP_QUEEN, 905, 500, 1300, 0.002));
+        tuner.add_field(TunerField("MP_KING", &MP_KING, 20903, 10000, 30000, 0.002));
+        tuner.add_field(TunerField("MP_SEE", &MP_SEE, 109, 20, 500, 0.002));
 
         // history terms
-        tuner.add_field({"HISTORY_GRAVITY", &HISTORY_GRAVITY, 8289, 1024, 16384, 32, 0.002});
-
-        // time management terms
-        tuner.add_field({"DEFAULT_MOVESTOGO", &DEFAULT_MOVESTOGO, 19, 5, 50, 1, 0.002});
-        tuner.add_field({"DEFAULT_MOVE_OVERHEAD", &DEFAULT_MOVE_OVERHEAD, 48, 5, 150, 5, 0.002});
+        tuner.add_field(TunerField("HISTORY_GRAVITY", &HISTORY_GRAVITY, 8289, 1024, 16384, 0.002));
 
         // see terms
-        tuner.add_field({"SEE_PAWN", &SEE_PAWN, 77, 20, 300, 5, 0.002});
-        tuner.add_field({"SEE_KNIGHT", &SEE_KNIGHT, 299, 120, 500, 10, 0.002});
-        tuner.add_field({"SEE_BISHOP", &SEE_BISHOP, 303, 120, 500, 10, 0.002});
-        tuner.add_field({"SEE_ROOK", &SEE_ROOK, 504, 300, 700, 10, 0.002});
-        tuner.add_field({"SEE_QUEEN", &SEE_QUEEN, 903, 500, 1300, 10, 0.002});
-        tuner.add_field({"SEE_QUIET", &SEE_QUIET, 67, 5, 200, 3, 0.002});
-        tuner.add_field({"SEE_CAPTURE", &SEE_CAPTURE, 32, 5, 200, 2, 0.002});
-        tuner.add_field({"SEE_DEPTH", &SEE_DEPTH, 10, 1, 15, 1, 0.002});
-        tuner.add_field({"QS_SEE_THRESHOLD", &QS_SEE_THRESHOLD, 9, 1, 100, 1, 0.002});
+        tuner.add_field(TunerField("SEE_PAWN", &SEE_PAWN, 77, 20, 300, 0.002));
+        tuner.add_field(TunerField("SEE_KNIGHT", &SEE_KNIGHT, 299, 120, 500, 0.002));
+        tuner.add_field(TunerField("SEE_BISHOP", &SEE_BISHOP, 303, 120, 500, 0.002));
+        tuner.add_field(TunerField("SEE_ROOK", &SEE_ROOK, 504, 300, 700, 0.002));
+        tuner.add_field(TunerField("SEE_QUEEN", &SEE_QUEEN, 903, 500, 1300, 0.002));
+        tuner.add_field(TunerField("SEE_QUIET", &SEE_QUIET, 67, 5, 200, 0.002));
+        tuner.add_field(TunerField("SEE_CAPTURE", &SEE_CAPTURE, 32, 5, 200, 0.002));
+        tuner.add_field(TunerField("QS_SEE_THRESHOLD", &QS_SEE_THRESHOLD, 9, 1, 100, 0.002));
+        // tuner.add_field(TunerField("SEE_DEPTH", &SEE_DEPTH, 10, 1, 15, 0.002));
 
         // aspiration window terms
-        tuner.add_field({"INITIAL_ASP_DELTA", &INITIAL_ASP_DELTA, 12, 1, 50, 1, 0.002});
-        tuner.add_field({"ASP_MULTIPLIER", &ASP_MULTIPLIER, 1.3111, 1.0, 5.0, 0.25, 0.002});
-        tuner.add_field({"MIN_ASP_DEPTH", &MIN_ASP_DEPTH, 4, 1, 10, 1, 0.002});
+        tuner.add_field(TunerField("INITIAL_ASP_DELTA", &INITIAL_ASP_DELTA, 12, 1, 50, 0.002));
+        tuner.add_field(TunerField("ASP_MULTIPLIER", &ASP_MULTIPLIER, 1.3111, 1.0, 5.0, 0.002));
+        // tuner.add_field(TunerField("MIN_ASP_DEPTH", &MIN_ASP_DEPTH, 4, 1, 10, 0.002));
 
         // search terms
-        tuner.add_field({"LMP_BASE", &LMP_BASE, 2, 2, 14, 1, 0.002});
-        tuner.add_field({"RFP_MARGIN", &RFP_MARGIN, 72, 20, 350, 20, 0.002});
-        tuner.add_field({"RAZOR_MARGIN", &RAZOR_MARGIN, 298, 100, 400, 15, 0.002});
-        tuner.add_field({"NMP_BASE_REDUCTION", &NMP_BASE_REDUCTION, 5, 2, 10, 0.75, 0.002});
-        tuner.add_field({"NMP_DEPTH", &NMP_DEPTH, 1, 1, 6, 0.85, 0.002});
-        tuner.add_field({"RFP_DEPTH", &RFP_DEPTH, 6, 2, 10, 1, 0.002});
-        tuner.add_field({"RAZOR_DEPTH", &RAZOR_DEPTH, 7, 2, 10, 1, 0.002});
-        tuner.add_field({"IIR_DEPTH", &IIR_DEPTH, 4, 1, 8, 0.75, 0.002});
-        tuner.add_field({"LMP_MULTIPLIER", &LMP_MULTIPLIER, 1, 1, 8, 0.75, 0.002});
-        tuner.add_field({"LMR_DEPTH", &LMR_DEPTH, 4, 1, 8, 1, 0.002});
-        tuner.add_field({"FP_BASE", &FP_BASE, 146, 20, 500, 10, 0.002});
-        tuner.add_field({"FP_MULTIPLIER", &FP_MULTIPLIER, 118, 20, 400, 5, 0.002});
-        tuner.add_field({"FP_DEPTH", &FP_DEPTH, 5, 1, 15, 1, 0.002});
-        tuner.add_field({"NMP_DIVISOR", &NMP_DIVISOR, 9, 4, 17, 1, 0.002});
-        tuner.add_field({"LMR_OFFSET", &LMR_OFFSET, 0.5137, 0.0, 4.0, 0.05, 0.002});
-        tuner.add_field({"LMR_DIVISOR", &LMR_DIVISOR, 1.711, 0.5, 10.0, 0.1, 0.002});
+        // tuner.add_field(TunerField("IIR_DEPTH", &IIR_DEPTH, 4, 1, 8, 0.002));
+
+        tuner.add_field(TunerField("RAZOR_MARGIN", &RAZOR_MARGIN, 298, 100, 400, 0.002));
+        // tuner.add_field(TunerField("RAZOR_DEPTH", &RAZOR_DEPTH, 7, 2, 10, 0.002));
+
+        tuner.add_field(TunerField("RFP_MARGIN", &RFP_MARGIN, 72, 20, 350, 0.002));
+        // tuner.add_field(TunerField("RFP_DEPTH", &RFP_DEPTH, 6, 2, 10, 0.002));
+
+        tuner.add_field(TunerField("RFP_BASE", &RFP_BASE, 122, 50, 200, 0.002));
+        tuner.add_field(TunerField("RFP_BASE_MULTIPLIER", &RFP_BASE_MULTIPLIER, 37, 10, 100, 0.002));
+
+        // tuner.add_field(TunerField("NMP_DEPTH", &NMP_DEPTH, 1, 1, 6, 0.002));
+        tuner.add_field(TunerField("NMP_BASE_REDUCTION", &NMP_BASE_REDUCTION, 5, 2, 10, 0.002));
+        tuner.add_field(TunerField("NMP_DIVISOR", &NMP_DIVISOR, 9, 4, 17, 0.002));
+        tuner.add_field(TunerField("NMP_EVAL_BASE", &NMP_EVAL_BASE, 200, 50, 500, 0.002));
+        tuner.add_field(TunerField("NMP_EVAL_MAX", &NMP_EVAL_MAX, 60, 10, 100, 0.002));
+        tuner.add_field(TunerField("NMP_PHASE_BASE", &NMP_PHASE_BASE, 80, 20, 200, 0.002));
+        tuner.add_field(TunerField("NMP_PHASE_MAX", &NMP_PHASE_MAX, 24, 5, 45, 0.002));
+
+        tuner.add_field(TunerField("SE_BETA_MULTIPLIER", &SE_BETA_MULTIPLIER, 200, 50, 500, 0.002));
+        tuner.add_field(TunerField("DOUBLE_EXT_MARGIN", &DOUBLE_EXT_MARGIN, 300, 50, 500, 0.002));
+
+        tuner.add_field(TunerField("LMP_BASE", &LMP_BASE, 2, 2, 14, 0.002));
+        tuner.add_field(TunerField("LMP_MULTIPLIER", &LMP_MULTIPLIER, 1, 1, 8, 0.002));
+
+        tuner.add_field(TunerField("FP_BASE", &FP_BASE, 146, 20, 500, 0.002));
+        tuner.add_field(TunerField("FP_MULTIPLIER", &FP_MULTIPLIER, 118, 20, 400, 0.002));
+        // tuner.add_field(TunerField("FP_DEPTH", &FP_DEPTH, 5, 1, 15, 0.002));
+
+        // tuner.add_field(TunerField("LMR_DEPTH", &LMR_DEPTH, 4, 1, 8, 0.002));
+        tuner.add_field(TunerField("LMR_OFFSET", &LMR_OFFSET, 0.5137, 0.0, 4.0, 0.002));
+        tuner.add_field(TunerField("LMR_DIVISOR", &LMR_DIVISOR, 1.711, 0.5, 10.0, 0.002));
+        tuner.add_field(TunerField("LMR_HISTORY_BASE", &LMR_HISTORY_BASE, 8289, 1024, 16384, 0.002));
     }
 
     void SPSA::print_spsa_inputs() {
@@ -262,16 +270,6 @@ namespace elixir::tune {
             search::MIN_ASP_DEPTH = min_asp_depth;
         }
 
-        else if (name == "DEFAULT_MOVESTOGO") {
-            int default_movestogo = std::stoi(option_value);
-            DEFAULT_MOVESTOGO     = default_movestogo;
-        }
-
-        else if (name == "DEFAULT_MOVE_OVERHEAD") {
-            int default_move_overhead = std::stoi(option_value);
-            DEFAULT_MOVE_OVERHEAD     = default_move_overhead;
-        }
-
         else if (name == "HISTORY_GRAVITY") {
             int history_gravity = std::stoi(option_value);
             HISTORY_GRAVITY     = history_gravity;
@@ -280,11 +278,6 @@ namespace elixir::tune {
         else if (name == "INITIAL_ASP_DELTA") {
             int initial_asp_delta     = std::stoi(option_value);
             search::INITIAL_ASP_DELTA = initial_asp_delta;
-        }
-
-        else if (name == "TEMPO") {
-            int tempo   = std::stoi(option_value);
-            eval::TEMPO = tempo;
         }
 
         else if (name == "ASP_MULTIPLIER") {
@@ -320,6 +313,112 @@ namespace elixir::tune {
         else if (name == "MP_KING") {
             int mp_king   = std::stoi(option_value);
             eval::MP_KING = mp_king;
+        }
+
+        else if (name == "BASE_SCALE") {
+            int base_scale   = std::stoi(option_value);
+            BASE_SCALE = base_scale;
+        }
+
+        else if (name == "INC_SCALE") {
+            int inc_scale   = std::stoi(option_value);
+            INC_SCALE = inc_scale;
+        }
+
+        else if (name == "MAX_BOUND_SCALE") {
+            int max_bound_scale   = std::stoi(option_value);
+            MAX_BOUND_SCALE = max_bound_scale;
+        }
+
+        else if (name == "SOFT_BOUND_SCALE") {
+            int soft_bound_scale   = std::stoi(option_value);
+            SOFT_BOUND_SCALE = soft_bound_scale;
+        }
+
+        else if (name == "HARD_BOUND_SCALE") {
+            int hard_bound_scale   = std::stoi(option_value);
+            HARD_BOUND_SCALE = hard_bound_scale;
+        }
+
+        else if (name == "MOVE_STABILITY_SCALE_1") {
+            int move_stability_scale_1   = std::stoi(option_value);
+            MOVE_STABILITY_SCALE_1 = move_stability_scale_1;
+            elixir::time_management::move_stability_scale[0] = move_stability_scale_1;
+        }
+
+        else if (name == "MOVE_STABILITY_SCALE_2") {
+            int move_stability_scale_2   = std::stoi(option_value);
+            MOVE_STABILITY_SCALE_2 = move_stability_scale_2;
+            elixir::time_management::move_stability_scale[1] = move_stability_scale_2;
+        }
+
+        else if (name == "MOVE_STABILITY_SCALE_3") {
+            int move_stability_scale_3   = std::stoi(option_value);
+            MOVE_STABILITY_SCALE_3 = move_stability_scale_3;
+            elixir::time_management::move_stability_scale[2] = move_stability_scale_3;
+        }
+
+        else if (name == "MOVE_STABILITY_SCALE_4") {
+            int move_stability_scale_4   = std::stoi(option_value);
+            MOVE_STABILITY_SCALE_4 = move_stability_scale_4;
+            elixir::time_management::move_stability_scale[3] = move_stability_scale_4;
+        }
+
+        else if (name == "MOVE_STABILITY_SCALE_5") {
+            int move_stability_scale_5   = std::stoi(option_value);
+            MOVE_STABILITY_SCALE_5 = move_stability_scale_5;
+            elixir::time_management::move_stability_scale[4] = move_stability_scale_5;
+        }
+
+        else if (name == "NMP_EVAL_BASE") {
+            int nmp_eval_base   = std::stoi(option_value);
+            search::NMP_EVAL_BASE = nmp_eval_base;
+        }
+
+        else if (name == "NMP_EVAL_MAX") {
+            int nmp_eval_max   = std::stoi(option_value);
+            search::NMP_EVAL_MAX = nmp_eval_max;
+        }
+
+        else if (name == "NMP_PHASE_BASE") {
+            int nmp_phase_base   = std::stoi(option_value);
+            search::NMP_PHASE_BASE = nmp_phase_base;
+        }
+
+        else if (name == "NMP_PHASE_MAX") {
+            int nmp_phase_max   = std::stoi(option_value);
+            search::NMP_PHASE_MAX = nmp_phase_max;
+        }
+
+        else if (name == "LMP_BASE") {
+            int lmp_base   = std::stoi(option_value);
+            search::LMP_BASE = lmp_base;
+        }
+
+        //se options
+        else if (name == "SE_BETA_MULTIPLIER") {
+            int se_beta_multiplier   = std::stoi(option_value);
+            search::SE_BETA_MULTIPLIER = se_beta_multiplier;
+        }
+
+        else if (name == "DOUBLE_EXT_MARGIN") {
+            int double_ext_margin   = std::stoi(option_value);
+            search::DOUBLE_EXT_MARGIN = double_ext_margin;
+        }
+
+        else if (name == "RFP_BASE") {
+            int rfp_base   = std::stoi(option_value);
+            search::RFP_BASE = rfp_base;
+        }
+
+        else if (name == "RFP_BASE_MULTIPLIER") {
+            int rfp_base_multiplier   = std::stoi(option_value);
+            search::RFP_BASE_MULTIPLIER = rfp_base_multiplier;
+        }
+
+        else if (name == "LMR_HISTORY_BASE") {
+            int lmr_history_base   = std::stoi(option_value);
+            search::LMR_HISTORY_BASE = lmr_history_base;
         }
     }
 }
