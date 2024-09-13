@@ -87,7 +87,7 @@ namespace elixir::search {
         | If TT score is found and it is usable, then cutoff. |
         */
         if (ss->ply && usable_tt_score) {
-            return result.score;
+            return tt->correct_score(result.score, ss->ply);
         }
 
         /*
@@ -233,7 +233,7 @@ namespace elixir::search {
             | searching the same position again.                                          |
             */
             if (tt_hit && ! pv_node && result.depth >= depth && can_use_tt_score) {
-                return result.score;
+                return tt->correct_score(result.score, ss->ply);
             }
             tt_move = result.best_move;
         }

@@ -59,6 +59,9 @@ namespace elixir {
         void store_tt(U64 key, int score, move::Move move, U8 depth, int ply, TTFlag flag,
                       search::PVariation pv, bool tt_pv = false, bool improving = false);
         bool probe_tt(ProbedEntry &result, U64 key, U8 depth, int alpha, int beta);
+        int correct_score(int score, int ply) const {
+            return (score > MATE_FOUND) ? score - ply : (score < -MATE_FOUND) ? score + ply : score;
+        }
         U32 get_hashfull() {
             return static_cast<U32>(static_cast<F64>(entries) / static_cast<F64>(table.capacity()) *
                                     1000.0);
