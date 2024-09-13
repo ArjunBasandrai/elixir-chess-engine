@@ -305,7 +305,8 @@ namespace elixir::search {
             if (depth >= NMP_DEPTH && (ss - 1)->move && eval >= beta &&
                 board.has_non_pawn_material()) {
                 int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR +
-                        std::min<double>((eval - beta) / NMP_EVAL_BASE, (NMP_EVAL_MAX / 10.0)) + std::min(board.get_phase(), NMP_PHASE_MAX) / (NMP_PHASE_BASE / 10.0);
+                        std::min<double>((eval - beta) / NMP_EVAL_BASE, (NMP_EVAL_MAX / 10.0)) +
+                        std::min(board.get_phase(), NMP_PHASE_MAX) / (NMP_PHASE_BASE / 10.0);
                 R = std::min(R, depth);
 
                 /*

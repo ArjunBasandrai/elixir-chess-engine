@@ -61,6 +61,18 @@ namespace elixir::tune {
 
         // history terms
         tuner.add_field(TunerField("HISTORY_GRAVITY", &HISTORY_GRAVITY, 8289, 1024, 16384, 0.002));
+        tuner.add_field(
+            TunerField("HISTORY_BONUS_MULTIPLIER", &HISTORY_BONUS_MULTIPLIER, 300, 50, 500, 0.002));
+        tuner.add_field(TunerField("HISTORY_MALUS_MULTIPLIER", &HISTORY_MALUS_MULTIPLIER, 600, 300,
+                                   1200, 0.002));
+        tuner.add_field(
+            TunerField("HISTORY_BONUS_SUBTRAHEND", &HISTORY_BONUS_SUBTRAHEND, 150, 50, 450, 0.002));
+        tuner.add_field(TunerField("HISTORY_MALUS_SUBTRAHEND", &HISTORY_MALUS_SUBTRAHEND, 300, 100,
+                                   600, 0.002));
+        tuner.add_field(
+            TunerField("HISTORY_BONUS_MAX", &HISTORY_BONUS_MAX, 4000, 1000, 8000, 0.002));
+        tuner.add_field(
+            TunerField("HISTORY_MALUS_MAX", &HISTORY_MALUS_MAX, 8000, 2000, 16000, 0.002));
 
         // see terms
         tuner.add_field(TunerField("SEE_PAWN", &SEE_PAWN, 77, 20, 300, 0.002));
@@ -88,7 +100,8 @@ namespace elixir::tune {
         // tuner.add_field(TunerField("RFP_DEPTH", &RFP_DEPTH, 6, 2, 10, 0.002));
 
         tuner.add_field(TunerField("RFP_BASE", &RFP_BASE, 122, 50, 200, 0.002));
-        tuner.add_field(TunerField("RFP_BASE_MULTIPLIER", &RFP_BASE_MULTIPLIER, 37, 10, 100, 0.002));
+        tuner.add_field(
+            TunerField("RFP_BASE_MULTIPLIER", &RFP_BASE_MULTIPLIER, 37, 10, 100, 0.002));
 
         // tuner.add_field(TunerField("NMP_DEPTH", &NMP_DEPTH, 1, 1, 6, 0.002));
         tuner.add_field(TunerField("NMP_BASE_REDUCTION", &NMP_BASE_REDUCTION, 5, 2, 10, 0.002));
@@ -111,7 +124,8 @@ namespace elixir::tune {
         // tuner.add_field(TunerField("LMR_DEPTH", &LMR_DEPTH, 4, 1, 8, 0.002));
         tuner.add_field(TunerField("LMR_OFFSET", &LMR_OFFSET, 0.5137, 0.0, 4.0, 0.002));
         tuner.add_field(TunerField("LMR_DIVISOR", &LMR_DIVISOR, 1.711, 0.5, 10.0, 0.002));
-        tuner.add_field(TunerField("LMR_HISTORY_BASE", &LMR_HISTORY_BASE, 8289, 1024, 16384, 0.002));
+        tuner.add_field(
+            TunerField("LMR_HISTORY_BASE", &LMR_HISTORY_BASE, 8289, 1024, 16384, 0.002));
     }
 
     void SPSA::print_spsa_inputs() {
@@ -316,109 +330,139 @@ namespace elixir::tune {
         }
 
         else if (name == "BASE_SCALE") {
-            int base_scale   = std::stoi(option_value);
-            BASE_SCALE = base_scale;
+            int base_scale = std::stoi(option_value);
+            BASE_SCALE     = base_scale;
         }
 
         else if (name == "INC_SCALE") {
-            int inc_scale   = std::stoi(option_value);
-            INC_SCALE = inc_scale;
+            int inc_scale = std::stoi(option_value);
+            INC_SCALE     = inc_scale;
         }
 
         else if (name == "MAX_BOUND_SCALE") {
-            int max_bound_scale   = std::stoi(option_value);
-            MAX_BOUND_SCALE = max_bound_scale;
+            int max_bound_scale = std::stoi(option_value);
+            MAX_BOUND_SCALE     = max_bound_scale;
         }
 
         else if (name == "SOFT_BOUND_SCALE") {
-            int soft_bound_scale   = std::stoi(option_value);
-            SOFT_BOUND_SCALE = soft_bound_scale;
+            int soft_bound_scale = std::stoi(option_value);
+            SOFT_BOUND_SCALE     = soft_bound_scale;
         }
 
         else if (name == "HARD_BOUND_SCALE") {
-            int hard_bound_scale   = std::stoi(option_value);
-            HARD_BOUND_SCALE = hard_bound_scale;
+            int hard_bound_scale = std::stoi(option_value);
+            HARD_BOUND_SCALE     = hard_bound_scale;
         }
 
         else if (name == "MOVE_STABILITY_SCALE_1") {
-            int move_stability_scale_1   = std::stoi(option_value);
-            MOVE_STABILITY_SCALE_1 = move_stability_scale_1;
+            int move_stability_scale_1                       = std::stoi(option_value);
+            MOVE_STABILITY_SCALE_1                           = move_stability_scale_1;
             elixir::time_management::move_stability_scale[0] = move_stability_scale_1;
         }
 
         else if (name == "MOVE_STABILITY_SCALE_2") {
-            int move_stability_scale_2   = std::stoi(option_value);
-            MOVE_STABILITY_SCALE_2 = move_stability_scale_2;
+            int move_stability_scale_2                       = std::stoi(option_value);
+            MOVE_STABILITY_SCALE_2                           = move_stability_scale_2;
             elixir::time_management::move_stability_scale[1] = move_stability_scale_2;
         }
 
         else if (name == "MOVE_STABILITY_SCALE_3") {
-            int move_stability_scale_3   = std::stoi(option_value);
-            MOVE_STABILITY_SCALE_3 = move_stability_scale_3;
+            int move_stability_scale_3                       = std::stoi(option_value);
+            MOVE_STABILITY_SCALE_3                           = move_stability_scale_3;
             elixir::time_management::move_stability_scale[2] = move_stability_scale_3;
         }
 
         else if (name == "MOVE_STABILITY_SCALE_4") {
-            int move_stability_scale_4   = std::stoi(option_value);
-            MOVE_STABILITY_SCALE_4 = move_stability_scale_4;
+            int move_stability_scale_4                       = std::stoi(option_value);
+            MOVE_STABILITY_SCALE_4                           = move_stability_scale_4;
             elixir::time_management::move_stability_scale[3] = move_stability_scale_4;
         }
 
         else if (name == "MOVE_STABILITY_SCALE_5") {
-            int move_stability_scale_5   = std::stoi(option_value);
-            MOVE_STABILITY_SCALE_5 = move_stability_scale_5;
+            int move_stability_scale_5                       = std::stoi(option_value);
+            MOVE_STABILITY_SCALE_5                           = move_stability_scale_5;
             elixir::time_management::move_stability_scale[4] = move_stability_scale_5;
         }
 
         else if (name == "NMP_EVAL_BASE") {
-            int nmp_eval_base   = std::stoi(option_value);
+            int nmp_eval_base     = std::stoi(option_value);
             search::NMP_EVAL_BASE = nmp_eval_base;
         }
 
         else if (name == "NMP_EVAL_MAX") {
-            int nmp_eval_max   = std::stoi(option_value);
+            int nmp_eval_max     = std::stoi(option_value);
             search::NMP_EVAL_MAX = nmp_eval_max;
         }
 
         else if (name == "NMP_PHASE_BASE") {
-            int nmp_phase_base   = std::stoi(option_value);
+            int nmp_phase_base     = std::stoi(option_value);
             search::NMP_PHASE_BASE = nmp_phase_base;
         }
 
         else if (name == "NMP_PHASE_MAX") {
-            int nmp_phase_max   = std::stoi(option_value);
+            int nmp_phase_max     = std::stoi(option_value);
             search::NMP_PHASE_MAX = nmp_phase_max;
         }
 
         else if (name == "LMP_BASE") {
-            int lmp_base   = std::stoi(option_value);
+            int lmp_base     = std::stoi(option_value);
             search::LMP_BASE = lmp_base;
         }
 
-        //se options
+        // se options
         else if (name == "SE_BETA_MULTIPLIER") {
-            int se_beta_multiplier   = std::stoi(option_value);
+            int se_beta_multiplier     = std::stoi(option_value);
             search::SE_BETA_MULTIPLIER = se_beta_multiplier;
         }
 
         else if (name == "DOUBLE_EXT_MARGIN") {
-            int double_ext_margin   = std::stoi(option_value);
+            int double_ext_margin     = std::stoi(option_value);
             search::DOUBLE_EXT_MARGIN = double_ext_margin;
         }
 
         else if (name == "RFP_BASE") {
-            int rfp_base   = std::stoi(option_value);
+            int rfp_base     = std::stoi(option_value);
             search::RFP_BASE = rfp_base;
         }
 
         else if (name == "RFP_BASE_MULTIPLIER") {
-            int rfp_base_multiplier   = std::stoi(option_value);
+            int rfp_base_multiplier     = std::stoi(option_value);
             search::RFP_BASE_MULTIPLIER = rfp_base_multiplier;
         }
 
         else if (name == "LMR_HISTORY_BASE") {
-            int lmr_history_base   = std::stoi(option_value);
+            int lmr_history_base     = std::stoi(option_value);
             search::LMR_HISTORY_BASE = lmr_history_base;
+        }
+
+        else if (name == "HISTORY_BONUS_MULTIPLIER") {
+            int history_bonus_multiplier = std::stoi(option_value);
+            HISTORY_BONUS_MULTIPLIER     = history_bonus_multiplier;
+        }
+
+        else if (name == "HISTORY_MALUS_MULTIPLIER") {
+            int history_malus_multiplier = std::stoi(option_value);
+            HISTORY_MALUS_MULTIPLIER     = history_malus_multiplier;
+        }
+
+        else if (name == "HISTORY_BONUS_SUBTRAHEND") {
+            int history_bonus_subtrahend = std::stoi(option_value);
+            HISTORY_BONUS_SUBTRAHEND     = history_bonus_subtrahend;
+        }
+
+        else if (name == "HISTORY_MALUS_SUBTRAHEND") {
+            int history_malus_subtrahend = std::stoi(option_value);
+            HISTORY_MALUS_SUBTRAHEND     = history_malus_subtrahend;
+        }
+
+        else if (name == "HISTORY_BONUS_MAX") {
+            int history_bonus_max = std::stoi(option_value);
+            HISTORY_BONUS_MAX     = history_bonus_max;
+        }
+
+        else if (name == "HISTORY_MALUS_MAX") {
+            int history_malus_max = std::stoi(option_value);
+            HISTORY_MALUS_MAX     = history_malus_max;
         }
     }
 }
