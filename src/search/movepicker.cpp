@@ -58,8 +58,6 @@ namespace elixir {
                 value += search::SEE(board, move, -MP_SEE) ? 1000000000 : -1000000;
             } else if (move == ss->killers[0]) {
                 value = 800000000;
-            } else if (move == ss->killers[1]) {
-                value = 700000000;
             } else if (move ==
                        history.countermove_history.get_countermove(board.get_side_to_move(),
                                                                    (ss - 1)->move.get_from(),

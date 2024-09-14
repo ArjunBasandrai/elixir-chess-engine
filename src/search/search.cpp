@@ -38,7 +38,6 @@ namespace elixir::search {
                                                 bool is_quiet_move) {
         if (is_quiet_move) {
             if (ss->killers[0] != move) {
-                ss->killers[1] = ss->killers[0];
                 ss->killers[0] = move;
             }
             history.countermove_history.update_countermove(stm, (ss - 1)->move.get_from(),
@@ -637,7 +636,6 @@ namespace elixir::search {
             for (int i = -4; i < MAX_DEPTH; i++) {
                 (ss + i)->move       = move::NO_MOVE;
                 (ss + i)->killers[0] = move::NO_MOVE;
-                (ss + i)->killers[1] = move::NO_MOVE;
                 (ss + i)->eval       = SCORE_NONE;
             }
 
