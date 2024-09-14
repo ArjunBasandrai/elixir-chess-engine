@@ -49,7 +49,8 @@ namespace elixir::search {
     }
 
     // (~20 ELO)
-    int Searcher::qsearch(ThreadData &td, int alpha, int beta, PVariation &pv, SearchStack *ss) {
+    int Searcher::qsearch(ThreadData &td, int alpha, int beta, PVariation &pv, SearchStack *ss,
+                          bool pv_node) {
 
         pv.length = 0;
 
@@ -86,7 +87,7 @@ namespace elixir::search {
         /*
         | If TT score is found and it is usable, then cutoff. |
         */
-        if (ss->ply && usable_tt_score) {
+        if (! pv_node && usable_tt_score) {
             return tt->correct_score(result.score, ss->ply);
         }
 
@@ -134,7 +135,7 @@ namespace elixir::search {
 
             info.nodes++;
 
-            int score = -qsearch(td, -beta, -alpha, local_pv, ss);
+            int score = -qsearch(td, -beta, -alpha, local_pv, ss, pv_node);
             board.unmake_move(move, true);
 
             if (info.stopped)
@@ -146,7 +147,8 @@ namespace elixir::search {
 
                 if (score > alpha) {
                     alpha = score;
-                    pv.update(move, local_pv);
+                    if (pv_node)
+                        pv.update(move, local_pv);
                     flag = TT_ALPHA;
                 }
 
@@ -184,7 +186,7 @@ namespace elixir::search {
         |
         */
         if (depth <= 0)
-            return qsearch(td, alpha, beta, pv, ss);
+            return qsearch(td, alpha, beta, pv, ss, pv_node);
 
         if (! root_node) {
             /*
@@ -282,7 +284,7 @@ namespace elixir::search {
             | quiescence search, if we still cant exceed alpha, then we cutoff.         |
             */
             if (depth <= RAZOR_DEPTH && eval + RAZOR_MARGIN * depth < alpha) {
-                const int razor_score = qsearch(td, alpha, beta, local_pv, ss);
+                const int razor_score = qsearch(td, alpha, beta, local_pv, ss, pv_node);
                 if (razor_score <= alpha) {
                     return razor_score;
                 }
