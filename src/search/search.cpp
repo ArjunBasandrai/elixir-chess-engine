@@ -482,6 +482,7 @@ namespace elixir::search {
             R -= board.is_in_check();
             R += cutnode;
             R -= tt_pv;
+            R += !improving;
 
             if (depth > 1 && legals > 1) {
                 R             = std::clamp(R, 1, new_depth);
