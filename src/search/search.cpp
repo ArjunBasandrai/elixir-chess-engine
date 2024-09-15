@@ -422,7 +422,8 @@ namespace elixir::search {
                     | if it is better by a certain margin.                            |
                     */
                     const int double_margin = 300 * pv_node;
-                    extensions += 1 + (s_score < s_beta - double_margin);
+                    const int triple_margin = 100 + 250 * pv_node;
+                    extensions += 1 + (s_score < s_beta - double_margin) + (s_score < s_beta - triple_margin);
                 }
 
                 /*
