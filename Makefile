@@ -26,7 +26,7 @@ AVX2FLAGS    = -DUSE_AVX2 -DUSE_SIMD -mavx2 -mbmi
 BMI2FLAGS    = -DUSE_AVX2 -DUSE_SIMD -mavx2 -mbmi -mbmi2
 AVX512FLAGS  = -DUSE_AVX512 -DUSE_SIMD -mavx512f -mavx512bw
 
-CXXFLAGS = -flto=auto -pthread
+CXXFLAGS = -flto=auto -pthread -fno-exceptions -fno-rtti -fwhole-program -fomit-frame-pointer -ffast-math -funroll-all-loops -fno-align-functions 
 
 ARCH_DETECTED =
 PROPERTIES = $(shell echo | $(CXX) -march=native -E -dM -)
