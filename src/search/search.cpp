@@ -294,7 +294,7 @@ namespace elixir::search {
             */
             if (depth <= RFP_DEPTH &&
                 eval - futility_margin(depth, improving, cutnode, tt_hit) >= beta &&
-                beta >= -MATE_FOUND && eval <= MATE_FOUND) {
+                beta >= -MATE_FOUND && eval <= MATE_FOUND && board.has_non_pawn_material()) {
                 return (eval + beta) / 2;
             }
 
