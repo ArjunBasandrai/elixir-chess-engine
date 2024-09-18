@@ -54,7 +54,7 @@ namespace elixir::search {
         bool soft_stop = true;
 
         int futility_margin(int depth, bool improving, bool cutnode, bool tt_hit) const {
-            int futilitity_base     = 122 - 37 * (cutnode && ! tt_hit);
+            int futilitity_base     = RFP_BASE - RFP_BASE_MULTIPLIER * (cutnode && ! tt_hit);
             int improving_reduction = improving * futilitity_base / 2;
 
             return futilitity_base * depth - improving_reduction;

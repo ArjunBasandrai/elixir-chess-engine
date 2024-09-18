@@ -6,19 +6,26 @@
 #include <vector>
 
 #include "defs.h"
-#include "evaluate.h"
-#include "history.h"
+#include "evaluation/evaluate.h"
+#include "search/history/history_formulas.h"
 #include "types.h"
 #endif
-
-namespace elixir {
-    extern int DEFAULT_MOVESTOGO;
-    extern int DEFAULT_MOVE_OVERHEAD;
-}
 
 #ifdef USE_TUNE
 namespace elixir::tune {
     struct TunerField {
+        TunerField(std::string name, int *value, int default_value, int min_value, int max_value,
+                   double lr)
+            : name(name), value(value), default_value(default_value), min_value(min_value),
+              max_value(max_value), lr(lr) {
+            step = (max_value - min_value) / 20.0;
+        }
+        TunerField(std::string name, double *value, double default_value, double min_value,
+                   double max_value, double lr)
+            : name(name), value(value), default_value(default_value), min_value(min_value),
+              max_value(max_value), lr(lr) {
+            step = (max_value - min_value) / 20.0;
+        }
         std::string name;
         std::variant<int *, double *> value;
         std::variant<int, double> default_value;

@@ -305,7 +305,8 @@ namespace elixir::search {
             if (depth >= NMP_DEPTH && (ss - 1)->move && eval >= beta &&
                 board.has_non_pawn_material()) {
                 int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR +
-                        std::min((eval - beta) / 200, 6) + std::min(board.get_phase(), 24) / 8;
+                        std::min<double>((eval - beta) / NMP_EVAL_BASE, (NMP_EVAL_MAX / 10.0)) +
+                        std::min(board.get_phase(), NMP_PHASE_MAX) / (NMP_PHASE_BASE / 10.0);
                 R = std::min(R, depth);
 
                 /*
@@ -403,7 +404,7 @@ namespace elixir::search {
             */
             if (! root_node && depth >= 8 && move == tt_move && ! ss->excluded_move &&
                 result.depth >= depth - 3 && tt_flag != TT_ALPHA) {
-                const auto s_beta  = result.score - depth * 2;
+                const auto s_beta  = result.score - depth * (SE_BETA_MULTIPLIER / 100.0);
                 const auto s_depth = (depth - 1) / 2;
 
                 ss->excluded_move = move;
@@ -421,7 +422,7 @@ namespace elixir::search {
                     | Double Extensions (~2 ELO) : Double extend the TT move's search |
                     | if it is better by a certain margin.                            |
                     */
-                    const int double_margin = 300 * pv_node;
+                    const int double_margin = DOUBLE_EXT_MARGIN * pv_node;
                     extensions += 1 + (s_score < s_beta - double_margin);
                 }
 
@@ -478,7 +479,7 @@ namespace elixir::search {
 
             int R = lmr[std::min(63, depth)][std::min(63, legals)];
             R += ! pv_node;
-            R -= (is_quiet_move ? history_score / HISTORY_GRAVITY : 0);
+            R -= (is_quiet_move ? history_score / LMR_HISTORY_BASE : 0);
             R -= board.is_in_check();
             R += cutnode;
             R -= tt_pv;

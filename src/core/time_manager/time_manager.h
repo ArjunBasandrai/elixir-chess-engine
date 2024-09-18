@@ -8,7 +8,6 @@
 #include "spsa/spsa.h"
 #include "types.h"
 
-
 namespace elixir {
     namespace time_management {
         extern double move_stability_scale[5];

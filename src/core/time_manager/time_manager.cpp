@@ -1,5 +1,6 @@
 #include <chrono>
 
+#include "time_management_terms.h"
 #include "time_manager.h"
 
 #include "defs.h"
@@ -28,12 +29,12 @@ namespace elixir::time_management {
             if (movestogo != -1) {
                 base_time = time / movestogo;
             } else {
-                base_time = time * 0.054 + inc * 0.6;
+                base_time = time * (BASE_SCALE / 1000.0) + inc * (INC_SCALE / 100.0);
             }
-            const auto max_bound = 0.76 * time;
+            const auto max_bound = (MAX_BOUND_SCALE / 100.0) * time;
 
-            soft_limit = std::min(0.76 * base_time, max_bound);
-            hard_limit = std::min(2.50 * base_time, max_bound);
+            soft_limit = std::min((SOFT_BOUND_SCALE / 100.0) * base_time, max_bound);
+            hard_limit = std::min((HARD_BOUND_SCALE / 100.0) * base_time, max_bound);
         }
 
         info = search::SearchInfo(MAX_DEPTH, true);

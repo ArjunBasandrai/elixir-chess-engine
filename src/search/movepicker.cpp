@@ -10,7 +10,7 @@
 
 namespace elixir {
 
-    int MP_SEE = 109;
+    int MP_SEE = 117;
 
     void MovePicker::score_moves(const Board &board, const move::Move &tt_move,
                                  const search::SearchStack *ss, const History &history) {
