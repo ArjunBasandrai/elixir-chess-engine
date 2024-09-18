@@ -7,13 +7,13 @@
 #include "types.h"
 
 namespace elixir {
-    int HISTORY_GRAVITY          = 8289;
-    int HISTORY_BONUS_MULTIPLIER = 300;
-    int HISTORY_MALUS_MULTIPLIER = 600;
-    int HISTORY_BONUS_SUBTRAHEND = 150;
-    int HISTORY_MALUS_SUBTRAHEND = 300;
-    int HISTORY_BONUS_MAX        = 4000;
-    int HISTORY_MALUS_MAX        = 8000;
+    int HISTORY_GRAVITY          = 8916;
+    int HISTORY_BONUS_MULTIPLIER = 266;
+    int HISTORY_MALUS_MULTIPLIER = 637;
+    int HISTORY_BONUS_SUBTRAHEND = 154;
+    int HISTORY_MALUS_SUBTRAHEND = 314;
+    int HISTORY_BONUS_MAX        = 3930;
+    int HISTORY_MALUS_MAX        = 7849;
 
     void History::clear() {
         quiet_history.clear();
