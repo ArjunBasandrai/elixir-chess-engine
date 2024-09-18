@@ -22,7 +22,7 @@ namespace elixir {
             return 2 * quiet_history.get_quiet_history(move.get_from(), move.get_to()) +
                    (continuation_history.get_chs(move, ss - 1) +
                     continuation_history.get_chs(move, ss - 2) +
-                    continuation_history.get_chs(move, ss - 2));
+                    continuation_history.get_chs(move, ss - 4));
         }
 
         QuietHistory quiet_history;
