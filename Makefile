@@ -59,7 +59,7 @@ endif
 INCLUDE_PATHS = -Isrc/ -Isrc/core/
 CXXFLAGS += -std=c++20 $(INCLUDE_PATHS)
 
-all: __compile
+all: __tune_compile
 
 debug: __debug_compile __run
 

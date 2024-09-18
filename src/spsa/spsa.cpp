@@ -51,81 +51,94 @@ namespace elixir::tune {
         using namespace elixir::search;
 
         // movepicker terms
-        tuner.add_field(TunerField("MP_PAWN", &MP_PAWN, 86, 50, 300, 0.002));
-        tuner.add_field(TunerField("MP_KNIGHT", &MP_KNIGHT, 304, 150, 500, 0.002));
-        tuner.add_field(TunerField("MP_BISHOP", &MP_BISHOP, 360, 200, 600, 0.002));
-        tuner.add_field(TunerField("MP_ROOK", &MP_ROOK, 466, 300, 800, 0.002));
-        tuner.add_field(TunerField("MP_QUEEN", &MP_QUEEN, 905, 500, 1300, 0.002));
-        tuner.add_field(TunerField("MP_KING", &MP_KING, 20903, 10000, 30000, 0.002));
-        tuner.add_field(TunerField("MP_SEE", &MP_SEE, 109, 20, 500, 0.002));
+        // tuner.add_field(TunerField("MP_PAWN", &MP_PAWN, 86, 50, 300, 0.002));
+        // tuner.add_field(TunerField("MP_KNIGHT", &MP_KNIGHT, 304, 150, 500, 0.002));
+        // tuner.add_field(TunerField("MP_BISHOP", &MP_BISHOP, 360, 200, 600, 0.002));
+        // tuner.add_field(TunerField("MP_ROOK", &MP_ROOK, 466, 300, 800, 0.002));
+        // tuner.add_field(TunerField("MP_QUEEN", &MP_QUEEN, 905, 500, 1300, 0.002));
+        // tuner.add_field(TunerField("MP_KING", &MP_KING, 20903, 10000, 30000, 0.002));
+        // tuner.add_field(TunerField("MP_SEE", &MP_SEE, 109, 20, 500, 0.002));
 
         // history terms
-        tuner.add_field(TunerField("HISTORY_GRAVITY", &HISTORY_GRAVITY, 8289, 1024, 16384, 0.002));
-        tuner.add_field(
-            TunerField("HISTORY_BONUS_MULTIPLIER", &HISTORY_BONUS_MULTIPLIER, 300, 50, 500, 0.002));
-        tuner.add_field(TunerField("HISTORY_MALUS_MULTIPLIER", &HISTORY_MALUS_MULTIPLIER, 600, 300,
-                                   1200, 0.002));
-        tuner.add_field(
-            TunerField("HISTORY_BONUS_SUBTRAHEND", &HISTORY_BONUS_SUBTRAHEND, 150, 50, 450, 0.002));
-        tuner.add_field(TunerField("HISTORY_MALUS_SUBTRAHEND", &HISTORY_MALUS_SUBTRAHEND, 300, 100,
-                                   600, 0.002));
-        tuner.add_field(
-            TunerField("HISTORY_BONUS_MAX", &HISTORY_BONUS_MAX, 4000, 1000, 8000, 0.002));
-        tuner.add_field(
-            TunerField("HISTORY_MALUS_MAX", &HISTORY_MALUS_MAX, 8000, 2000, 16000, 0.002));
+        // tuner.add_field(TunerField("HISTORY_GRAVITY", &HISTORY_GRAVITY, 8289, 1024, 16384, 0.002));
+        // tuner.add_field(
+        //     TunerField("HISTORY_BONUS_MULTIPLIER", &HISTORY_BONUS_MULTIPLIER, 300, 50, 500, 0.002));
+        // tuner.add_field(TunerField("HISTORY_MALUS_MULTIPLIER", &HISTORY_MALUS_MULTIPLIER, 600, 300,
+        //                            1200, 0.002));
+        // tuner.add_field(
+        //     TunerField("HISTORY_BONUS_SUBTRAHEND", &HISTORY_BONUS_SUBTRAHEND, 150, 50, 450, 0.002));
+        // tuner.add_field(TunerField("HISTORY_MALUS_SUBTRAHEND", &HISTORY_MALUS_SUBTRAHEND, 300, 100,
+        //                            600, 0.002));
+        // tuner.add_field(
+        //     TunerField("HISTORY_BONUS_MAX", &HISTORY_BONUS_MAX, 4000, 1000, 8000, 0.002));
+        // tuner.add_field(
+        //     TunerField("HISTORY_MALUS_MAX", &HISTORY_MALUS_MAX, 8000, 2000, 16000, 0.002));
 
         // see terms
-        tuner.add_field(TunerField("SEE_PAWN", &SEE_PAWN, 77, 20, 300, 0.002));
-        tuner.add_field(TunerField("SEE_KNIGHT", &SEE_KNIGHT, 299, 120, 500, 0.002));
-        tuner.add_field(TunerField("SEE_BISHOP", &SEE_BISHOP, 303, 120, 500, 0.002));
-        tuner.add_field(TunerField("SEE_ROOK", &SEE_ROOK, 504, 300, 700, 0.002));
-        tuner.add_field(TunerField("SEE_QUEEN", &SEE_QUEEN, 903, 500, 1300, 0.002));
-        tuner.add_field(TunerField("SEE_QUIET", &SEE_QUIET, 67, 5, 200, 0.002));
-        tuner.add_field(TunerField("SEE_CAPTURE", &SEE_CAPTURE, 32, 5, 200, 0.002));
-        tuner.add_field(TunerField("QS_SEE_THRESHOLD", &QS_SEE_THRESHOLD, 9, 1, 100, 0.002));
+        // tuner.add_field(TunerField("SEE_PAWN", &SEE_PAWN, 77, 20, 300, 0.002));
+        // tuner.add_field(TunerField("SEE_KNIGHT", &SEE_KNIGHT, 299, 120, 500, 0.002));
+        // tuner.add_field(TunerField("SEE_BISHOP", &SEE_BISHOP, 303, 120, 500, 0.002));
+        // tuner.add_field(TunerField("SEE_ROOK", &SEE_ROOK, 504, 300, 700, 0.002));
+        // tuner.add_field(TunerField("SEE_QUEEN", &SEE_QUEEN, 903, 500, 1300, 0.002));
+        // tuner.add_field(TunerField("SEE_QUIET", &SEE_QUIET, 67, 5, 200, 0.002));
+        // tuner.add_field(TunerField("SEE_CAPTURE", &SEE_CAPTURE, 32, 5, 200, 0.002));
+        // tuner.add_field(TunerField("QS_SEE_THRESHOLD", &QS_SEE_THRESHOLD, 9, 1, 100, 0.002));
         // tuner.add_field(TunerField("SEE_DEPTH", &SEE_DEPTH, 10, 1, 15, 0.002));
 
         // aspiration window terms
-        tuner.add_field(TunerField("INITIAL_ASP_DELTA", &INITIAL_ASP_DELTA, 12, 1, 50, 0.002));
-        tuner.add_field(TunerField("ASP_MULTIPLIER", &ASP_MULTIPLIER, 1.3111, 1.0, 5.0, 0.002));
+        // tuner.add_field(TunerField("INITIAL_ASP_DELTA", &INITIAL_ASP_DELTA, 12, 1, 50, 0.002));
+        // tuner.add_field(TunerField("ASP_MULTIPLIER", &ASP_MULTIPLIER, 1.3111, 1.0, 5.0, 0.002));
         // tuner.add_field(TunerField("MIN_ASP_DEPTH", &MIN_ASP_DEPTH, 4, 1, 10, 0.002));
 
         // search terms
         // tuner.add_field(TunerField("IIR_DEPTH", &IIR_DEPTH, 4, 1, 8, 0.002));
 
-        tuner.add_field(TunerField("RAZOR_MARGIN", &RAZOR_MARGIN, 298, 100, 400, 0.002));
+        // tuner.add_field(TunerField("RAZOR_MARGIN", &RAZOR_MARGIN, 298, 100, 400, 0.002));
         // tuner.add_field(TunerField("RAZOR_DEPTH", &RAZOR_DEPTH, 7, 2, 10, 0.002));
 
-        tuner.add_field(TunerField("RFP_MARGIN", &RFP_MARGIN, 72, 20, 350, 0.002));
+        // tuner.add_field(TunerField("RFP_MARGIN", &RFP_MARGIN, 72, 20, 350, 0.002));
         // tuner.add_field(TunerField("RFP_DEPTH", &RFP_DEPTH, 6, 2, 10, 0.002));
 
-        tuner.add_field(TunerField("RFP_BASE", &RFP_BASE, 122, 50, 200, 0.002));
-        tuner.add_field(
-            TunerField("RFP_BASE_MULTIPLIER", &RFP_BASE_MULTIPLIER, 37, 10, 100, 0.002));
+        // tuner.add_field(TunerField("RFP_BASE", &RFP_BASE, 122, 50, 200, 0.002));
+        // tuner.add_field(
+        //     TunerField("RFP_BASE_MULTIPLIER", &RFP_BASE_MULTIPLIER, 37, 10, 100, 0.002));
 
         // tuner.add_field(TunerField("NMP_DEPTH", &NMP_DEPTH, 1, 1, 6, 0.002));
-        tuner.add_field(TunerField("NMP_BASE_REDUCTION", &NMP_BASE_REDUCTION, 5, 2, 10, 0.002));
-        tuner.add_field(TunerField("NMP_DIVISOR", &NMP_DIVISOR, 9, 4, 17, 0.002));
-        tuner.add_field(TunerField("NMP_EVAL_BASE", &NMP_EVAL_BASE, 200, 50, 500, 0.002));
-        tuner.add_field(TunerField("NMP_EVAL_MAX", &NMP_EVAL_MAX, 60, 10, 100, 0.002));
-        tuner.add_field(TunerField("NMP_PHASE_BASE", &NMP_PHASE_BASE, 80, 20, 200, 0.002));
-        tuner.add_field(TunerField("NMP_PHASE_MAX", &NMP_PHASE_MAX, 24, 5, 45, 0.002));
+        // tuner.add_field(TunerField("NMP_BASE_REDUCTION", &NMP_BASE_REDUCTION, 5, 2, 10, 0.002));
+        // tuner.add_field(TunerField("NMP_DIVISOR", &NMP_DIVISOR, 9, 4, 17, 0.002));
+        // tuner.add_field(TunerField("NMP_EVAL_BASE", &NMP_EVAL_BASE, 200, 50, 500, 0.002));
+        // tuner.add_field(TunerField("NMP_EVAL_MAX", &NMP_EVAL_MAX, 60, 10, 100, 0.002));
+        // tuner.add_field(TunerField("NMP_PHASE_BASE", &NMP_PHASE_BASE, 80, 20, 200, 0.002));
+        // tuner.add_field(TunerField("NMP_PHASE_MAX", &NMP_PHASE_MAX, 24, 5, 45, 0.002));
 
-        tuner.add_field(TunerField("SE_BETA_MULTIPLIER", &SE_BETA_MULTIPLIER, 200, 50, 500, 0.002));
-        tuner.add_field(TunerField("DOUBLE_EXT_MARGIN", &DOUBLE_EXT_MARGIN, 300, 50, 500, 0.002));
+        // tuner.add_field(TunerField("SE_BETA_MULTIPLIER", &SE_BETA_MULTIPLIER, 200, 50, 500, 0.002));
+        // tuner.add_field(TunerField("DOUBLE_EXT_MARGIN", &DOUBLE_EXT_MARGIN, 300, 50, 500, 0.002));
 
-        tuner.add_field(TunerField("LMP_BASE", &LMP_BASE, 2, 2, 14, 0.002));
-        tuner.add_field(TunerField("LMP_MULTIPLIER", &LMP_MULTIPLIER, 1, 1, 8, 0.002));
+        // tuner.add_field(TunerField("LMP_BASE", &LMP_BASE, 2, 2, 14, 0.002));
+        // tuner.add_field(TunerField("LMP_MULTIPLIER", &LMP_MULTIPLIER, 1, 1, 8, 0.002));
 
-        tuner.add_field(TunerField("FP_BASE", &FP_BASE, 146, 20, 500, 0.002));
-        tuner.add_field(TunerField("FP_MULTIPLIER", &FP_MULTIPLIER, 118, 20, 400, 0.002));
+        // tuner.add_field(TunerField("FP_BASE", &FP_BASE, 146, 20, 500, 0.002));
+        // tuner.add_field(TunerField("FP_MULTIPLIER", &FP_MULTIPLIER, 118, 20, 400, 0.002));
         // tuner.add_field(TunerField("FP_DEPTH", &FP_DEPTH, 5, 1, 15, 0.002));
 
         // tuner.add_field(TunerField("LMR_DEPTH", &LMR_DEPTH, 4, 1, 8, 0.002));
-        tuner.add_field(TunerField("LMR_OFFSET", &LMR_OFFSET, 0.5137, 0.0, 4.0, 0.002));
-        tuner.add_field(TunerField("LMR_DIVISOR", &LMR_DIVISOR, 1.711, 0.5, 10.0, 0.002));
-        tuner.add_field(
-            TunerField("LMR_HISTORY_BASE", &LMR_HISTORY_BASE, 8289, 1024, 16384, 0.002));
+        // tuner.add_field(TunerField("LMR_OFFSET", &LMR_OFFSET, 0.5137, 0.0, 4.0, 0.002));
+        // tuner.add_field(TunerField("LMR_DIVISOR", &LMR_DIVISOR, 1.711, 0.5, 10.0, 0.002));
+        // tuner.add_field(
+        //     TunerField("LMR_HISTORY_BASE", &LMR_HISTORY_BASE, 8289, 1024, 16384, 0.002));
+        
+        // time management terms
+        tuner.add_field(TunerField("BASE_SCALE", &BASE_SCALE, 54, 20, 100, 0.002));
+        tuner.add_field(TunerField("INC_SCALE", &INC_SCALE, 60, 20, 100, 0.002));
+        tuner.add_field(TunerField("MAX_BOUND_SCALE", &MAX_BOUND_SCALE, 76, 20, 100, 0.002));
+        tuner.add_field(TunerField("SOFT_BOUND_SCALE", &SOFT_BOUND_SCALE, 76, 20, 100, 0.002));
+        tuner.add_field(TunerField("HARD_BOUND_SCALE", &HARD_BOUND_SCALE, 250, 100, 500, 0.002));
+
+        tuner.add_field(TunerField("MOVE_STABILITY_SCALE_1", &MOVE_STABILITY_SCALE_1, 243, 100, 500, 0.002));
+        tuner.add_field(TunerField("MOVE_STABILITY_SCALE_2", &MOVE_STABILITY_SCALE_2, 135, 50, 300, 0.002));
+        tuner.add_field(TunerField("MOVE_STABILITY_SCALE_3", &MOVE_STABILITY_SCALE_3, 109, 50, 300, 0.002));
+        tuner.add_field(TunerField("MOVE_STABILITY_SCALE_4", &MOVE_STABILITY_SCALE_4, 88, 50, 300, 0.002));
+        tuner.add_field(TunerField("MOVE_STABILITY_SCALE_5", &MOVE_STABILITY_SCALE_5, 68, 50, 300, 0.002));
     }
 
     void SPSA::print_spsa_inputs() {
