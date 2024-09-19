@@ -403,7 +403,7 @@ namespace elixir::search {
             | move can beat it or not (in other words if TT move is singular or not).      |
             */
             if (! root_node && depth >= 8 && move == tt_move && ! ss->excluded_move &&
-                result.depth >= depth - 3 && tt_flag != TT_ALPHA) {
+                result.depth >= depth - 3 && tt_flag != TT_ALPHA && std::abs(result.score) < MATE_FOUND) {
                 const auto s_beta  = result.score - depth * (SE_BETA_MULTIPLIER / 100.0);
                 const auto s_depth = (depth - 1) / 2;
 
