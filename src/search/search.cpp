@@ -439,6 +439,9 @@ namespace elixir::search {
                 */
                 else if (result.score >= beta)
                     extensions--;
+                
+                else if (cutnode)
+                    extensions--;
             }
 
             /*
