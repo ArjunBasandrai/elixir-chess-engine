@@ -66,7 +66,7 @@ namespace elixir::search {
         if (board.is_repetition() || board.is_material_draw())
             return 0;
 
-        int best_score, eval = board.evaluate();
+        int best_score, eval = history.correction_history.correct_static_eval(board.evaluate(), board.get_side_to_move(), board.get_pawn_hash());
 
         if (ss->ply >= MAX_DEPTH - 1)
             return eval;
@@ -257,7 +257,7 @@ namespace elixir::search {
                 ss->static_eval = ss->eval = SCORE_NONE;
 
             else {
-                ss->static_eval = board.evaluate();
+                ss->static_eval = history.correction_history.correct_static_eval(board.evaluate(), board.get_side_to_move(), board.get_pawn_hash());
                 ss->eval = (tt_hit && can_use_tt_score) ? result.score : ss->static_eval;
             }
         }
@@ -544,6 +544,11 @@ namespace elixir::search {
         if (! ss->excluded_move) {
             tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv,
                          tt_pv, improving);
+            
+            if (!in_check && (!best_move || !best_move.is_capture()) && !(best_score >= beta && best_score <= ss->static_eval) && !(!best_move && best_score >= ss->static_eval)) {
+                const int bonus = std::clamp((best_score - ss->static_eval) * depth / 8, -correction_history_limit / 4, correction_history_limit / 4);
+                history.correction_history.update_correction_history(bonus, board.get_side_to_move(), board.get_pawn_hash());
+            }
         }
 
         return best_score;

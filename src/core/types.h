@@ -26,8 +26,8 @@ namespace elixir {
     using Score     = std::int16_t;
     using PhaseType = std::uint8_t;
 
+    using QuietHistoryArray = std::vector<std::array<int, 64>>;
+
     using ContHistEntry = std::array<std::array<int, 64>, 12>;
     using ContHistArray = std::vector<std::array<ContHistEntry, 64>>;
-
-    using QuietHistoryArray = std::vector<std::array<int, 64>>;
 }
