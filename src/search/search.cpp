@@ -256,9 +256,10 @@ namespace elixir::search {
             if (in_check)
                 ss->static_eval = ss->eval = SCORE_NONE;
 
-            else
+            else {
                 ss->static_eval = board.evaluate();
                 ss->eval = (tt_hit && can_use_tt_score) ? result.score : ss->static_eval;
+            }
         }
 
         /*
