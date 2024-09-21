@@ -95,7 +95,6 @@ namespace elixir::search {
         */
         if (tt_hit && usable_tt_score) {
             best_score = result.score;
-            best_move  = result.best_move;
         }
 
         if (best_score >= beta) {
