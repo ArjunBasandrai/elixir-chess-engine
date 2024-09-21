@@ -110,6 +110,8 @@ namespace elixir::search {
 
         if (! ss->ply)
             info.best_root_move = mp.first_move();
+        
+        int legals = 0;
 
         while ((move = mp.next_move())) {
 
@@ -117,7 +119,7 @@ namespace elixir::search {
             | Q-Search Static Exchange Evaluation [SEE] Pruning (~55 ELO) : Skip moves that |
             | lose a lot of material.                                                       |
             */
-            if (! SEE(board, move, -QS_SEE_THRESHOLD))
+            if (legals > 1 && ! SEE(board, move, -QS_SEE_THRESHOLD))
                 continue;
 
             /*
@@ -131,6 +133,7 @@ namespace elixir::search {
             */
             tt->prefetch(board.get_hash_key());
 
+            legals++;
             info.nodes++;
 
             int score = -qsearch(td, -beta, -alpha, local_pv, ss);
