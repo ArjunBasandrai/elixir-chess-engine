@@ -303,6 +303,7 @@ namespace elixir::search {
             | opponent an extra move to see if we are still better.                 |
             */
             if (depth >= NMP_DEPTH && (ss - 1)->move && ss->eval >= beta &&
+                ss->static_eval >= beta + 170 - 24 * depth &&
                 board.has_non_pawn_material()) {
                 int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR +
                         std::min<double>((ss->eval - beta) / NMP_EVAL_BASE, (NMP_EVAL_MAX / 10.0)) +
