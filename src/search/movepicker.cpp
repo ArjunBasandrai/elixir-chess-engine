@@ -71,6 +71,23 @@ namespace elixir {
 
             scores[i] = value;
         }
+
+        const int n = scores.size();
+        for (int i = 1; i < n; i++) {
+            int key_score = scores[i];
+            auto key_move = moves[i];
+            
+            int j = i - 1;
+            
+            while (j >= 0 && scores[j] > key_score) {
+                scores[j + 1] = scores[j];
+                moves[j + 1] = moves[j];
+                j--;
+            }
+            
+            scores[j + 1] = key_score;
+            moves[j + 1] = key_move;
+        }
     }
 
     void MovePicker::init_mp(const Board &board, move::Move tt_move, search::SearchStack *ss,
@@ -86,19 +103,7 @@ namespace elixir {
         if (moves.size() <= 0)
             return move::NO_MOVE;
 
-        int max = -INF, max_idx = 0;
-        for (int i = 0; i < moves.size(); i++) {
-            if (scores[i] > max) {
-                max     = scores[i];
-                max_idx = i;
-            }
-        }
-
-        auto best_move = moves[max_idx];
-
-        int last_index = moves.size() - 1;
-        std::swap(moves[max_idx], moves[last_index]);
-        std::swap(scores[max_idx], scores[last_index]);
+        auto best_move = moves[moves.size() - 1];
 
         moves.pop_back();
         scores.pop_back();

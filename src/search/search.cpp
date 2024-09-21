@@ -276,7 +276,6 @@ namespace elixir::search {
             return true;
         }();
 
-
         if (! pv_node && ! in_check && ! ss->excluded_move) {
             /*
             | Razoring (~4 ELO) : If out position is way below alpha, do a verification |
