@@ -66,15 +66,8 @@ namespace elixir::search {
         if (board.is_repetition() || board.is_material_draw())
             return 0;
 
-        int best_score, eval = board.evaluate();
-        I16 raw_static_eval = eval;
-
         if (ss->ply >= MAX_DEPTH - 1)
-            return eval;
-
-        auto local_pv  = PVariation();
-        auto best_move = move::Move();
-        best_score     = eval;
+            return board.evaluate();
 
         ProbedEntry result;
         const bool tt_hit = tt->probe_tt(result, board.get_hash_key(), 0, alpha, beta);
@@ -84,6 +77,9 @@ namespace elixir::search {
 
         bool usable_tt_score = tt_hit && result.is_usable_score(alpha, beta);
 
+        int eval            = (tt_hit) ? result.static_eval : board.evaluate();
+        I16 raw_static_eval = eval;
+
         /*
         | If TT score is found and it is usable, then cutoff. |
         */
@@ -91,6 +87,9 @@ namespace elixir::search {
             return tt->correct_score(result.score, ss->ply);
         }
 
+        auto local_pv  = PVariation();
+        auto best_move = move::Move();
+        int best_score = eval;
         /*
         | If TT score is found and it is usable, then use it. |
         */
@@ -156,7 +155,8 @@ namespace elixir::search {
                 }
             }
         }
-        tt->store_tt(board.get_hash_key(), best_score, raw_static_eval, best_move, 0, ss->ply, flag, pv);
+        tt->store_tt(board.get_hash_key(), best_score, raw_static_eval, best_move, 0, ss->ply, flag,
+                     pv);
         return best_score;
     }
 
@@ -253,7 +253,7 @@ namespace elixir::search {
         |
         */
         if (! ss->excluded_move) {
-            ss->static_eval = board.evaluate();
+            ss->static_eval = (tt_hit) ? result.static_eval : board.evaluate();
             if (in_check)
                 ss->eval = SCORE_NONE;
 
@@ -306,8 +306,7 @@ namespace elixir::search {
             | opponent an extra move to see if we are still better.                 |
             */
             if (depth >= NMP_DEPTH && (ss - 1)->move && ss->eval >= beta &&
-                ss->static_eval >= beta + 170 - 24 * depth &&
-                board.has_non_pawn_material()) {
+                ss->static_eval >= beta + 170 - 24 * depth && board.has_non_pawn_material()) {
                 int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR +
                         std::min<double>((ss->eval - beta) / NMP_EVAL_BASE, (NMP_EVAL_MAX / 10.0)) +
                         std::min(board.get_phase(), NMP_PHASE_MAX) / (NMP_PHASE_BASE / 10.0);
@@ -443,7 +442,7 @@ namespace elixir::search {
                 */
                 else if (result.score >= beta)
                     extensions--;
-                
+
                 else if (cutnode)
                     extensions--;
             }
@@ -490,7 +489,7 @@ namespace elixir::search {
             R -= board.is_in_check();
             R += cutnode;
             R -= tt_pv;
-            R += !improving;
+            R += ! improving;
 
             if (depth > 1 && legals > 1) {
                 R             = std::clamp(R, 1, new_depth);
@@ -545,8 +544,8 @@ namespace elixir::search {
         }
 
         if (! ss->excluded_move) {
-            tt->store_tt(board.get_hash_key(), best_score, raw_static_eval, best_move, depth, ss->ply, flag, pv,
-                         tt_pv, improving);
+            tt->store_tt(board.get_hash_key(), best_score, raw_static_eval, best_move, depth,
+                         ss->ply, flag, pv, tt_pv, improving);
         }
 
         return best_score;
