@@ -67,6 +67,7 @@ namespace elixir::search {
             return 0;
 
         int best_score, eval = board.evaluate();
+        I16 raw_static_eval = eval;
 
         if (ss->ply >= MAX_DEPTH - 1)
             return eval;
@@ -155,7 +156,7 @@ namespace elixir::search {
                 }
             }
         }
-        tt->store_tt(board.get_hash_key(), best_score, best_move, 0, ss->ply, flag, pv);
+        tt->store_tt(board.get_hash_key(), best_score, raw_static_eval, best_move, 0, ss->ply, flag, pv);
         return best_score;
     }
 
@@ -260,6 +261,8 @@ namespace elixir::search {
                 ss->eval = (tt_hit && can_use_tt_score) ? result.score : ss->static_eval;
             }
         }
+
+        I16 raw_static_eval = ss->static_eval;
 
         /*
         | Improving Heuristic (~10 ELO) : Check if our position is better than it was 2 or 4 plies
@@ -542,7 +545,7 @@ namespace elixir::search {
         }
 
         if (! ss->excluded_move) {
-            tt->store_tt(board.get_hash_key(), best_score, best_move, depth, ss->ply, flag, pv,
+            tt->store_tt(board.get_hash_key(), best_score, raw_static_eval, best_move, depth, ss->ply, flag, pv,
                          tt_pv, improving);
         }
 

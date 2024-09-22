@@ -37,19 +37,20 @@ namespace elixir {
         result.flag = TT_NONE;
 
         if (entry.key == key) {
-            result.best_move = entry.move;
-            result.score     = entry.score;
-            result.depth     = entry.depth;
-            result.flag      = entry.flag;
-            result.tt_pv     = entry.tt_pv;
+            result.best_move   = entry.move;
+            result.score       = entry.score;
+            result.depth       = entry.depth;
+            result.flag        = entry.flag;
+            result.tt_pv       = entry.tt_pv;
+            result.static_eval = entry.static_eval;
             return true;
         }
         return false;
     }
 
-    void TranspositionTable::store_tt(U64 key, int score, move::Move move, U8 depth, int ply,
-                                      TTFlag flag, search::PVariation pv, bool tt_pv,
-                                      bool improving) {
+    void TranspositionTable::store_tt(U64 key, I16 score, I16 static_eval, move::Move move,
+                                      U8 depth, int ply, TTFlag flag, search::PVariation pv,
+                                      bool tt_pv, bool improving) {
         U32 index     = get_index(key);
         TTEntry entry = table[index];
 
@@ -66,12 +67,13 @@ namespace elixir {
         else if (score < -MATE)
             score -= ply;
 
-        entry.key   = key;
-        entry.score = score;
-        entry.move  = move;
-        entry.depth = depth;
-        entry.flag  = flag;
-        entry.tt_pv = tt_pv;
+        entry.key         = key;
+        entry.score       = score;
+        entry.move        = move;
+        entry.depth       = depth;
+        entry.flag        = flag;
+        entry.tt_pv       = tt_pv;
+        entry.static_eval = static_eval;
 
         table[index] = entry;
     }
