@@ -95,7 +95,6 @@ namespace elixir::search {
         */
         if (tt_hit && usable_tt_score) {
             best_score = result.score;
-            best_move  = result.best_move;
         }
 
         if (best_score >= beta) {
@@ -171,7 +170,6 @@ namespace elixir::search {
         bool root_node = ss->ply == 0;
         bool pv_node   = ((beta - alpha > 1) || root_node);
         bool in_check  = board.is_in_check();
-        int eval;
 
         if (! root_node && (time_manager.should_stop(info) || info.stopped))
             return 0;
@@ -255,10 +253,12 @@ namespace elixir::search {
         */
         if (! ss->excluded_move) {
             if (in_check)
-                eval = ss->eval = SCORE_NONE;
+                ss->static_eval = ss->eval = SCORE_NONE;
 
-            else
-                eval = ss->eval = (tt_hit && can_use_tt_score) ? result.score : board.evaluate();
+            else {
+                ss->static_eval = board.evaluate();
+                ss->eval = (tt_hit && can_use_tt_score) ? result.score : ss->static_eval;
+            }
         }
 
         /*
@@ -268,10 +268,10 @@ namespace elixir::search {
         const bool improving = [&] {
             if (in_check)
                 return false;
-            if ((ss - 2)->eval != SCORE_NONE)
-                return ss->eval > (ss - 2)->eval;
-            if ((ss - 4)->eval != SCORE_NONE)
-                return ss->eval > (ss - 4)->eval;
+            if ((ss - 2)->static_eval != SCORE_NONE)
+                return ss->static_eval > (ss - 2)->static_eval;
+            if ((ss - 4)->static_eval != SCORE_NONE)
+                return ss->static_eval > (ss - 4)->static_eval;
             return true;
         }();
 
@@ -281,7 +281,7 @@ namespace elixir::search {
             | Razoring (~4 ELO) : If out position is way below alpha, do a verification |
             | quiescence search, if we still cant exceed alpha, then we cutoff.         |
             */
-            if (depth <= RAZOR_DEPTH && eval + RAZOR_MARGIN * depth < alpha) {
+            if (depth <= RAZOR_DEPTH && ss->eval + RAZOR_MARGIN * depth < alpha) {
                 const int razor_score = qsearch(td, alpha, beta, local_pv, ss);
                 if (razor_score <= alpha) {
                     return razor_score;
@@ -293,19 +293,20 @@ namespace elixir::search {
             | confident that we will not fall below beta anytime soon, then we cutoff.     |
             */
             if (depth <= RFP_DEPTH &&
-                eval - futility_margin(depth, improving, cutnode, tt_hit) >= beta &&
-                beta >= -MATE_FOUND && eval <= MATE_FOUND) {
-                return (eval + beta) / 2;
+                ss->eval - futility_margin(depth, improving, cutnode, tt_hit) >= beta &&
+                beta >= -MATE_FOUND && ss->eval <= MATE_FOUND) {
+                return (ss->eval + beta) / 2;
             }
 
             /*
             | Null Move Pruning (~60 ELO) : If our position is so good, we give our |
             | opponent an extra move to see if we are still better.                 |
             */
-            if (depth >= NMP_DEPTH && (ss - 1)->move && eval >= beta &&
+            if (depth >= NMP_DEPTH && (ss - 1)->move && ss->eval >= beta &&
+                ss->static_eval >= beta + 170 - 24 * depth &&
                 board.has_non_pawn_material()) {
                 int R = NMP_BASE_REDUCTION + depth / NMP_DIVISOR +
-                        std::min<double>((eval - beta) / NMP_EVAL_BASE, (NMP_EVAL_MAX / 10.0)) +
+                        std::min<double>((ss->eval - beta) / NMP_EVAL_BASE, (NMP_EVAL_MAX / 10.0)) +
                         std::min(board.get_phase(), NMP_PHASE_MAX) / (NMP_PHASE_BASE / 10.0);
                 R = std::min(R, depth);
 
@@ -380,7 +381,7 @@ namespace elixir::search {
                 */
                 const int futility_margin = FP_BASE + FP_MULTIPLIER * depth;
                 if (depth <= FP_DEPTH && ! in_check && is_quiet_move &&
-                    ss->eval + futility_margin < alpha) {
+                    ss->static_eval + futility_margin < alpha) {
                     skip_quiets = true;
                     continue;
                 }
@@ -439,6 +440,9 @@ namespace elixir::search {
                 */
                 else if (result.score >= beta)
                     extensions--;
+                
+                else if (cutnode)
+                    extensions--;
             }
 
             /*
@@ -483,6 +487,7 @@ namespace elixir::search {
             R -= board.is_in_check();
             R += cutnode;
             R -= tt_pv;
+            R += !improving;
 
             if (depth > 1 && legals > 1) {
                 R             = std::clamp(R, 1, new_depth);
@@ -636,10 +641,11 @@ namespace elixir::search {
             int score = 0, alpha = -INF, beta = INF, delta = INITIAL_ASP_DELTA;
             SearchStack stack[MAX_DEPTH + 4], *ss = stack + 4;
             for (int i = -4; i < MAX_DEPTH; i++) {
-                (ss + i)->move       = move::NO_MOVE;
-                (ss + i)->killers[0] = move::NO_MOVE;
-                (ss + i)->killers[1] = move::NO_MOVE;
-                (ss + i)->eval       = SCORE_NONE;
+                (ss + i)->move        = move::NO_MOVE;
+                (ss + i)->killers[0]  = move::NO_MOVE;
+                (ss + i)->killers[1]  = move::NO_MOVE;
+                (ss + i)->eval        = SCORE_NONE;
+                (ss + i)->static_eval = SCORE_NONE;
             }
 
             for (int i = 0; i < MAX_DEPTH; i++) {
