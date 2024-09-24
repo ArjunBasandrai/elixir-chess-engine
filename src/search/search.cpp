@@ -444,7 +444,7 @@ namespace elixir::search {
                     extensions--;
 
                 else if (cutnode)
-                    extensions--;
+                    extensions-=2;
             }
 
             /*
