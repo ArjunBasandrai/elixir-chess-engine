@@ -487,7 +487,7 @@ namespace elixir::search {
             R += ! pv_node;
             R -= (is_quiet_move ? history_score / LMR_HISTORY_BASE : 0);
             R -= board.is_in_check();
-            R += cutnode;
+            R += 2 * cutnode;
             R -= tt_pv;
             R += ! improving;
 
