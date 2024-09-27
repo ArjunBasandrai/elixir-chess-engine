@@ -143,15 +143,15 @@ namespace elixir::search {
                 best_score = score;
                 if (score > alpha) {
                     best_move  = move;
-                    alpha = score;
                     pv.update(move, local_pv);
+                    if (score >= beta) {
+                        flag = TT_BETA;
+                        break;
+                    }
+                    alpha = score;
                     flag = TT_ALPHA;
                 }
 
-                if (alpha >= beta) {
-                    flag = TT_BETA;
-                    break;
-                }
             }
         }
         tt->store_tt(board.get_hash_key(), best_score, raw_static_eval, best_move, 0, ss->ply, flag,
