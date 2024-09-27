@@ -110,4 +110,23 @@ namespace elixir {
         int bonus = (is_bad_quiet) ? history_malus(depth) : history_bonus(depth);
         score += scale_bonus(score, bonus);
     }
+
+    void CorrectionHistory::clear() {
+        for (auto &entry : corr_hist) {
+            for (auto &piece : entry) {
+                piece = 0;
+            }
+        }
+    }
+
+    int CorrectionHistory::correct_static_eval(int static_eval, Color side, U64 pawn_hash_key) const {
+        const int correction_score = corr_hist[static_cast<int>(side)][pawn_hash_key & (correction_history_size - 1)];
+        const int adjusted_score = static_eval + (correction_score * std::abs(correction_score)) / 1024;
+        return std::clamp(adjusted_score, -MATE_FOUND + 1, MATE_FOUND - 1);
+    }
+
+    void CorrectionHistory::update_correction_history(int bonus, Color side, U64 pawn_hash_key) {
+        int &score = corr_hist[static_cast<int>(side)][pawn_hash_key & (correction_history_size - 1)];
+        score += scale_bonus(score, bonus, correction_history_limit);
+    }
 }

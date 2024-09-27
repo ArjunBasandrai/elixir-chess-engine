@@ -22,7 +22,7 @@ namespace elixir {
                          HISTORY_MALUS_MAX);
     }
 
-    inline int scale_bonus(int score, int bonus) {
-        return bonus - score * std::abs(bonus) / HISTORY_GRAVITY;
+    inline int scale_bonus(int score, int bonus, int gravity = HISTORY_GRAVITY) {
+        return bonus - score * std::abs(bonus) / gravity;
     }
 }
