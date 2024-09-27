@@ -66,6 +66,8 @@ namespace elixir {
             score += ply;
         else if (score < -MATE)
             score -= ply;
+        
+        if (move == move::NO_MOVE) move = entry.move;
 
         entry.key         = key;
         entry.score       = score;

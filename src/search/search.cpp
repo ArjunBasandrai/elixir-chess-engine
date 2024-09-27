@@ -141,9 +141,8 @@ namespace elixir::search {
 
             if (score > best_score) {
                 best_score = score;
-                best_move  = move;
-
                 if (score > alpha) {
+                    best_move  = move;
                     alpha = score;
                     pv.update(move, local_pv);
                     flag = TT_ALPHA;
@@ -277,7 +276,6 @@ namespace elixir::search {
                 return ss->static_eval > (ss - 4)->static_eval;
             return true;
         }();
-
 
         if (! pv_node && ! in_check && ! ss->excluded_move) {
             /*
@@ -516,9 +514,9 @@ namespace elixir::search {
                 return 0;
 
             if (score > best_score) {
-                best_move  = move;
                 best_score = score;
                 if (score > alpha) {
+                    best_move  = move;
                     if (pv_node)
                         pv.update(move, local_pv);
                     if (score >= beta) {
