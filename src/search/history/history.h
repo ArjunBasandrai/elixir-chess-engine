@@ -7,6 +7,7 @@
 
 #include "continuation_history.h"
 #include "countermove_history.h"
+#include "correction_history.h"
 #include "history_formulas.h"
 #include "quiet_history.h"
 
@@ -28,5 +29,6 @@ namespace elixir {
         QuietHistory quiet_history;
         ContiuationHistory continuation_history;
         CounterMoveHistory countermove_history;
+        CorrectionHistory correction_history;
     };
 }
