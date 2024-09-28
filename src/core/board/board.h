@@ -173,6 +173,7 @@ namespace elixir {
         [[nodiscard]] I16 get_fullmove_number() const noexcept { return fullmove_number; }
         [[nodiscard]] U64 get_hash_key() const noexcept { return hash_key; }
         [[nodiscard]] U64 get_pawn_hash() const noexcept { return pawn_hash; }
+        [[nodiscard]] U64 get_non_pawn_hash(Color c) const noexcept { return non_pawn_hash[static_cast<I8>(c)]; }
         [[nodiscard]] EvalScore get_eval() const noexcept { return eval; }
 
         [[nodiscard]] Square get_king_square(Color c) const noexcept {
@@ -268,6 +269,7 @@ namespace elixir {
         I16 fullmove_number;
         U64 hash_key;
         U64 pawn_hash;
+        std::array<U64, 2> non_pawn_hash;
         EvalScore eval;
     };
 }

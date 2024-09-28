@@ -12,6 +12,8 @@
 #include "src/texel/texel.h"
 #include "uci.h"
 
+#include "utils/test_fens.h"
+
 using namespace elixir;
 
 void init() {
