@@ -80,7 +80,7 @@ namespace elixir::search {
         int eval            = (tt_hit) ? result.static_eval : board.evaluate();
         I16 raw_static_eval = eval;
 
-        eval = history.correction_history.correct_static_eval(eval, board.get_side_to_move(), board.get_pawn_hash());
+        eval = history.correction_history.correct_static_eval(eval, board.get_side_to_move(), board.get_pawn_hash(), board.get_non_pawn_hash());
         /*
         | If TT score is found and it is usable, then cutoff. |
         */
@@ -256,7 +256,7 @@ namespace elixir::search {
         if (! ss->excluded_move) {
             ss->static_eval = (tt_hit) ? result.static_eval : board.evaluate();
             raw_static_eval = ss->static_eval;
-            ss->static_eval = history.correction_history.correct_static_eval(ss->static_eval, board.get_side_to_move(), board.get_pawn_hash());
+            ss->static_eval = history.correction_history.correct_static_eval(ss->static_eval, board.get_side_to_move(), board.get_pawn_hash(), board.get_non_pawn_hash());
             if (in_check)
                 ss->eval = SCORE_NONE;
 
@@ -550,7 +550,7 @@ namespace elixir::search {
             
             if (!in_check && (!best_move || !best_move.is_capture()) && !(best_score >= beta && best_score <= ss->static_eval) && !(!best_move && best_score >= ss->static_eval)) {
                 const int bonus = std::clamp((best_score - ss->static_eval) * depth / 8, -pawn_history_size / 4, pawn_history_size / 4);
-                history.correction_history.update_correction_history(bonus, board.get_side_to_move(), board.get_pawn_hash());
+                history.correction_history.update_correction_history(bonus, board.get_side_to_move(), board.get_pawn_hash(), board.get_non_pawn_hash());
             }
         }
 

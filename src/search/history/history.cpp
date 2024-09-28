@@ -112,21 +112,38 @@ namespace elixir {
     }
 
     void CorrectionHistory::clear() {
-        for (auto &entry : corr_hist) {
+        for (auto &entry : pawn_corr_hist) {
             for (auto &piece : entry) {
                 piece = 0;
             }
         }
+
+        for (auto &entry : non_pawn_corr_hist) {
+            for (auto &piece : entry) {
+                for (auto &side : piece) {
+                    side = 0;
+                }
+            }
+        }
     }
 
-    int CorrectionHistory::correct_static_eval(int static_eval, Color side, U64 pawn_hash_key) const {
-        const int correction_score = corr_hist[static_cast<int>(side)][pawn_hash_key & (pawn_correction_history_size - 1)];
+    int CorrectionHistory::correct_static_eval(int static_eval, Color side, U64 pawn_hash_key, const std::array<U64, 2>& non_pawn_hash_keys) const {
+        const int pawn_correction_score = pawn_corr_hist[static_cast<int>(side)][pawn_hash_key & (pawn_correction_history_size - 1)];
+        const int non_pawn_correction_score = (non_pawn_corr_hist[static_cast<int>(side)][0][non_pawn_hash_keys[0] % non_pawn_correction_history_size] +
+                                              non_pawn_corr_hist[static_cast<int>(side)][1][non_pawn_hash_keys[1] % non_pawn_correction_history_size]) / 2;
+        const int correction_score = pawn_correction_score + non_pawn_correction_score;
         const int adjusted_score = static_eval + (correction_score * std::abs(correction_score)) / correction_history_limit;
         return std::clamp(adjusted_score, -MATE_FOUND + 1, MATE_FOUND - 1);
     }
 
-    void CorrectionHistory::update_correction_history(int bonus, Color side, U64 pawn_hash_key) {
-        int &score = corr_hist[static_cast<int>(side)][pawn_hash_key & (pawn_correction_history_size - 1)];
+    void CorrectionHistory::update_correction_history(int bonus, Color side, U64 pawn_hash_key, const std::array<U64, 2>& non_pawn_hash_keys) {
+        int &score = pawn_corr_hist[static_cast<int>(side)][pawn_hash_key & (pawn_correction_history_size - 1)];
         score += scale_bonus(score, bonus, pawn_history_size);
+
+        int &non_pawn_white_score = non_pawn_corr_hist[static_cast<int>(side)][0][non_pawn_hash_keys[0] % non_pawn_correction_history_size];
+        non_pawn_white_score += scale_bonus(non_pawn_white_score, bonus, correction_history_limit);
+
+        int &non_pawn_black_score = non_pawn_corr_hist[static_cast<int>(side)][1][non_pawn_hash_keys[1] % non_pawn_correction_history_size];
+        non_pawn_black_score += scale_bonus(non_pawn_black_score, bonus, correction_history_limit);
     }
 }
