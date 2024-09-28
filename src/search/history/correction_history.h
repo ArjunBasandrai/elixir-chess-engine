@@ -7,10 +7,11 @@
 #include "types.h"
 
 namespace elixir {
-    const int correction_history_size = 16384;
-    const int correction_history_limit = 512;
+    const int pawn_correction_history_size = 16384;
+    const int pawn_history_size = 512;
+    const int correction_history_limit = 1024;
 
-    using CorrectionHistoryTable = std::vector<std::array<int, correction_history_size>>;
+    using CorrectionHistoryTable = std::vector<std::array<int, pawn_correction_history_size>>;
 
     class CorrectionHistory {
       public:

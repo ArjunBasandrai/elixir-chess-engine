@@ -549,7 +549,7 @@ namespace elixir::search {
                          ss->ply, flag, pv, tt_pv, improving);
             
             if (!in_check && (!best_move || !best_move.is_capture()) && !(best_score >= beta && best_score <= ss->static_eval) && !(!best_move && best_score >= ss->static_eval)) {
-                const int bonus = std::clamp((best_score - ss->static_eval) * depth / 8, -correction_history_limit / 4, correction_history_limit / 4);
+                const int bonus = std::clamp((best_score - ss->static_eval) * depth / 8, -pawn_history_size / 4, pawn_history_size / 4);
                 history.correction_history.update_correction_history(bonus, board.get_side_to_move(), board.get_pawn_hash());
             }
         }
