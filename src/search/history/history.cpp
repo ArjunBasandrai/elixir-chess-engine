@@ -130,7 +130,7 @@ namespace elixir {
     int CorrectionHistory::correct_static_eval(int static_eval, Color side, U64 pawn_hash_key, const std::array<U64, 2>& non_pawn_hash_keys) const {
         const int pawn_correction_score = pawn_corr_hist[static_cast<int>(side)][pawn_hash_key & (pawn_correction_history_size - 1)];
         const int non_pawn_correction_score = (non_pawn_corr_hist[static_cast<int>(side)][0][non_pawn_hash_keys[0] % non_pawn_correction_history_size] +
-                                              non_pawn_corr_hist[static_cast<int>(side)][1][non_pawn_hash_keys[1] % non_pawn_correction_history_size]) / 2;
+                                              non_pawn_corr_hist[static_cast<int>(side)][1][non_pawn_hash_keys[1] % non_pawn_correction_history_size]);
         const int correction_score = pawn_correction_score + non_pawn_correction_score;
         const int adjusted_score = static_eval + (correction_score * std::abs(correction_score)) / correction_history_limit;
         return std::clamp(adjusted_score, -MATE_FOUND + 1, MATE_FOUND - 1);
