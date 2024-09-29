@@ -26,38 +26,6 @@ namespace elixir::nnue {
         return clipped * clipped;
     }
 
-    void Accumulator::set_position(const Board &board, Network &net) {
-        for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulator[0][i] = net.layer_1_biases[i];
-        }
-
-        for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulator[1][i] = net.layer_1_biases[i];
-        }
-
-        for (int color = 0; color < 2; color++) {
-            for (int piece = 0; piece < 6; piece++) {
-                Bitboard bb = board.color_occupancy(color) &
-                              board.piece_bitboard(static_cast<PieceType>(piece));
-                while (bb) {
-                    const int white_sq = bits::pop_bit(bb);
-                    const int black_sq = white_sq ^ 56;
-
-                    const int white_input_index = color * 384 + piece * 64 + white_sq;
-                    const int black_input_index = (color ^ 1) * 384 + piece * 64 + black_sq;
-
-                    for (int i = 0; i < HIDDEN_SIZE; i++) {
-                        accumulator[0][i] += net.layer_1_weights[white_input_index][i];
-                    }
-
-                    for (int i = 0; i < HIDDEN_SIZE; i++) {
-                        accumulator[1][i] += net.layer_1_weights[black_input_index][i];
-                    }
-                }
-            }
-        }
-    }
-
     void Accumulator::add(const Piece piece, const Square sq, Network &net) {
         const int color     = static_cast<int>(piece_color(piece));
         const int piecetype = static_cast<int>(piece_to_piecetype(piece));
@@ -146,10 +114,6 @@ namespace elixir::nnue {
                 }
             }
         }
-    }
-
-    void NNUE::set_position(const Board &board) {
-        accumulators[current_acc].set_position(board, net);
     }
 
     int NNUE::eval(const Color side, const int bucket) {

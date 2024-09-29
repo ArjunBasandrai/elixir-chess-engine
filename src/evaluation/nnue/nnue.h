@@ -45,11 +45,16 @@ namespace elixir {
             }
 
             void init(const std::string file);
-            void set_position(const Board &board);
 
-            void refresh(const Board &board) {
+            void refresh() {
                 reset();
-                set_position(board);
+                for (int i = 0; i < HIDDEN_SIZE; i++) {
+                    accumulators[current_acc][0][i] = net.layer_1_biases[i];
+                }
+
+                for (int i = 0; i < HIDDEN_SIZE; i++) {
+                    accumulators[current_acc][1][i] = net.layer_1_biases[i];
+                }
             }
 
             void increment_acc() {

@@ -188,7 +188,9 @@ namespace elixir {
     }
 
     void Board::from_fen(const std::string fen) {
+        nn.refresh();
         clear_board();
+        
         std::vector<std::string> params = str_utils::split(fen, ' ');
 
         const std::string position   = params[0];
@@ -214,7 +216,7 @@ namespace elixir {
                     assert(piece != PieceType::NO_PIECE_TYPE);
 
                     set_piece(static_cast<Square>(8 * rank + file), piece,
-                              isupper(c) ? Color::WHITE : Color::BLACK);
+                              isupper(c) ? Color::WHITE : Color::BLACK, true);
                     file++;
                 }
             }
@@ -255,7 +257,6 @@ namespace elixir {
 
     void Board::to_startpos() {
         from_fen(start_position);
-        nn.refresh(*this);
     }
 
     void Board::unmake_move(const move::Move move, const bool from_make_move) {

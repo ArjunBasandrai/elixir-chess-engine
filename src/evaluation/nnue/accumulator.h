@@ -16,8 +16,6 @@ namespace elixir {
 namespace elixir::nnue {
     class Accumulator {
       public:
-        void set_position(const Board &board, Network &net);
-
         Accumulator() = default;
 
         alignas(64) std::array<std::array<I16, HIDDEN_SIZE>, 2> accumulator;

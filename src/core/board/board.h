@@ -28,7 +28,6 @@ namespace elixir {
 
         Board(std::string fen) {
             from_fen(fen);
-            nn.refresh(*this);
         }
 
         ~Board() = default;
