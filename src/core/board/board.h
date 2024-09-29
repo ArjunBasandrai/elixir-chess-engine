@@ -28,7 +28,6 @@ namespace elixir {
 
         Board(std::string fen) {
             from_fen(fen);
-            nn.refresh(*this);
         }
 
         ~Board() = default;
@@ -150,8 +149,8 @@ namespace elixir {
 
         [[nodiscard]] U64 get_board_hash();
 
-        void set_piece(const Square sq, const PieceType piece, const Color color);
-        void remove_piece(const Square sq, const PieceType piece, const Color color);
+        void set_piece(const Square sq, const PieceType piece, const Color color, bool update_nn = false);
+        void remove_piece(const Square sq, const PieceType piece, const Color color, bool update_nn = false);
 
         [[nodiscard]] Piece piece_on(Square sq) const {
             assert(sq != Square::NO_SQ);

@@ -73,7 +73,6 @@ namespace elixir::bench {
             tt->clear_tt();
             info.nodes = 0;
             board.from_fen(fen);
-            board.nn.refresh(board);
             search::main_searcher.search(board, info, false);
             nodes += info.nodes;
         }

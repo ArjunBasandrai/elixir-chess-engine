@@ -45,11 +45,16 @@ namespace elixir {
             }
 
             void init(const std::string file);
-            void set_position(const Board &board);
 
-            void refresh(const Board &board) {
+            void refresh() {
                 reset();
-                set_position(board);
+                for (int i = 0; i < HIDDEN_SIZE; i++) {
+                    accumulators[current_acc][0][i] = net.layer_1_biases[i];
+                }
+
+                for (int i = 0; i < HIDDEN_SIZE; i++) {
+                    accumulators[current_acc][1][i] = net.layer_1_biases[i];
+                }
             }
 
             void increment_acc() {
@@ -59,12 +64,15 @@ namespace elixir {
 
             void decrement_acc() { current_acc--; }
 
-            Accumulator &get_acc() { return accumulators[current_acc]; }
-
-            void make_move(const Board &board, const move::Move &move) {
-                increment_acc();
-                accumulators[current_acc].make_move(board, move, net);
+            void add(const Piece piece, const Square square) {
+                accumulators[current_acc].add(piece, square, net);
             }
+
+            void sub(const Piece piece, const Square square) {
+                accumulators[current_acc].remove(piece, square, net);
+            }
+
+            Accumulator &get_acc() { return accumulators[current_acc]; }
 
             int eval(const Color side, const int bucket);
         };
