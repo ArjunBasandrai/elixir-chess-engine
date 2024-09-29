@@ -141,9 +141,9 @@ namespace elixir {
         score += scale_bonus(score, bonus, pawn_history_size);
 
         int &non_pawn_white_score = non_pawn_corr_hist[static_cast<int>(side)][0][non_pawn_hash_keys[0] % non_pawn_correction_history_size];
-        non_pawn_white_score += scale_bonus(non_pawn_white_score, bonus, correction_history_limit);
+        non_pawn_white_score += scale_bonus(non_pawn_white_score, bonus, correction_history_limit / 2);
 
         int &non_pawn_black_score = non_pawn_corr_hist[static_cast<int>(side)][1][non_pawn_hash_keys[1] % non_pawn_correction_history_size];
-        non_pawn_black_score += scale_bonus(non_pawn_black_score, bonus, correction_history_limit);
+        non_pawn_black_score += scale_bonus(non_pawn_black_score, bonus, correction_history_limit / 2);
     }
 }
