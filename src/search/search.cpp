@@ -238,6 +238,7 @@ namespace elixir::search {
         }
 
         const bool tt_pv = (tt_hit && result.tt_pv) || pv_node;
+        const bool tt_capture = (tt_move) && !tt_move.is_quiet();
 
         /*
         | Internal Iterative Reduction (~6 ELO) : If no TT move is found for this position, |
@@ -491,6 +492,7 @@ namespace elixir::search {
             R += cutnode;
             R -= tt_pv;
             R += ! improving;
+            R += tt_capture;
 
             if (depth > 1 && legals > 1) {
                 R             = std::clamp(R, 1, new_depth);
