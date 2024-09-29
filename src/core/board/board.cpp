@@ -361,7 +361,6 @@ namespace elixir {
     bool Board::make_move(move::Move move, bool update_accumulator) {
         if (update_accumulator)
             nn.increment_acc();
-            // nn.make_move(*this, move);
 
         const Square from               = move.get_from();
         const Square to                 = move.get_to();

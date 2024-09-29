@@ -69,11 +69,6 @@ namespace elixir {
 
             Accumulator &get_acc() { return accumulators[current_acc]; }
 
-            void make_move(const Board &board, const move::Move &move) {
-                increment_acc();
-                accumulators[current_acc].make_move(board, move, net);
-            }
-
             int eval(const Color side, const int bucket);
         };
     }

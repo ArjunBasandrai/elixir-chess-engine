@@ -27,6 +27,5 @@ namespace elixir::nnue {
 
         void add(const Piece piece, const Square sq, Network &net);
         void remove(const Piece piece, const Square sq, Network &net);
-        void make_move(const Board &board, const move::Move &move, Network &net);
     };
 }
