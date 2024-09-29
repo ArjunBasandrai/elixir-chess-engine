@@ -59,6 +59,14 @@ namespace elixir {
 
             void decrement_acc() { current_acc--; }
 
+            void add(const Piece piece, const Square square) {
+                accumulators[current_acc].add(piece, square, net);
+            }
+
+            void sub(const Piece piece, const Square square) {
+                accumulators[current_acc].remove(piece, square, net);
+            }
+
             Accumulator &get_acc() { return accumulators[current_acc]; }
 
             void make_move(const Board &board, const move::Move &move) {

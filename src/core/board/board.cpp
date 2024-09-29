@@ -123,7 +123,7 @@ namespace elixir {
         non_pawn_hash.fill(0ULL);
     }
 
-    void Board::set_piece(const Square sq, const PieceType piece, const Color color) {
+    void Board::set_piece(const Square sq, const PieceType piece, const Color color, bool update_nn) {
         assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
         bits::set_bit(b_occupancies[static_cast<I8>(color)], sq);
         bits::set_bit(b_pieces[static_cast<I8>(piece)], sq);
@@ -148,9 +148,13 @@ namespace elixir {
                 zobrist::piece_keys[static_cast<int>(piece) + static_cast<int>(color) * 6]
                                    [static_cast<int>(sq)];
         }
+
+        if (update_nn) {
+            nn.add(static_cast<Piece>(static_cast<I8>(piece) * 2 + static_cast<I8>(color)), sq);
+        }
     }
 
-    void Board::remove_piece(const Square sq, const PieceType piece, const Color color) {
+    void Board::remove_piece(const Square sq, const PieceType piece, const Color color, bool update_nn) {
         assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
         bits::clear_bit(b_occupancies[static_cast<I8>(color)], sq);
         bits::clear_bit(b_pieces[static_cast<I8>(piece)], sq);
@@ -176,6 +180,10 @@ namespace elixir {
             non_pawn_hash[static_cast<int>(color)] ^=
                 zobrist::piece_keys[static_cast<int>(piece) + static_cast<int>(color) * 6]
                                    [static_cast<int>(sq)];
+        }
+
+        if (update_nn) {
+            nn.sub(static_cast<Piece>(static_cast<I8>(piece) * 2 + static_cast<I8>(color)), sq);
         }
     }
 
@@ -352,7 +360,8 @@ namespace elixir {
 
     bool Board::make_move(move::Move move, bool update_accumulator) {
         if (update_accumulator)
-            nn.make_move(*this, move);
+            nn.increment_acc();
+            // nn.make_move(*this, move);
 
         const Square from               = move.get_from();
         const Square to                 = move.get_to();
@@ -385,14 +394,14 @@ namespace elixir {
 
         eval = s.eval;
 
-        remove_piece(from, piecetype, side);
+        remove_piece(from, piecetype, side, true);
         // Move source piece to target only if not a capturing move
         // In case of a capture, moving of piece is handled in the "Handling Captures" section
         if (! move.is_capture()) {
 
             assert(captured_piece == Piece::NO_PIECE);
 
-            set_piece(to, piecetype, side);
+            set_piece(to, piecetype, side, true);
         }
 
         if (piece_ == Piece::wK || piece_ == Piece::bK) {
@@ -415,8 +424,8 @@ namespace elixir {
         if (move.is_capture()) {
             if (captured_piece != Piece::NO_PIECE) {
                 fifty_move_counter = 0;
-                remove_piece(to, piece_to_piecetype(captured_piece), enemy_side);
-                set_piece(to, piecetype, side);
+                remove_piece(to, piece_to_piecetype(captured_piece), enemy_side, true);
+                set_piece(to, piecetype, side, true);
                 hash_key ^=
                     zobrist::piece_keys[static_cast<int>(captured_piece)][static_cast<int>(to)];
             }
@@ -424,7 +433,7 @@ namespace elixir {
 
         // Handling Pawn Promotions
         if (move.is_promotion()) {
-            remove_piece(to, PieceType::PAWN, side);
+            remove_piece(to, PieceType::PAWN, side, true);
             PieceType promotion_piece;
             switch (promotion) {
                 case move::Promotion::QUEEN:
@@ -446,7 +455,7 @@ namespace elixir {
 
             assert(promotion_piece != PieceType::NO_PIECE_TYPE);
 
-            set_piece(to, promotion_piece, side);
+            set_piece(to, promotion_piece, side, true);
             hash_key ^= zobrist::piece_keys[int_piece][int_to];
             hash_key ^= zobrist::piece_keys[static_cast<int>(promotion_piece) + stm * 6][int_to];
         }
@@ -454,7 +463,7 @@ namespace elixir {
         // Handling En Passant
         if (flag == move::Flag::EN_PASSANT && en_passant_square != Square::NO_SQ) {
             Square captured_square = static_cast<Square>(int_to - 8 * color_offset[stm]);
-            remove_piece(captured_square, PieceType::PAWN, enemy_side);
+            remove_piece(captured_square, PieceType::PAWN, enemy_side, true);
             hash_key ^= zobrist::piece_keys[static_cast<int>(PieceType::PAWN) + xstm * 6]
                                            [static_cast<int>(captured_square)];
         }
@@ -474,26 +483,26 @@ namespace elixir {
             int rook = static_cast<int>(PieceType::ROOK) + stm * 6;
             switch (to) {
                 case Square::C1:
-                    remove_piece(Square::A1, PieceType::ROOK, Color::WHITE);
-                    set_piece(Square::D1, PieceType::ROOK, Color::WHITE);
+                    remove_piece(Square::A1, PieceType::ROOK, Color::WHITE, true);
+                    set_piece(Square::D1, PieceType::ROOK, Color::WHITE, true);
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::A1)];
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::D1)];
                     break;
                 case Square::G1:
-                    remove_piece(Square::H1, PieceType::ROOK, Color::WHITE);
-                    set_piece(Square::F1, PieceType::ROOK, Color::WHITE);
+                    remove_piece(Square::H1, PieceType::ROOK, Color::WHITE, true);
+                    set_piece(Square::F1, PieceType::ROOK, Color::WHITE, true);
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::H1)];
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::F1)];
                     break;
                 case Square::C8:
-                    remove_piece(Square::A8, PieceType::ROOK, Color::BLACK);
-                    set_piece(Square::D8, PieceType::ROOK, Color::BLACK);
+                    remove_piece(Square::A8, PieceType::ROOK, Color::BLACK, true);
+                    set_piece(Square::D8, PieceType::ROOK, Color::BLACK, true);
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::A8)];
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::D8)];
                     break;
                 case Square::G8:
-                    remove_piece(Square::H8, PieceType::ROOK, Color::BLACK);
-                    set_piece(Square::F8, PieceType::ROOK, Color::BLACK);
+                    remove_piece(Square::H8, PieceType::ROOK, Color::BLACK, true);
+                    set_piece(Square::F8, PieceType::ROOK, Color::BLACK, true);
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::H8)];
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::F8)];
                     break;
