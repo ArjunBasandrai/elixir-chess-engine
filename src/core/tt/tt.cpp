@@ -36,7 +36,7 @@ namespace elixir {
 
         result.flag = TT_NONE;
 
-        if (entry.key == key) {
+        if (entry.key == static_cast<U32>(key >> 32)) {
             result.best_move   = entry.move;
             result.score       = entry.score;
             result.depth       = entry.depth;
@@ -69,7 +69,7 @@ namespace elixir {
         
         if (move == move::NO_MOVE) move = entry.move;
 
-        entry.key         = key;
+        entry.key         = static_cast<U32>(key >> 32);
         entry.score       = score;
         entry.move        = move;
         entry.depth       = depth;
