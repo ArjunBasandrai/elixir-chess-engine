@@ -638,6 +638,7 @@ namespace elixir::search {
     void Searcher::search(ThreadData &td, bool print_info) {
         print_info &= td.thread_idx == 0;
         searching  = true;
+        soft_stop  = true;
         auto start = std::chrono::high_resolution_clock::now();
         PVariation pv;
         move::Move best_move;
