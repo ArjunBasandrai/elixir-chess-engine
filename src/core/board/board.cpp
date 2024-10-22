@@ -123,7 +123,8 @@ namespace elixir {
         non_pawn_hash.fill(0ULL);
     }
 
-    void Board::set_piece(const Square sq, const PieceType piece, const Color color, bool update_nn) {
+    void Board::set_piece(const Square sq, const PieceType piece, const Color color,
+                          bool update_nn) {
         assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
         bits::set_bit(b_occupancies[static_cast<I8>(color)], sq);
         bits::set_bit(b_pieces[static_cast<I8>(piece)], sq);
@@ -154,7 +155,8 @@ namespace elixir {
         }
     }
 
-    void Board::remove_piece(const Square sq, const PieceType piece, const Color color, bool update_nn) {
+    void Board::remove_piece(const Square sq, const PieceType piece, const Color color,
+                             bool update_nn) {
         assert(sq != Square::NO_SQ && piece != PieceType::NO_PIECE_TYPE);
         bits::clear_bit(b_occupancies[static_cast<I8>(color)], sq);
         bits::clear_bit(b_pieces[static_cast<I8>(piece)], sq);
@@ -190,7 +192,7 @@ namespace elixir {
     void Board::from_fen(const std::string fen) {
         nn.refresh();
         clear_board();
-        
+
         std::vector<std::string> params = str_utils::split(fen, ' ');
 
         const std::string position   = params[0];
@@ -388,8 +390,8 @@ namespace elixir {
         assert(piece_color(piece_) == side);
 
         Piece captured_piece = piece_on(to);
-        State s = State(hash_key, pawn_hash, non_pawn_hash, castling_rights, en_passant_square, fifty_move_counter,
-                        captured_piece, eval);
+        State s = State(hash_key, pawn_hash, non_pawn_hash, castling_rights, en_passant_square,
+                        fifty_move_counter, captured_piece, eval);
         undo_stack.push(s);
 
         eval = s.eval;
@@ -527,8 +529,8 @@ namespace elixir {
     }
 
     void Board::make_null_move() {
-        const State s = State(hash_key, pawn_hash, non_pawn_hash, castling_rights, en_passant_square,
-                              fifty_move_counter, Piece::NO_PIECE, eval);
+        const State s = State(hash_key, pawn_hash, non_pawn_hash, castling_rights,
+                              en_passant_square, fifty_move_counter, Piece::NO_PIECE, eval);
         undo_stack.push(s);
         fifty_move_counter++;
         if (en_passant_square != Square::NO_SQ) {

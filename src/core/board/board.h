@@ -26,9 +26,7 @@ namespace elixir {
             nn.init("");
         }
 
-        Board(std::string fen) {
-            from_fen(fen);
-        }
+        Board(std::string fen) { from_fen(fen); }
 
         ~Board() = default;
 
@@ -149,8 +147,10 @@ namespace elixir {
 
         [[nodiscard]] U64 get_board_hash();
 
-        void set_piece(const Square sq, const PieceType piece, const Color color, bool update_nn = false);
-        void remove_piece(const Square sq, const PieceType piece, const Color color, bool update_nn = false);
+        void set_piece(const Square sq, const PieceType piece, const Color color,
+                       bool update_nn = false);
+        void remove_piece(const Square sq, const PieceType piece, const Color color,
+                          bool update_nn = false);
 
         [[nodiscard]] Piece piece_on(Square sq) const {
             assert(sq != Square::NO_SQ);
@@ -172,7 +172,9 @@ namespace elixir {
         [[nodiscard]] I16 get_fullmove_number() const noexcept { return fullmove_number; }
         [[nodiscard]] U64 get_hash_key() const noexcept { return hash_key; }
         [[nodiscard]] U64 get_pawn_hash() const noexcept { return pawn_hash; }
-        [[nodiscard]] U64 get_non_pawn_hash(Color c) const noexcept { return non_pawn_hash[static_cast<I8>(c)]; }
+        [[nodiscard]] U64 get_non_pawn_hash(Color c) const noexcept {
+            return non_pawn_hash[static_cast<I8>(c)];
+        }
         [[nodiscard]] EvalScore get_eval() const noexcept { return eval; }
 
         [[nodiscard]] Square get_king_square(Color c) const noexcept {

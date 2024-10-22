@@ -6,8 +6,8 @@
 #include "types.h"
 
 #include "continuation_history.h"
-#include "countermove_history.h"
 #include "correction_history.h"
+#include "countermove_history.h"
 #include "history_formulas.h"
 #include "quiet_history.h"
 
