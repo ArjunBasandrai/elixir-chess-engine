@@ -649,7 +649,6 @@ namespace elixir::search {
         soft_stop  = true;
         auto start = std::chrono::high_resolution_clock::now();
         PVariation pv;
-        move::Move best_move;
 
         auto &info = td.info;
 
@@ -706,26 +705,27 @@ namespace elixir::search {
             if (! soft_stop && print_info) {
                 std::cout << "info string depth " << current_depth << " unfinished\n" << std::endl;
             } else if (print_info) {
-                int time_ms = duration.count();
-                int nps     = info.nodes * 1000 / (time_ms + 1);
+                const int time_ms = duration.count();
+                const auto nodes = main_searcher.get_nodes();
+                const int nps     = nodes * 1000 / (time_ms + 1);
                 if (score > -MATE && score < -MATE_FOUND) {
                     std::cout << "info score mate " << -(score + MATE) / 2 << " depth "
                               << current_depth << " seldepth " << info.seldepth << " nodes "
-                              << main_searcher.get_nodes() << " time " << time_ms << " nps " << nps
+                              << nodes << " time " << time_ms << " nps " << nps
                               << " hashfull " << tt->get_hashfull() << " pv ";
                 }
 
                 else if (score > MATE_FOUND && score < MATE) {
                     std::cout << "info score mate " << (MATE - score) / 2 + 1 << " depth "
                               << current_depth << " seldepth " << info.seldepth << " nodes "
-                              << main_searcher.get_nodes() << " time " << time_ms << " nps " << nps
+                              << nodes << " time " << time_ms << " nps " << nps
                               << " hashfull " << tt->get_hashfull() << " pv ";
                 }
 
                 else {
                     std::cout << "info score cp " << score << " depth " << current_depth
                               << " seldepth " << info.seldepth << " nodes "
-                              << main_searcher.get_nodes() << " time " << time_ms << " nps " << nps
+                              << nodes << " time " << time_ms << " nps " << nps
                               << " hashfull " << tt->get_hashfull() << " pv ";
                 }
                 pv.print_pv();
@@ -734,12 +734,6 @@ namespace elixir::search {
 
             if (time_manager.should_stop_early(info, current_depth, best_move) || info.stopped)
                 break;
-        }
-
-        if (print_info) {
-            std::cout << "bestmove ";
-            best_move.print_uci();
-            std::cout << std::endl;
         }
 
         searching = false;
@@ -771,6 +765,12 @@ namespace elixir::search {
             if (thread.joinable()) {
                 thread.join();
             }
+        }
+
+        if (print_info) {
+            std::cout << "bestmove ";
+            searchers[0].best_move.print_uci();
+            std::cout << std::endl;
         }
 
         for (auto &td : thread_datas) {

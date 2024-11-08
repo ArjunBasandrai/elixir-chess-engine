@@ -50,6 +50,7 @@ namespace elixir::search {
         History history;
 
       public:
+        move::Move best_move = move::NO_MOVE;
         bool searching = false;
         bool soft_stop = true;
 
