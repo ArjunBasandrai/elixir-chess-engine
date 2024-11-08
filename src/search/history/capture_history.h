@@ -14,10 +14,11 @@ namespace elixir {
 
         void clear();
 
-        void update_history(const Color side, const Square from, const Square to, const int depth);
+        void update_history(const Color side, const Square from, const Square to, const int depth,
+                            const MoveList &bad_captures);
         int get_capture_history(const Color side, const Square from, const Square to) const;
 
-        void penalize(const Color side, const int depth, const MoveList& bad_captures);
+        void penalize(const Color side, const int depth, const MoveList &bad_captures);
 
       private:
         CaptureHistoryArray history;

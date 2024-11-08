@@ -51,8 +51,8 @@ namespace elixir::search {
 
       public:
         move::Move best_move = move::NO_MOVE;
-        bool searching = false;
-        bool soft_stop = true;
+        bool searching       = false;
+        bool soft_stop       = true;
 
         int futility_margin(int depth, bool improving, bool cutnode, bool tt_hit) const {
             int futilitity_base     = RFP_BASE - RFP_BASE_MULTIPLIER * (cutnode && ! tt_hit);
@@ -67,7 +67,8 @@ namespace elixir::search {
         void search(ThreadData &td, bool print_info);
         void clear_history() { history.clear(); }
         void update_killers_and_histories(SearchStack *ss, move::Move move, MoveList &bad_quiets,
-                                          Color stm, int depth, bool is_quiet_move);
+                                          MoveList &bad_captures, Color stm, int depth,
+                                          bool is_quiet_move);
     };
 
     class ThreadManager {

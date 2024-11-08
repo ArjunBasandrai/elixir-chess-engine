@@ -34,8 +34,8 @@ namespace elixir::search {
     }
 
     void Searcher::update_killers_and_histories(SearchStack *ss, move::Move move,
-                                                MoveList &bad_quiets, Color stm, int depth,
-                                                bool is_quiet_move) {
+                                                MoveList &bad_quiets, MoveList &bad_captures,
+                                                Color stm, int depth, bool is_quiet_move) {
         if (is_quiet_move) {
             if (ss->killers[0] != move) {
                 ss->killers[1] = ss->killers[0];
@@ -46,7 +46,7 @@ namespace elixir::search {
             history.quiet_history.update_history(move.get_from(), move.get_to(), depth, bad_quiets);
             history.continuation_history.update_chs(move, ss, bad_quiets, depth);
         } else {
-            history.capture_history.update_history(stm, move.get_from(), move.get_to(), depth);
+            history.capture_history.update_history(stm, move.get_from(), move.get_to(), depth, bad_captures);
         }
     }
 
@@ -527,8 +527,9 @@ namespace elixir::search {
                     if (pv_node)
                         pv.update(move, local_pv);
                     if (score >= beta) {
-                        update_killers_and_histories(ss, move, bad_quiets, board.get_side_to_move(),
-                                                     depth, is_quiet_move);
+                        update_killers_and_histories(ss, move, bad_quiets, bad_captures,
+                                                     board.get_side_to_move(), depth,
+                                                     is_quiet_move);
                         flag = TT_BETA;
                         break;
                     }
@@ -550,10 +551,6 @@ namespace elixir::search {
             if (ss->excluded_move)
                 return alpha;
             return board.is_in_check() ? -MATE + ss->ply : 0;
-        }
-
-        if (best_move) {
-            history.capture_history.penalize(board.get_side_to_move(), depth, bad_captures);
         }
 
         if (! ss->excluded_move) {
@@ -714,27 +711,27 @@ namespace elixir::search {
                 std::cout << "info string depth " << current_depth << " unfinished\n" << std::endl;
             } else if (print_info) {
                 const int time_ms = duration.count();
-                const auto nodes = main_searcher.get_nodes();
+                const auto nodes  = main_searcher.get_nodes();
                 const int nps     = nodes * 1000 / (time_ms + 1);
                 if (score > -MATE && score < -MATE_FOUND) {
                     std::cout << "info score mate " << -(score + MATE) / 2 << " depth "
                               << current_depth << " seldepth " << info.seldepth << " nodes "
-                              << nodes << " time " << time_ms << " nps " << nps
-                              << " hashfull " << tt->get_hashfull() << " pv ";
+                              << nodes << " time " << time_ms << " nps " << nps << " hashfull "
+                              << tt->get_hashfull() << " pv ";
                 }
 
                 else if (score > MATE_FOUND && score < MATE) {
                     std::cout << "info score mate " << (MATE - score) / 2 + 1 << " depth "
                               << current_depth << " seldepth " << info.seldepth << " nodes "
-                              << nodes << " time " << time_ms << " nps " << nps
-                              << " hashfull " << tt->get_hashfull() << " pv ";
+                              << nodes << " time " << time_ms << " nps " << nps << " hashfull "
+                              << tt->get_hashfull() << " pv ";
                 }
 
                 else {
                     std::cout << "info score cp " << score << " depth " << current_depth
-                              << " seldepth " << info.seldepth << " nodes "
-                              << nodes << " time " << time_ms << " nps " << nps
-                              << " hashfull " << tt->get_hashfull() << " pv ";
+                              << " seldepth " << info.seldepth << " nodes " << nodes << " time "
+                              << time_ms << " nps " << nps << " hashfull " << tt->get_hashfull()
+                              << " pv ";
                 }
                 pv.print_pv();
                 std::cout << std::endl;

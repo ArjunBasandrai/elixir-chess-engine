@@ -28,7 +28,7 @@ namespace elixir {
         }
 
         int get_capture_history(const move::Move &move, const Color side) const {
-          return capture_history.get_capture_history(side, move.get_from(), move.get_to());
+            return capture_history.get_capture_history(side, move.get_from(), move.get_to());
         }
 
         QuietHistory quiet_history;

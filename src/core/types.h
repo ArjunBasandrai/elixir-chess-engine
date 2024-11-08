@@ -29,6 +29,6 @@ namespace elixir {
     using ContHistEntry = std::array<std::array<int, 64>, 12>;
     using ContHistArray = std::vector<std::array<ContHistEntry, 64>>;
 
-    using QuietHistoryArray = std::vector<std::array<int, 64>>;
+    using QuietHistoryArray   = std::vector<std::array<int, 64>>;
     using CaptureHistoryArray = std::vector<std::array<std::array<int, 64>, 64>>;
 }

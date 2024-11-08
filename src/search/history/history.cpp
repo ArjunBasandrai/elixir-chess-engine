@@ -152,23 +152,34 @@ namespace elixir {
         }
     }
 
-    void CaptureHistory::update_history(const Color side, const Square from, const Square to, const int depth) {
+    void CaptureHistory::update_history(const Color side, const Square from, const Square to,
+                                        const int depth, const MoveList &bad_captures) {
         const int bonus = history_bonus(depth);
-        int& score = history[static_cast<int>(side)][static_cast<int>(from)][static_cast<int>(to)];
+        int &score = history[static_cast<int>(side)][static_cast<int>(from)][static_cast<int>(to)];
         score += scale_bonus(score, bonus);
+
+        const int penalty = history_malus(depth);
+        for (const auto &move : bad_captures) {
+            const int bfrom = static_cast<int>(move.get_from());
+            const int bto   = static_cast<int>(move.get_to());
+
+            int &bad_capture_score = history[static_cast<int>(side)][bfrom][bto];
+            bad_capture_score += scale_bonus(bad_capture_score, penalty);
+        }
     }
 
-    int CaptureHistory::get_capture_history(const Color side, const Square from, const Square to) const {
+    int CaptureHistory::get_capture_history(const Color side, const Square from,
+                                            const Square to) const {
         return history[static_cast<int>(side)][static_cast<int>(from)][static_cast<int>(to)];
     }
 
-    void CaptureHistory::penalize(const Color side, const int depth, const MoveList& bad_captures) {
+    void CaptureHistory::penalize(const Color side, const int depth, const MoveList &bad_captures) {
         const int penalty = history_malus(depth);
-        for (const auto& move : bad_captures) {
+        for (const auto &move : bad_captures) {
             const int bfrom = static_cast<int>(move.get_from());
-            const int bto = static_cast<int>(move.get_to());
+            const int bto   = static_cast<int>(move.get_to());
 
-            int& bad_capture_score = history[static_cast<int>(side)][bfrom][bto];
+            int &bad_capture_score = history[static_cast<int>(side)][bfrom][bto];
             bad_capture_score += scale_bonus(bad_capture_score, penalty);
         }
     }

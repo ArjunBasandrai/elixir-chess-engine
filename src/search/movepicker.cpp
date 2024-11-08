@@ -54,7 +54,8 @@ namespace elixir {
                 auto captured_piece =
                     move.is_en_passant() ? static_cast<int>(PieceType::PAWN)
                                          : static_cast<int>(piece_to_piecetype(board.piece_on(to)));
-                value = eval::piece_values[captured_piece] + history.get_capture_history(move, board.get_side_to_move());
+                value = eval::piece_values[captured_piece] +
+                        history.get_capture_history(move, board.get_side_to_move());
                 value += search::SEE(board, move, -MP_SEE) ? 1000000000 : -1000000;
             } else if (move == ss->killers[0]) {
                 value = 800000000;
