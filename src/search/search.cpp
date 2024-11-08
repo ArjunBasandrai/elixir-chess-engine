@@ -45,6 +45,8 @@ namespace elixir::search {
                                                            (ss - 1)->move.get_to(), move);
             history.quiet_history.update_history(move.get_from(), move.get_to(), depth, bad_quiets);
             history.continuation_history.update_chs(move, ss, bad_quiets, depth);
+        } else {
+            history.capture_history.update_history(stm, move.get_from(), move.get_to(), depth);
         }
     }
 
@@ -268,7 +270,6 @@ namespace elixir::search {
             }
         }
 
-
         /*
         | Improving Heuristic (~10 ELO) : Check if our position is better than it was 2 or 4 plies
         before. |
@@ -352,7 +353,7 @@ namespace elixir::search {
         /*
         | Initialize a bad quiets array to be used by history maluses. |
         */
-        MoveList bad_quiets;
+        MoveList bad_quiets, bad_captures;
 
         while ((move = mp.next_move())) {
 
@@ -479,7 +480,7 @@ namespace elixir::search {
             legals++;
             info.nodes++;
 
-            const int history_score = history.get_history(move, ss);
+            const int history_score = history.get_quiet_history(move, ss);
 
             /*
             | Principal Variation Search and Late Move Reduction [PVS + LMR] (~40 ELO) |
@@ -536,8 +537,12 @@ namespace elixir::search {
                 }
             }
 
-            else if (is_quiet_move) {
-                bad_quiets.push(move);
+            if (move != best_move) {
+                if (is_quiet_move) {
+                    bad_quiets.push(move);
+                } else {
+                    bad_captures.push(move);
+                }
             }
         }
 
@@ -545,6 +550,10 @@ namespace elixir::search {
             if (ss->excluded_move)
                 return alpha;
             return board.is_in_check() ? -MATE + ss->ply : 0;
+        }
+
+        if (best_move) {
+            history.capture_history.penalize(board.get_side_to_move(), depth, bad_captures);
         }
 
         if (! ss->excluded_move) {
@@ -575,7 +584,6 @@ namespace elixir::search {
 
         int target_piece =
             move.is_en_passant() ? 0 : static_cast<int>(piece_to_piecetype(board.piece_on(to)));
-
 
         int value = see_values[target_piece] - threshold;
 

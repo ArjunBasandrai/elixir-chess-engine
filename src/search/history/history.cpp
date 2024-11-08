@@ -6,6 +6,12 @@
 #include "move.h"
 #include "types.h"
 
+#include "capture_history.h"
+#include "continuation_history.h"
+#include "correction_history.h"
+#include "countermove_history.h"
+#include "quiet_history.h"
+
 namespace elixir {
     int HISTORY_GRAVITY          = 8916;
     int HISTORY_BONUS_MULTIPLIER = 266;
@@ -19,6 +25,8 @@ namespace elixir {
         quiet_history.clear();
         continuation_history.clear();
         countermove_history.clear();
+        correction_history.clear();
+        capture_history.clear();
     }
 
     void QuietHistory::clear() {
@@ -132,5 +140,36 @@ namespace elixir {
         int &score =
             corr_hist[static_cast<int>(side)][pawn_hash_key & (pawn_correction_history_size - 1)];
         score += scale_bonus(score, bonus, pawn_history_size);
+    }
+
+    void CaptureHistory::clear() {
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 64; j++) {
+                for (int k = 0; k < 64; k++) {
+                    history[i][j][k] = 0;
+                }
+            }
+        }
+    }
+
+    void CaptureHistory::update_history(const Color side, const Square from, const Square to, const int depth) {
+        const int bonus = history_bonus(depth);
+        int& score = history[static_cast<int>(side)][static_cast<int>(from)][static_cast<int>(to)];
+        score += scale_bonus(score, bonus);
+    }
+
+    int CaptureHistory::get_capture_history(const Color side, const Square from, const Square to) const {
+        return history[static_cast<int>(side)][static_cast<int>(from)][static_cast<int>(to)];
+    }
+
+    void CaptureHistory::penalize(const Color side, const int depth, const MoveList& bad_captures) {
+        const int penalty = history_malus(depth);
+        for (const auto& move : bad_captures) {
+            const int bfrom = static_cast<int>(move.get_from());
+            const int bto = static_cast<int>(move.get_to());
+
+            int& bad_capture_score = history[static_cast<int>(side)][bfrom][bto];
+            bad_capture_score += scale_bonus(bad_capture_score, penalty);
+        }
     }
 }
