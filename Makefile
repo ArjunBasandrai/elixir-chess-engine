@@ -8,18 +8,6 @@ ifeq ($(OS),Windows_NT)
 	SUFFIX = .exe
 endif
 
-# ifeq ($(UNAME_S), Darwin)
-# 	STACK = -Wl,-stack_size,0x1000000
-# else ifeq ($(UNAME_S), Linux)
-# 	STACK = -Wl,-zstack_size=0x1000000
-# else ifeq ($(OS), Windows_NT)
-# 	ifeq ($(CXX), clang++)
-# 		STACK = -Wl,/STACK:16777216
-# 	else ifeq ($(CXX), g++)
-# 		STACK = -Wl,--stack,16777216
-# 	endif
-# endif
-
 EXE_NAME = $(EXE)$(SUFFIX)
 
 AVX2FLAGS    = -DUSE_AVX2 -DUSE_SIMD -mavx2 -mbmi
