@@ -268,7 +268,6 @@ namespace elixir::search {
             }
         }
 
-
         /*
         | Improving Heuristic (~10 ELO) : Check if our position is better than it was 2 or 4 plies
         before. |
@@ -302,7 +301,7 @@ namespace elixir::search {
             if (depth <= RFP_DEPTH &&
                 ss->eval - futility_margin(depth, improving, cutnode, tt_hit) >= beta &&
                 beta >= -MATE_FOUND && ss->eval <= MATE_FOUND) {
-                return (ss->eval + beta) / 2;
+                return beta + (ss->eval - beta) / 3;
             }
 
             /*
