@@ -655,8 +655,8 @@ namespace elixir::search {
         for (int current_depth = 1; current_depth <= info.depth; current_depth++) {
             info.seldepth = 0;
             int score = 0, alpha = -INF, beta = INF, delta = INITIAL_ASP_DELTA;
-            SearchStack stack[MAX_DEPTH + 4], *ss = stack + 4;
-            for (int i = -4; i < MAX_DEPTH; i++) {
+            SearchStack stack[MAX_DEPTH + 6], *ss = stack + 6;
+            for (int i = -6; i < MAX_DEPTH; i++) {
                 (ss + i)->move        = move::NO_MOVE;
                 (ss + i)->killers[0]  = move::NO_MOVE;
                 (ss + i)->killers[1]  = move::NO_MOVE;
