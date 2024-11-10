@@ -151,7 +151,7 @@ namespace elixir {
         }
 
         if (update_nn) {
-            nn.add(static_cast<Piece>(static_cast<int>(piece) + static_cast<int>(color) * 6), sq);
+            nn.add(static_cast<Piece>(static_cast<I8>(piece) * 2 + static_cast<I8>(color)), sq);
         }
     }
 
@@ -458,10 +458,12 @@ namespace elixir {
 
             set_piece(to, promotion_piece, side);
 
+            const Piece promo_piece = static_cast<Piece>(static_cast<int>(promotion_piece) * 2 + stm);
+
             if (! move.is_capture()) {
-                nn.add_sub(piece_on(to), to, piece, from);
+                nn.add_sub(promo_piece, to, piece, from);
             } else {
-                nn.add_sub_sub(piece_on(to), to, piece, from, captured_piece, to);
+                nn.add_sub_sub(promo_piece, to, piece, from, captured_piece, to);
             }
 
             hash_key ^= zobrist::piece_keys[int_piece][int_to];
@@ -472,7 +474,7 @@ namespace elixir {
         if (flag == move::Flag::EN_PASSANT && en_passant_square != Square::NO_SQ) {
             Square captured_square = static_cast<Square>(int_to - 8 * color_offset[stm]);
             remove_piece(captured_square, PieceType::PAWN, enemy_side);
-            const int en_captured_piece = static_cast<int>(PieceType::PAWN) + xstm * 6;
+            const int en_captured_piece = static_cast<int>(PieceType::PAWN) * 2 + xstm;
             nn.add_sub_sub(piece, to, piece, from, static_cast<Piece>(en_captured_piece),
                            captured_square);
             hash_key ^= zobrist::piece_keys[en_captured_piece][static_cast<int>(captured_square)];
@@ -486,7 +488,6 @@ namespace elixir {
         if (flag == move::Flag::DOUBLE_PAWN_PUSH) {
             en_passant_square = static_cast<Square>(int_to - 8 * color_offset[stm]);
             hash_key ^= zobrist::ep_keys[static_cast<int>(en_passant_square)];
-            nn.add_sub(piece, to, piece, from);
         }
 
         // Handling Castling
@@ -531,11 +532,12 @@ namespace elixir {
                     break;
             }
 
-            nn.add_add_sub_sub(piece, to, static_cast<Piece>(rook), rook_to, piece, from,
-                               static_cast<Piece>(rook), rook_from);
+            const Piece rook_piece = static_cast<Piece>(static_cast<int>(PieceType::ROOK) * 2 + stm);
+            nn.add_add_sub_sub(piece, to, rook_piece, rook_to, piece, from,
+                               rook_piece, rook_from);
         }
 
-        if (flag == move::Flag::NORMAL) {
+        if (flag == move::Flag::NORMAL || flag == move::Flag::DOUBLE_PAWN_PUSH) {
             nn.add_sub(piece, to, piece, from);
         }
 
