@@ -19,35 +19,40 @@ namespace elixir {
         quiet_history.clear();
         continuation_history.clear();
         countermove_history.clear();
+        correction_history.clear();
     }
 
     void QuietHistory::clear() {
-        for (int i = 0; i < 64; i++) {
-            for (int j = 0; j < 64; j++) {
-                history[i][j] = 0;
+        for (int h = 0; h < 2; h++) {
+            for (int i = 0; i < 64; i++) {
+                for (int j = 0; j < 64; j++) {
+                    history[h][i][j] = 0;
+                }
             }
         }
     }
 
-    void QuietHistory::update_history(Square from, Square to, int depth, MoveList &bad_quiets) {
-        int ifrom  = static_cast<int>(from);
-        int ito    = static_cast<int>(to);
-        int &score = history[ifrom][ito];
-        int bonus  = scale_bonus(score, history_bonus(depth));
+    void QuietHistory::update_history(const Piece piece, const Square from, const Square to, const int depth, const MoveList &bad_quiets) {
+        const int ifrom  = static_cast<int>(from);
+        const int ito    = static_cast<int>(to);
+        const int ipiece = static_cast<int>(piece);
+        int &score = history[ipiece][ifrom][ito];
+        const int bonus  = scale_bonus(score, history_bonus(depth));
         score += bonus;
 
         const int penalty = history_malus(depth);
         for (const auto &move : bad_quiets) {
             const int bfrom = static_cast<int>(move.get_from());
             const int bto   = static_cast<int>(move.get_to());
+            const int bpiece = static_cast<int>(move.get_piece());
 
-            int &bad_quiet_score = history[bfrom][bto];
+            int &bad_quiet_score = history[bpiece][bfrom][bto];
             bad_quiet_score += scale_bonus(bad_quiet_score, penalty);
         }
     }
 
-    int QuietHistory::get_quiet_history(Square from, Square to) const {
-        return history[static_cast<int>(from)][static_cast<int>(to)];
+    int QuietHistory::get_quiet_history(const Piece piece, const Square from, const Square to) const {
+        return history[static_cast<int>(piece)][static_cast<int>(from)][static_cast<int>(to)];
     }
 
     void CounterMoveHistory::clear() {

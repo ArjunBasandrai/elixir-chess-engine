@@ -43,7 +43,7 @@ namespace elixir::search {
             }
             history.countermove_history.update_countermove(stm, (ss - 1)->move.get_from(),
                                                            (ss - 1)->move.get_to(), move);
-            history.quiet_history.update_history(move.get_from(), move.get_to(), depth, bad_quiets);
+            history.quiet_history.update_history(move.get_piece(), move.get_from(), move.get_to(), depth, bad_quiets);
             history.continuation_history.update_chs(move, ss, bad_quiets, depth);
         }
     }
