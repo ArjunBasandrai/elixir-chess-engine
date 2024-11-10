@@ -494,6 +494,7 @@ namespace elixir::search {
             R += cutnode;
             R -= tt_pv;
             R += ! improving;
+            R -= !is_quiet_move;
 
             if (depth > 1 && legals > 1) {
                 R             = std::clamp(R, 1, new_depth);
