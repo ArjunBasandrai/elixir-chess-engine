@@ -26,6 +26,120 @@ namespace elixir::nnue {
         return clipped * clipped;
     }
 
+    void Accumulator::add_sub(const Piece piece1, const Square sq1, const Piece piece2, const Square sq2, Network &net) {
+        const int color1     = static_cast<int>(piece_color(piece1));
+        const int piecetype1 = static_cast<int>(piece_to_piecetype(piece1));
+        const int white_sq1  = static_cast<int>(sq1);
+        const int black_sq1  = white_sq1 ^ 56;
+
+        const int color2     = static_cast<int>(piece_color(piece2));
+        const int piecetype2 = static_cast<int>(piece_to_piecetype(piece2));
+        const int white_sq2  = static_cast<int>(sq2);
+        const int black_sq2  = white_sq2 ^ 56;
+
+        const int white_input_index1 = color1 * 384 + piecetype1 * 64 + white_sq1;
+        const int black_input_index1 = (color1 ^ 1) * 384 + piecetype1 * 64 + black_sq1;
+
+        const int white_input_index2 = color2 * 384 + piecetype2 * 64 + white_sq2;
+        const int black_input_index2 = (color2 ^ 1) * 384 + piecetype2 * 64 + black_sq2;
+
+        for (int i = 0; i < HIDDEN_SIZE; i++) {
+            accumulator[0][i] += net.layer_1_weights[white_input_index1][i] -
+                                 net.layer_1_weights[white_input_index2][i];
+        }
+
+        for (int i = 0; i < HIDDEN_SIZE; i++) {
+            accumulator[1][i] += net.layer_1_weights[black_input_index1][i] -
+                                 net.layer_1_weights[black_input_index2][i];
+        }
+    }
+
+    void Accumulator::add_sub_sub(const Piece piece1, const Square sq1, const Piece piece2, const Square sq2, const Piece piece3, const Square sq3, Network &net) {
+        const int color1     = static_cast<int>(piece_color(piece1));
+        const int piecetype1 = static_cast<int>(piece_to_piecetype(piece1));
+        const int white_sq1  = static_cast<int>(sq1);
+        const int black_sq1  = white_sq1 ^ 56;
+
+        const int color2     = static_cast<int>(piece_color(piece2));
+        const int piecetype2 = static_cast<int>(piece_to_piecetype(piece2));
+        const int white_sq2  = static_cast<int>(sq2);
+        const int black_sq2  = white_sq2 ^ 56;
+
+        const int color3     = static_cast<int>(piece_color(piece3));
+        const int piecetype3 = static_cast<int>(piece_to_piecetype(piece3));
+        const int white_sq3  = static_cast<int>(sq3);
+        const int black_sq3  = white_sq3 ^ 56;
+
+        const int white_input_index1 = color1 * 384 + piecetype1 * 64 + white_sq1;
+        const int black_input_index1 = (color1 ^ 1) * 384 + piecetype1 * 64 + black_sq1;
+
+        const int white_input_index2 = color2 * 384 + piecetype2 * 64 + white_sq2;
+        const int black_input_index2 = (color2 ^ 1) * 384 + piecetype2 * 64 + black_sq2;
+
+        const int white_input_index3 = color3 * 384 + piecetype3 * 64 + white_sq3;
+        const int black_input_index3 = (color3 ^ 1) * 384 + piecetype3 * 64 + black_sq3;
+
+        for (int i = 0; i < HIDDEN_SIZE; i++) {
+            accumulator[0][i] += net.layer_1_weights[white_input_index1][i] -
+                                 net.layer_1_weights[white_input_index2][i] -
+                                 net.layer_1_weights[white_input_index3][i];
+        }
+
+        for (int i = 0; i < HIDDEN_SIZE; i++) {
+            accumulator[1][i] += net.layer_1_weights[black_input_index1][i] -
+                                 net.layer_1_weights[black_input_index2][i] -
+                                 net.layer_1_weights[black_input_index3][i];
+        }
+    }
+
+    void Accumulator::add_add_sub_sub(const Piece piece1, const Square sq1, const Piece piece2, const Square sq2, const Piece piece3, const Square sq3, const Piece piece4, const Square sq4, Network &net) {
+        const int color1     = static_cast<int>(piece_color(piece1));
+        const int piecetype1 = static_cast<int>(piece_to_piecetype(piece1));
+        const int white_sq1  = static_cast<int>(sq1);
+        const int black_sq1  = white_sq1 ^ 56;
+
+        const int color2     = static_cast<int>(piece_color(piece2));
+        const int piecetype2 = static_cast<int>(piece_to_piecetype(piece2));
+        const int white_sq2  = static_cast<int>(sq2);
+        const int black_sq2  = white_sq2 ^ 56;
+
+        const int color3     = static_cast<int>(piece_color(piece3));
+        const int piecetype3 = static_cast<int>(piece_to_piecetype(piece3));
+        const int white_sq3  = static_cast<int>(sq3);
+        const int black_sq3  = white_sq3 ^ 56;
+
+        const int color4     = static_cast<int>(piece_color(piece4));
+        const int piecetype4 = static_cast<int>(piece_to_piecetype(piece4));
+        const int white_sq4  = static_cast<int>(sq4);
+        const int black_sq4  = white_sq4 ^ 56;
+
+        const int white_input_index1 = color1 * 384 + piecetype1 * 64 + white_sq1;
+        const int black_input_index1 = (color1 ^ 1) * 384 + piecetype1 * 64 + black_sq1;
+
+        const int white_input_index2 = color2 * 384 + piecetype2 * 64 + white_sq2;
+        const int black_input_index2 = (color2 ^ 1) * 384 + piecetype2 * 64 + black_sq2;
+
+        const int white_input_index3 = color3 * 384 + piecetype3 * 64 + white_sq3;
+        const int black_input_index3 = (color3 ^ 1) * 384 + piecetype3 * 64 + black_sq3;
+
+        const int white_input_index4 = color4 * 384 + piecetype4 * 64 + white_sq4;
+        const int black_input_index4 = (color4 ^ 1) * 384 + piecetype4 * 64 + black_sq4;
+
+        for (int i = 0; i < HIDDEN_SIZE; i++) {
+            accumulator[0][i] += net.layer_1_weights[white_input_index1][i] +
+                                 net.layer_1_weights[white_input_index2][i] -
+                                 net.layer_1_weights[white_input_index3][i] -
+                                 net.layer_1_weights[white_input_index4][i];
+        }
+
+        for (int i = 0; i < HIDDEN_SIZE; i++) {
+            accumulator[1][i] += net.layer_1_weights[black_input_index1][i] +
+                                 net.layer_1_weights[black_input_index2][i] -
+                                 net.layer_1_weights[black_input_index3][i] -
+                                 net.layer_1_weights[black_input_index4][i];
+        }
+    }
+
     void Accumulator::add(const Piece piece, const Square sq, Network &net) {
         const int color     = static_cast<int>(piece_color(piece));
         const int piecetype = static_cast<int>(piece_to_piecetype(piece));

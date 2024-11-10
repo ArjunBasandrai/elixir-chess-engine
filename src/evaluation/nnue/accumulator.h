@@ -25,5 +25,9 @@ namespace elixir::nnue {
 
         void add(const Piece piece, const Square sq, Network &net);
         void remove(const Piece piece, const Square sq, Network &net);
+
+        void add_sub(const Piece piece1, const Square sq1, const Piece piece2, const Square sq2, Network &net);
+        void add_sub_sub(const Piece piece1, const Square sq1, const Piece piece2, const Square sq2, const Piece piece3, const Square sq3, Network &net);
+        void add_add_sub_sub(const Piece piece1, const Square sq1, const Piece piece2, const Square sq2, const Piece piece3, const Square sq3, const Piece piece4, const Square sq4, Network &net);
     };
 }

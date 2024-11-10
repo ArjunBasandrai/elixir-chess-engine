@@ -31,13 +31,11 @@ namespace elixir {
                 reset();
             }
 
-            // copy constructor
             NNUE(const NNUE &nnue) {
                 accumulators = nnue.accumulators;
                 current_acc  = nnue.current_acc;
             }
 
-            // copy assignment
             NNUE &operator=(const NNUE &nnue) {
                 accumulators = nnue.accumulators;
                 current_acc  = nnue.current_acc;
@@ -70,6 +68,20 @@ namespace elixir {
 
             void sub(const Piece piece, const Square square) {
                 accumulators[current_acc].remove(piece, square, net);
+            }
+
+            void add_sub(const Piece piece1, const Square sq1, const Piece piece2, const Square sq2) {
+                accumulators[current_acc].add_sub(piece1, sq1, piece2, sq2, net);
+            }
+
+            void add_sub_sub(const Piece piece1, const Square sq1, const Piece piece2, const Square sq2,
+                             const Piece piece3, const Square sq3) {
+                accumulators[current_acc].add_sub_sub(piece1, sq1, piece2, sq2, piece3, sq3, net);
+            }
+
+            void add_add_sub_sub(const Piece piece1, const Square sq1, const Piece piece2, const Square sq2,
+                                 const Piece piece3, const Square sq3, const Piece piece4, const Square sq4) {
+                accumulators[current_acc].add_add_sub_sub(piece1, sq1, piece2, sq2, piece3, sq3, piece4, sq4, net);
             }
 
             Accumulator &get_acc() { return accumulators[current_acc]; }

@@ -147,10 +147,8 @@ namespace elixir {
 
         [[nodiscard]] U64 get_board_hash();
 
-        void set_piece(const Square sq, const PieceType piece, const Color color,
-                       bool update_nn = false);
-        void remove_piece(const Square sq, const PieceType piece, const Color color,
-                          bool update_nn = false);
+        void set_piece(const Square sq, const PieceType piece, const Color color, const bool update_nn = false);
+        void remove_piece(const Square sq, const PieceType piece, const Color color);
 
         [[nodiscard]] Piece piece_on(Square sq) const {
             assert(sq != Square::NO_SQ);
