@@ -673,9 +673,11 @@ namespace elixir::search {
                 beta  = std::min(INF, score + delta);
             }
 
+            int fail_highs = 0;
+
             // aspiration windows
             while (1) {
-                score = negamax(td, alpha, beta, current_depth, pv, ss, false);
+                score = negamax(td, alpha, beta, current_depth - fail_highs, pv, ss, false);
 
                 if (score > alpha && score < beta)
                     break;
@@ -683,10 +685,14 @@ namespace elixir::search {
                 if (score <= alpha) {
                     beta  = (alpha + beta) / 2;
                     alpha = std::max(-INF, alpha - delta);
+                    fail_highs = 0;
                 }
 
                 else if (score >= beta) {
                     beta = std::min(INF, beta + delta);
+
+                    if (alpha < 2000 && fail_highs < 2)
+                        fail_highs++;
                 }
 
                 delta *= ASP_MULTIPLIER;
