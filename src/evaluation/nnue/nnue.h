@@ -59,7 +59,7 @@ namespace elixir {
 
             void increment_acc() {
                 current_acc++;
-                accumulators[current_acc] = accumulators[current_acc - 1];
+                // accumulators[current_acc] = accumulators[current_acc - 1];
             }
 
             void decrement_acc() { current_acc--; }
