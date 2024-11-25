@@ -19,6 +19,10 @@ namespace elixir {
         return static_cast<PieceType>(static_cast<int>(piece) / 2);
     }
 
+    [[nodiscard]] static inline Piece piecetype_to_piece(const PieceType piece, const Color side) {
+        return static_cast<Piece>(static_cast<int>(piece) * 2 + static_cast<int>(side));
+    }
+
     enum Rank { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, NO_RANK };
 
     enum File { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, NO_FILE };
