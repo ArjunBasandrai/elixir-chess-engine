@@ -67,11 +67,11 @@ namespace elixir::nnue {
         const auto [white_sub_index, black_sub_index] = get_index(sub_piece, sub_square);
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulators[current_acc][0][i] += (net.layer_1_weights[white_add_index][i] - net.layer_1_weights[white_sub_index][i]);
+            accumulators[current_acc][0][i] = accumulators[current_acc - 1][0][i] + (net.layer_1_weights[white_add_index][i] - net.layer_1_weights[white_sub_index][i]);
         }
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulators[current_acc][1][i] += (net.layer_1_weights[black_add_index][i] - net.layer_1_weights[black_sub_index][i]);
+            accumulators[current_acc][1][i] = accumulators[current_acc - 1][1][i] + (net.layer_1_weights[black_add_index][i] - net.layer_1_weights[black_sub_index][i]);
         }
     }
 
@@ -81,11 +81,11 @@ namespace elixir::nnue {
         const auto [white_sub_index2, black_sub_index2] = get_index(sub_piece2, sub_square2);
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulators[current_acc][0][i] += (net.layer_1_weights[white_add_index][i] - net.layer_1_weights[white_sub_index1][i] - net.layer_1_weights[white_sub_index2][i]);
+            accumulators[current_acc][0][i] = accumulators[current_acc - 1][0][i] + (net.layer_1_weights[white_add_index][i] - net.layer_1_weights[white_sub_index1][i] - net.layer_1_weights[white_sub_index2][i]);
         }
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulators[current_acc][1][i] += (net.layer_1_weights[black_add_index][i] - net.layer_1_weights[black_sub_index1][i] - net.layer_1_weights[black_sub_index2][i]);
+            accumulators[current_acc][1][i] = accumulators[current_acc - 1][1][i] + (net.layer_1_weights[black_add_index][i] - net.layer_1_weights[black_sub_index1][i] - net.layer_1_weights[black_sub_index2][i]);
         }
     }
 
@@ -96,11 +96,11 @@ namespace elixir::nnue {
         const auto [white_sub_index2, black_sub_index2] = get_index(sub_piece2, sub_square2);
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulators[current_acc][0][i] += (net.layer_1_weights[white_add_index1][i] + net.layer_1_weights[white_add_index2][i] - net.layer_1_weights[white_sub_index1][i] - net.layer_1_weights[white_sub_index2][i]);
+            accumulators[current_acc][0][i] = accumulators[current_acc - 1][0][i] + (net.layer_1_weights[white_add_index1][i] + net.layer_1_weights[white_add_index2][i] - net.layer_1_weights[white_sub_index1][i] - net.layer_1_weights[white_sub_index2][i]);
         }
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
-            accumulators[current_acc][1][i] += (net.layer_1_weights[black_add_index1][i] + net.layer_1_weights[black_add_index2][i] - net.layer_1_weights[black_sub_index1][i] - net.layer_1_weights[black_sub_index2][i]);
+            accumulators[current_acc][1][i] = accumulators[current_acc - 1][1][i] + (net.layer_1_weights[black_add_index1][i] + net.layer_1_weights[black_add_index2][i] - net.layer_1_weights[black_sub_index1][i] - net.layer_1_weights[black_sub_index2][i]);
         }
     }
 
