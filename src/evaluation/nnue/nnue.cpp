@@ -26,7 +26,7 @@ namespace elixir::nnue {
         return clipped * clipped;
     }
 
-    void Accumulator::add(const Piece piece, const Square sq, Network &net) {
+    inline auto get_index(const Piece piece, const Square sq) {
         const int color     = static_cast<int>(piece_color(piece));
         const int piecetype = static_cast<int>(piece_to_piecetype(piece));
         const int white_sq  = static_cast<int>(sq);
@@ -34,6 +34,12 @@ namespace elixir::nnue {
 
         const int white_input_index = color * 384 + piecetype * 64 + white_sq;
         const int black_input_index = (color ^ 1) * 384 + piecetype * 64 + black_sq;
+
+        return std::make_pair(white_input_index, black_input_index);
+    }
+
+    void Accumulator::add(const Piece piece, const Square sq, Network &net) {
+        const auto [white_input_index, black_input_index] = get_index(piece, sq);
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             accumulator[0][i] += net.layer_1_weights[white_input_index][i];
@@ -45,13 +51,7 @@ namespace elixir::nnue {
     }
 
     void Accumulator::remove(const Piece piece, const Square sq, Network &net) {
-        const int color     = static_cast<int>(piece_color(piece));
-        const int piecetype = static_cast<int>(piece_to_piecetype(piece));
-        const int white_sq  = static_cast<int>(sq);
-        const int black_sq  = white_sq ^ 56;
-
-        const int white_input_index = color * 384 + piecetype * 64 + white_sq;
-        const int black_input_index = (color ^ 1) * 384 + piecetype * 64 + black_sq;
+        const auto [white_input_index, black_input_index] = get_index(piece, sq);
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             accumulator[0][i] -= net.layer_1_weights[white_input_index][i];
