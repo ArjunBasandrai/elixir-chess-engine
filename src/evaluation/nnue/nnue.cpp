@@ -26,7 +26,7 @@ namespace elixir::nnue {
         return clipped * clipped;
     }
 
-    void Accumulator::add(const Piece piece, const Square sq, Network &net) {
+    inline auto get_index(const Piece piece, const Square sq) {
         const int color     = static_cast<int>(piece_color(piece));
         const int piecetype = static_cast<int>(piece_to_piecetype(piece));
         const int white_sq  = static_cast<int>(sq);
@@ -34,6 +34,12 @@ namespace elixir::nnue {
 
         const int white_input_index = color * 384 + piecetype * 64 + white_sq;
         const int black_input_index = (color ^ 1) * 384 + piecetype * 64 + black_sq;
+
+        return std::make_pair(white_input_index, black_input_index);
+    }
+
+    void Accumulator::add(const Piece piece, const Square sq, Network &net) {
+        const auto [white_input_index, black_input_index] = get_index(piece, sq);
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             accumulator[0][i] += net.layer_1_weights[white_input_index][i];
@@ -45,13 +51,7 @@ namespace elixir::nnue {
     }
 
     void Accumulator::remove(const Piece piece, const Square sq, Network &net) {
-        const int color     = static_cast<int>(piece_color(piece));
-        const int piecetype = static_cast<int>(piece_to_piecetype(piece));
-        const int white_sq  = static_cast<int>(sq);
-        const int black_sq  = white_sq ^ 56;
-
-        const int white_input_index = color * 384 + piecetype * 64 + white_sq;
-        const int black_input_index = (color ^ 1) * 384 + piecetype * 64 + black_sq;
+        const auto [white_input_index, black_input_index] = get_index(piece, sq);
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             accumulator[0][i] -= net.layer_1_weights[white_input_index][i];
@@ -59,6 +59,48 @@ namespace elixir::nnue {
 
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             accumulator[1][i] -= net.layer_1_weights[black_input_index][i];
+        }
+    }
+
+    void NNUE::add_sub(const Piece add_piece, const Square add_square, const Piece sub_piece, const Square sub_square) {
+        const auto [white_add_index, black_add_index] = get_index(add_piece, add_square);
+        const auto [white_sub_index, black_sub_index] = get_index(sub_piece, sub_square);
+
+        for (int i = 0; i < HIDDEN_SIZE; i++) {
+            accumulators[current_acc][0][i] += (net.layer_1_weights[white_add_index][i] - net.layer_1_weights[white_sub_index][i]);
+        }
+
+        for (int i = 0; i < HIDDEN_SIZE; i++) {
+            accumulators[current_acc][1][i] += (net.layer_1_weights[black_add_index][i] - net.layer_1_weights[black_sub_index][i]);
+        }
+    }
+
+    void NNUE::add_sub_sub(const Piece add_piece, const Square add_square, const Piece sub_piece1, const Square sub_square1, const Piece sub_piece2, const Square sub_square2) {
+        const auto [white_add_index, black_add_index] = get_index(add_piece, add_square);
+        const auto [white_sub_index1, black_sub_index1] = get_index(sub_piece1, sub_square1);
+        const auto [white_sub_index2, black_sub_index2] = get_index(sub_piece2, sub_square2);
+
+        for (int i = 0; i < HIDDEN_SIZE; i++) {
+            accumulators[current_acc][0][i] += (net.layer_1_weights[white_add_index][i] - net.layer_1_weights[white_sub_index1][i] - net.layer_1_weights[white_sub_index2][i]);
+        }
+
+        for (int i = 0; i < HIDDEN_SIZE; i++) {
+            accumulators[current_acc][1][i] += (net.layer_1_weights[black_add_index][i] - net.layer_1_weights[black_sub_index1][i] - net.layer_1_weights[black_sub_index2][i]);
+        }
+    }
+
+    void NNUE::add_add_sub_sub(const Piece add_piece1, const Square add_square1, const Piece add_piece2, const Square add_square2, const Piece sub_piece1, const Square sub_square1, const Piece sub_piece2, const Square sub_square2) {
+        const auto [white_add_index1, black_add_index1] = get_index(add_piece1, add_square1);
+        const auto [white_add_index2, black_add_index2] = get_index(add_piece2, add_square2);
+        const auto [white_sub_index1, black_sub_index1] = get_index(sub_piece1, sub_square1);
+        const auto [white_sub_index2, black_sub_index2] = get_index(sub_piece2, sub_square2);
+
+        for (int i = 0; i < HIDDEN_SIZE; i++) {
+            accumulators[current_acc][0][i] += (net.layer_1_weights[white_add_index1][i] + net.layer_1_weights[white_add_index2][i] - net.layer_1_weights[white_sub_index1][i] - net.layer_1_weights[white_sub_index2][i]);
+        }
+
+        for (int i = 0; i < HIDDEN_SIZE; i++) {
+            accumulators[current_acc][1][i] += (net.layer_1_weights[black_add_index1][i] + net.layer_1_weights[black_add_index2][i] - net.layer_1_weights[black_sub_index1][i] - net.layer_1_weights[black_sub_index2][i]);
         }
     }
 

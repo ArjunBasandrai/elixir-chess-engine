@@ -396,14 +396,14 @@ namespace elixir {
 
         eval = s.eval;
 
-        remove_piece(from, piecetype, side, true);
+        remove_piece(from, piecetype, side);
         // Move source piece to target only if not a capturing move
         // In case of a capture, moving of piece is handled in the "Handling Captures" section
         if (! move.is_capture()) {
 
             assert(captured_piece == Piece::NO_PIECE);
 
-            set_piece(to, piecetype, side, true);
+            set_piece(to, piecetype, side);
         }
 
         if (piece_ == Piece::wK || piece_ == Piece::bK) {
@@ -426,17 +426,17 @@ namespace elixir {
         if (move.is_capture()) {
             if (captured_piece != Piece::NO_PIECE) {
                 fifty_move_counter = 0;
-                remove_piece(to, piece_to_piecetype(captured_piece), enemy_side, true);
-                set_piece(to, piecetype, side, true);
+                remove_piece(to, piece_to_piecetype(captured_piece), enemy_side);
+                set_piece(to, piecetype, side);
                 hash_key ^=
                     zobrist::piece_keys[static_cast<int>(captured_piece)][static_cast<int>(to)];
             }
         }
 
         // Handling Pawn Promotions
+        PieceType promotion_piece;
         if (move.is_promotion()) {
-            remove_piece(to, PieceType::PAWN, side, true);
-            PieceType promotion_piece;
+            remove_piece(to, PieceType::PAWN, side);
             switch (promotion) {
                 case move::Promotion::QUEEN:
                     promotion_piece = PieceType::QUEEN;
@@ -457,15 +457,16 @@ namespace elixir {
 
             assert(promotion_piece != PieceType::NO_PIECE_TYPE);
 
-            set_piece(to, promotion_piece, side, true);
+            set_piece(to, promotion_piece, side);
             hash_key ^= zobrist::piece_keys[int_piece][int_to];
             hash_key ^= zobrist::piece_keys[static_cast<int>(promotion_piece) + stm * 6][int_to];
         }
 
         // Handling En Passant
+        Square captured_square = Square::NO_SQ;
         if (flag == move::Flag::EN_PASSANT && en_passant_square != Square::NO_SQ) {
-            Square captured_square = static_cast<Square>(int_to - 8 * color_offset[stm]);
-            remove_piece(captured_square, PieceType::PAWN, enemy_side, true);
+            captured_square = static_cast<Square>(int_to - 8 * color_offset[stm]);
+            remove_piece(captured_square, PieceType::PAWN, enemy_side);
             hash_key ^= zobrist::piece_keys[static_cast<int>(PieceType::PAWN) + xstm * 6]
                                            [static_cast<int>(captured_square)];
         }
@@ -481,36 +482,69 @@ namespace elixir {
         }
 
         // Handling Castling
+        Square castling_rook_from, castling_rook_to;
         if (flag == move::Flag::CASTLING) {
             int rook = static_cast<int>(PieceType::ROOK) + stm * 6;
             switch (to) {
                 case Square::C1:
-                    remove_piece(Square::A1, PieceType::ROOK, Color::WHITE, true);
-                    set_piece(Square::D1, PieceType::ROOK, Color::WHITE, true);
+                    remove_piece(Square::A1, PieceType::ROOK, Color::WHITE);
+                    set_piece(Square::D1, PieceType::ROOK, Color::WHITE);
+                    castling_rook_from = Square::A1;
+                    castling_rook_to   = Square::D1;
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::A1)];
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::D1)];
                     break;
                 case Square::G1:
-                    remove_piece(Square::H1, PieceType::ROOK, Color::WHITE, true);
-                    set_piece(Square::F1, PieceType::ROOK, Color::WHITE, true);
+                    remove_piece(Square::H1, PieceType::ROOK, Color::WHITE);
+                    set_piece(Square::F1, PieceType::ROOK, Color::WHITE);
+                    castling_rook_from = Square::H1;
+                    castling_rook_to   = Square::F1;
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::H1)];
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::F1)];
                     break;
                 case Square::C8:
-                    remove_piece(Square::A8, PieceType::ROOK, Color::BLACK, true);
-                    set_piece(Square::D8, PieceType::ROOK, Color::BLACK, true);
+                    remove_piece(Square::A8, PieceType::ROOK, Color::BLACK);
+                    set_piece(Square::D8, PieceType::ROOK, Color::BLACK);
+                    castling_rook_from = Square::A8;
+                    castling_rook_to   = Square::D8;
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::A8)];
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::D8)];
                     break;
                 case Square::G8:
-                    remove_piece(Square::H8, PieceType::ROOK, Color::BLACK, true);
-                    set_piece(Square::F8, PieceType::ROOK, Color::BLACK, true);
+                    remove_piece(Square::H8, PieceType::ROOK, Color::BLACK);
+                    set_piece(Square::F8, PieceType::ROOK, Color::BLACK);
+                    castling_rook_from = Square::H8;
+                    castling_rook_to   = Square::F8;
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::H8)];
                     hash_key ^= zobrist::piece_keys[rook][static_cast<int>(Square::F8)];
                     break;
                 default:
                     break;
             }
+        }
+
+        switch (flag) {
+            case move::Flag::NORMAL:
+                nn.add_sub(piece, to, piece, from);
+                break;
+            case move::Flag::DOUBLE_PAWN_PUSH:
+                nn.add_sub(piece, to, piece, from);
+                break;
+            case move::Flag::PROMOTION:
+                nn.add_sub(piecetype_to_piece(promotion_piece, side), to, piece, from);
+                break;
+            case move::Flag::CAPTURE:
+                nn.add_sub_sub(piece, to, piece, from, captured_piece, to);
+                break;
+            case move::Flag::CAPTURE_PROMOTION:
+                nn.add_sub_sub(piecetype_to_piece(promotion_piece, side), to, piece, from, captured_piece, to);
+                break;
+            case move::Flag::EN_PASSANT:
+                nn.add_sub_sub(piece, to, piece, from, piecetype_to_piece(PieceType::PAWN, enemy_side), captured_square);
+                break;
+            case move::Flag::CASTLING:
+                nn.add_add_sub_sub(piece, to, piecetype_to_piece(PieceType::ROOK, side), castling_rook_to, piece, from, piecetype_to_piece(PieceType::ROOK, side), castling_rook_from);
+                break;
         }
 
         if (is_square_attacked(kings[static_cast<I8>(side)], enemy_side)) {
