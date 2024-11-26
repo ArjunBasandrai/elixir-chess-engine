@@ -23,7 +23,7 @@ namespace elixir {
     }
 
     void QuietHistory::clear() {
-        for (int h = 0; h < 2; h++) {
+        for (int h = 0; h < 12; h++) {
             for (int i = 0; i < 64; i++) {
                 for (int j = 0; j < 64; j++) {
                     history[h][i][j] = 0;
