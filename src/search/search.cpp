@@ -496,7 +496,7 @@ namespace elixir::search {
             R += ! improving;
             R -= !is_quiet_move;
 
-            if (depth > 1 && legals > 1) {
+            if (depth > 1 && legals > 1 + root_node * 2) {
                 R             = std::clamp(R, 1, new_depth);
                 int lmr_depth = new_depth - R + 1;
                 score         = -negamax(td, -alpha - 1, -alpha, lmr_depth, local_pv, ss + 1, true);
