@@ -495,6 +495,7 @@ namespace elixir::search {
             R -= tt_pv;
             R += ! improving;
             R -= !is_quiet_move;
+            R -= std::abs(ss->static_eval - raw_static_eval) > 100;
 
             if (depth > 1 && legals > 1) {
                 R             = std::clamp(R, 1, new_depth);
