@@ -252,7 +252,7 @@ namespace elixir::search {
         | Otherwise, if we have a TT hit, we use the stored score. If not, we evaluate the position.
         |
         */
-        I16 raw_static_eval;
+        I16 raw_static_eval = SCORE_NONE;
         if (! ss->excluded_move) {
             ss->static_eval = (tt_hit) ? result.static_eval : board.evaluate();
             raw_static_eval = ss->static_eval;
@@ -267,7 +267,6 @@ namespace elixir::search {
                 ss->eval = (tt_hit && can_use_tt_score) ? result.score : ss->static_eval;
             }
         }
-
 
         /*
         | Improving Heuristic (~10 ELO) : Check if our position is better than it was 2 or 4 plies
@@ -495,6 +494,7 @@ namespace elixir::search {
             R -= tt_pv;
             R += ! improving;
             R -= !is_quiet_move;
+            R -= std::abs(ss->static_eval - raw_static_eval) > 100;
 
             if (depth > 1 && legals > 1) {
                 R             = std::clamp(R, 1, new_depth);
