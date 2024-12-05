@@ -86,7 +86,6 @@ namespace elixir::move {
 
         void print_uci() const;
 
-
       private:
         Move_T m_move;
     };

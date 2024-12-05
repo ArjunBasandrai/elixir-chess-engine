@@ -9,7 +9,6 @@
 #include <thread>
 #include <vector>
 
-
 #include "uci.h"
 
 #include "evaluation/evaluate.h"

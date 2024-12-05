@@ -103,7 +103,6 @@ Alternatively, you can download pre-compiled binaries from the [Releases](https:
 - This project would never have been where it is right now, if it was not for the help of everyone on my OpenBench instance - [Aron](https://github.com/aronpetko), [Yoshie](https://github.com/Yoshie2000), [Shawn](https://github.com/xu-shawn), [Mid](https://github.com/yl25946). Massive CPU time donations by these guys is what enabled me to heavily test and tune Elixir.
 - [Andrew Grant](https://github.com/AndyGrant) for developing the [OpenBench](https://github.com/AndyGrant/OpenBench) platform.
 
-
 [license-badge]: https://img.shields.io/github/license/ArjunBasandrai/elixir-chess-engine?style=for-the-badge
 [release-badge]: https://img.shields.io/github/v/release/ArjunBasandrai/elixir-chess-engine?style=for-the-badge
 [commits-badge]: https://img.shields.io/github/commits-since/ArjunBasandrai/elixir-chess-engine/latest?style=for-the-badge

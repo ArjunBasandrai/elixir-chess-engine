@@ -8,7 +8,6 @@
 #include "spsa/spsa.h"
 #include "types.h"
 
-
 namespace elixir::time_management {
     double move_stability_scale[5] = {2.43, 1.35, 1.09, 0.88, 0.68};
 

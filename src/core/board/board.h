@@ -14,7 +14,6 @@
 #include "utils/state.h"
 #include "utils/static_vector.h"
 
-
 namespace elixir {
     extern const std::string square_str[64];
     void print_square(const Square sq);

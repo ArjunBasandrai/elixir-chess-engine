@@ -4,7 +4,6 @@
 #include "move.h"
 #include "types.h"
 
-
 namespace elixir::search {
     struct SearchStack {
         move::Move move          = move::NO_MOVE;

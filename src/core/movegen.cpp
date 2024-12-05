@@ -435,7 +435,6 @@ namespace elixir::movegen {
         generate_king_moves<false>(board, moves);
     }
 
-
     template <bool noisy> MoveList generate_moves(const Board &board) {
         MoveList moves;
 

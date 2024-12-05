@@ -19,7 +19,6 @@
 #include "utils/str_utils.h"
 #include "utils/test_fens.h"
 
-
 namespace elixir {
     const int castling_update[64] = {13, 15, 15, 15, 12, 15, 15, 14, 15, 15, 15, 15, 15,
                                      15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,

@@ -268,7 +268,6 @@ namespace elixir::search {
             }
         }
 
-
         /*
         | Improving Heuristic (~10 ELO) : Check if our position is better than it was 2 or 4 plies
         before. |
@@ -435,7 +434,7 @@ namespace elixir::search {
 
                 /*
                 | Multicut (~9 ELO) : If singular search had a beta cutoff, this indicates   |
-                | that TT move was no singular. So, we prune if ti can cause a cutoff again. |
+                | that TT move was no singular. So, we prune if it can cause a cutoff again. |
                 */
                 else if (s_beta >= beta)
                     return s_beta;
@@ -576,7 +575,6 @@ namespace elixir::search {
 
         int target_piece =
             move.is_en_passant() ? 0 : static_cast<int>(piece_to_piecetype(board.piece_on(to)));
-
 
         int value = see_values[target_piece] - threshold;
 
