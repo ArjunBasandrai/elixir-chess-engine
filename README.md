@@ -17,7 +17,7 @@ Elixir is a [UCI-compliant](https://en.wikipedia.org/wiki/Universal_Chess_Interf
 
 |   | **CCRL BLitz** | **CCRL 40/15** |
 |:-:| :------------: | :------------: |
-| **v3.0** | 3564 | - |
+| **v3.0** | 3564 | 3496 |
 | **v2.0** | 3018 | 2938 |
 | **v1.0** | 2828 | - |
 
