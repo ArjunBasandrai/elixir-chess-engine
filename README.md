@@ -15,11 +15,35 @@ Elixir is a [UCI-compliant](https://en.wikipedia.org/wiki/Universal_Chess_Interf
 
 ## Ratings
 
-|   | **CCRL BLitz** | **CCRL 40/15** |
-|:-:| :------------: | :------------: |
-| **v3.0** | 3564 | 3496 |
-| **v2.0** | 3018 | 2938 |
-| **v1.0** | 2828 | - |
+<table>
+  <thead>
+    <tr>
+      <th colspan="3" align="center"><strong>Ratings as of 17 January, 2026</strong></th>
+    </tr>
+    <tr>
+      <th></th>
+      <th><a href="https://www.computerchess.org.uk/ccrl/404/">CCRL Blitz</a></th>
+      <th><a href="https://www.computerchess.org.uk/ccrl/4040/">CCRL 40/15</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>v3.0</strong></td>
+      <td align="center">3573</td>
+      <td align="center">3556</td>
+    </tr>
+    <tr>
+      <td><strong>v2.0</strong></td>
+      <td align="center">3016</td>
+      <td align="center">2946</td>
+    </tr>
+    <tr>
+      <td><strong>v1.0</strong></td>
+      <td align="center">2829</td>
+      <td align="center">-</td>
+    </tr>
+  </tbody>
+</table>
 
 ## Instructions to build
 Building Elixir requires `Make` and latest versions of `clang++` or `g++` with `C++20` support
@@ -39,8 +63,8 @@ Alternatively, you can download pre-compiled binaries from the [Releases](https:
 ## UCI Options
 | Name             |  Type   | Default value |       Valid values        | Description                                                                          |
 |:-----------------|:-------:|:-------------:|:-------------------------:|:-------------------------------------------------------------------------------------|
-| `Hash`             | integer |      64       |         [4, 1048576]         | Memory allocated to the Transposition Table (in MB).                                 |
-| `Threads`          | integer |       1       |             [1, 1024]             | Number of Threads used to search.                                                    |
+| `Hash`             | integer |      64       |         [4, 2048]         | Memory allocated to the Transposition Table (in MB).                                 |
+| `Threads`          | integer |       1       |             [1, 256]             | Number of Threads used to search.                                                    |
 
 ## Features
 - **Search** : Standard PVS with Quiescence Search and Iterative Deepening
