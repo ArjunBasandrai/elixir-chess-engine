@@ -17,13 +17,15 @@ namespace elixir {
         std::fill(table.begin(), table.end(), TTEntry());
     }
 
-    void TranspositionTable::resize(U16 size) {
-        U32 num_entries = (size * 0x100000 / sizeof(TTEntry)) - 2;
+    void TranspositionTable::resize(std::size_t size) {
+        const std::size_t bytes = size * (std::size_t{1} << 20);
+        const std::size_t num_entries = (bytes / sizeof(TTEntry)) - 2;
+
         table.resize(num_entries);
         clear_tt();
     }
 
-    TranspositionTable::TranspositionTable(U16 size) {
+    TranspositionTable::TranspositionTable(std::size_t size) {
         resize(size);
     }
 
@@ -31,7 +33,7 @@ namespace elixir {
 
         if (table.empty())
             return false;
-        U32 index     = get_index(key);
+        std::size_t index = get_index(key);
         TTEntry entry = table[index];
 
         result.flag = TT_NONE;
@@ -51,7 +53,7 @@ namespace elixir {
     void TranspositionTable::store_tt(U64 key, I16 score, I16 static_eval, move::Move move,
                                       U8 depth, int ply, TTFlag flag, search::PVariation pv,
                                       bool tt_pv, bool improving) {
-        U32 index     = get_index(key);
+        std::size_t index = get_index(key);
         TTEntry entry = table[index];
 
         bool replace = entry.key != key || entry.depth < depth + 4 || flag == TT_EXACT || improving;

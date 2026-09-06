@@ -56,10 +56,10 @@ namespace elixir {
 
     class TranspositionTable {
       public:
-        TranspositionTable(U16 size = DEFAULT_HASH_SIZE);
+        TranspositionTable(std::size_t size = DEFAULT_HASH_SIZE);
         ~TranspositionTable() = default;
         void clear_tt();
-        void resize(U16 size);
+        void resize(std::size_t size);
         void store_tt(U64 key, I16 score, I16 static_eval, move::Move move, U8 depth, int ply,
                       TTFlag flag, search::PVariation pv, bool tt_pv = false,
                       bool improving = false);
@@ -73,12 +73,14 @@ namespace elixir {
         }
 
         void prefetch(const U64 key) const {
-            const U32 index = get_index(key);
+            const std::size_t index = get_index(key);
             __builtin_prefetch(&table[index]);
         }
 
       private:
-        U32 get_index(U64 key) const { return key % table.size(); }
+        std::size_t get_index(U64 key) const {
+            return static_cast<std::size_t>(key % table.size());
+        }
         std::size_t entries;
         std::vector<TTEntry> table;
     };
